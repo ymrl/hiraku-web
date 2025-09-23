@@ -95,20 +95,24 @@ function App() {
 
   if (loading) {
     return (
-      <div className="w-96 p-4 bg-rose-50">
-        <div className="text-center text-gray-600">{t("loading")}</div>
+      <div className="w-96 p-4 bg-rose-50 dark:bg-gray-900">
+        <div className="text-center text-gray-600 dark:text-gray-300">
+          {t("loading")}
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="w-96 p-4 bg-rose-50">
-        <div className="text-center text-rose-600">{t("error")}</div>
+      <div className="w-96 p-4 bg-rose-50 dark:bg-gray-900">
+        <div className="text-center text-rose-600 dark:text-rose-400">
+          {t("error")}
+        </div>
         <button
           type="button"
           onClick={loadPageStructure}
-          className="mt-2 w-full px-4 py-2 bg-rose-500 text-white rounded hover:bg-rose-600"
+          className="mt-2 w-full px-4 py-2 bg-rose-500 text-white rounded hover:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-700"
         >
           Retry
         </button>
@@ -117,18 +121,20 @@ function App() {
   }
 
   return (
-    <div className="w-96 bg-rose-50">
-      <header className="p-4 border-b border-rose-200 bg-white">
-        <h1 className="text-lg font-semibold text-gray-800">raku-web</h1>
+    <div className="w-96 bg-rose-50 dark:bg-gray-900">
+      <header className="p-4 border-b border-rose-200 bg-white dark:bg-gray-800 dark:border-gray-700">
+        <h1 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+          raku-web
+        </h1>
         <nav className="mt-3">
-          <div className="flex space-x-1 p-1 bg-gray-100 rounded-lg">
+          <div className="flex space-x-1 p-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
             <button
               type="button"
               onClick={() => handleTabChange("headings")}
               className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
                 activeTab === "headings"
-                  ? "bg-white text-rose-600 shadow-sm"
-                  : "text-gray-600 hover:text-gray-800"
+                  ? "bg-white text-rose-600 shadow-sm dark:bg-gray-600 dark:text-rose-400"
+                  : "text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100"
               }`}
             >
               {t("headings")}
@@ -138,8 +144,8 @@ function App() {
               onClick={() => handleTabChange("landmarks")}
               className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
                 activeTab === "landmarks"
-                  ? "bg-white text-rose-600 shadow-sm"
-                  : "text-gray-600 hover:text-gray-800"
+                  ? "bg-white text-rose-600 shadow-sm dark:bg-gray-600 dark:text-rose-400"
+                  : "text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100"
               }`}
             >
               {t("landmarks")}
@@ -148,7 +154,7 @@ function App() {
         </nav>
       </header>
 
-      <div className="max-h-96 overflow-y-auto bg-white">
+      <div className="max-h-96 overflow-y-auto bg-white dark:bg-gray-800">
         {activeTab === "headings" && (
           <section className="p-4">
             {pageStructure?.headings.length ? (
@@ -158,13 +164,13 @@ function App() {
                     key={`${index}-${heading}`}
                     className="flex items-start space-x-2"
                   >
-                    <span className="flex-shrink-0 inline-flex items-center justify-center w-6 h-6 text-xs font-medium text-white bg-rose-500 rounded">
+                    <span className="flex-shrink-0 inline-flex items-center justify-center w-6 h-6 text-xs font-medium text-white bg-rose-500 dark:bg-rose-600 rounded">
                       H{heading.level}
                     </span>
                     <button
                       type="button"
                       onClick={() => scrollToElement(heading.xpath)}
-                      className="text-left text-sm text-gray-800 leading-6 hover:text-rose-600 hover:underline cursor-pointer flex-1"
+                      className="text-left text-sm text-gray-800 dark:text-gray-200 leading-6 hover:text-rose-600 dark:hover:text-rose-400 hover:underline cursor-pointer flex-1"
                     >
                       {heading.text}
                     </button>
@@ -172,7 +178,9 @@ function App() {
                 ))}
               </ul>
             ) : (
-              <p className="text-sm text-gray-500">{t("noHeadings")}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {t("noHeadings")}
+              </p>
             )}
           </section>
         )}
@@ -184,7 +192,7 @@ function App() {
                 {pageStructure.landmarks.map((landmark, index) => (
                   <li
                     key={`${index}-${landmark}`}
-                    className="p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-rose-50 hover:border-rose-200 cursor-pointer transition-all"
+                    className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-rose-50 dark:hover:bg-gray-600 hover:border-rose-200 dark:hover:border-rose-500 cursor-pointer transition-all"
                   >
                     <button
                       type="button"
@@ -192,28 +200,28 @@ function App() {
                       className="w-full text-left"
                     >
                       <div className="flex items-center space-x-2">
-                        <span className="text-xs font-medium text-gray-600">
+                        <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
                           {t("role")}:
                         </span>
-                        <span className="text-sm text-gray-800 hover:text-rose-600">
+                        <span className="text-sm text-gray-800 dark:text-gray-200 hover:text-rose-600 dark:hover:text-rose-400">
                           {landmark.role}
                         </span>
                       </div>
                       {landmark.label && (
                         <div className="flex items-center space-x-2 mt-1">
-                          <span className="text-xs font-medium text-gray-600">
+                          <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
                             {t("label")}:
                           </span>
-                          <span className="text-sm text-gray-700">
+                          <span className="text-sm text-gray-700 dark:text-gray-200">
                             {landmark.label}
                           </span>
                         </div>
                       )}
                       <div className="flex items-center space-x-2 mt-1">
-                        <span className="text-xs font-medium text-gray-600">
+                        <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
                           {t("tag")}:
                         </span>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
                           &lt;{landmark.tag}&gt;
                         </span>
                       </div>
@@ -222,7 +230,9 @@ function App() {
                 ))}
               </ul>
             ) : (
-              <p className="text-sm text-gray-500">{t("noLandmarks")}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {t("noLandmarks")}
+              </p>
             )}
           </section>
         )}
