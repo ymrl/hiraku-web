@@ -2,6 +2,9 @@ import { createI18n } from "@wxt-dev/i18n";
 import { useCallback, useEffect, useState } from "react";
 import { browser } from "wxt/browser";
 import type { Heading, Landmark } from "../../types";
+import { HeadingsList } from "./HeadingsList";
+import { LandmarksList } from "./LandmarksList";
+import { TabNavigation } from "./TabNavigation";
 
 const { t } = createI18n();
 
@@ -126,117 +129,22 @@ function App() {
         <h1 className="pt-2 px-2 text-sm font-bold text-rose-800 dark:text-rose-300">
           raku-web
         </h1>
-        <nav className="mt-2">
-          <div className="flex space-x-1 p-1 bg-stone-100 dark:bg-stone-800">
-            <button
-              type="button"
-              onClick={() => handleTabChange("headings")}
-              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                activeTab === "headings"
-                  ? "bg-white text-rose-600 shadow-sm dark:bg-stone-600 dark:text-rose-400"
-                  : "text-stone-600 hover:text-stone-800 dark:text-stone-300 dark:hover:text-stone-100"
-              }`}
-            >
-              {t("headings")}
-            </button>
-            <button
-              type="button"
-              onClick={() => handleTabChange("landmarks")}
-              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                activeTab === "landmarks"
-                  ? "bg-white text-rose-600 shadow-sm dark:bg-stone-600 dark:text-rose-400"
-                  : "text-stone-600 hover:text-stone-800 dark:text-stone-300 dark:hover:text-stone-100"
-              }`}
-            >
-              {t("landmarks")}
-            </button>
-          </div>
-        </nav>
+        <TabNavigation activeTab={activeTab} onTabChange={handleTabChange} />
       </header>
 
       <div className="max-h-96 overflow-y-auto">
         {activeTab === "headings" && (
-          <section className="px-1 py-2">
-            {pageStructure?.headings.length ? (
-              <ul className="space-y-1">
-                {pageStructure.headings.map((heading, index) => (
-                  <li
-                    key={`${index}-${heading}`}
-                    className="flex items-stretch flex-col"
-                  >
-                    <button
-                      type="button"
-                      onClick={() => scrollToElement(heading.xpath)}
-                      className="text-left text-sm text-stone-800 dark:text-stone-200  hover:text-rose-800 dark:hover:text-rose-100  dark:hover:bg-stone-800 transition-colors py-2 px-2 rounded border-2 border-transparent hover:border-rose-300 dark:hover:border-rose-400 cursor-pointer flex items-center space-x-2"
-                    >
-                    <span className="flex-shrink-0 inline-flex items-center justify-center w-6 h-6 text-sm font-medium text-stone-700 dark:text-stone-300 border border-rose-200 dark:border-rose-300  rounded">
-                      {heading.level}
-                    </span>
-                    <span className="text-left text-base">
-                      {heading.text}
-                    </span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-sm text-stone-500 dark:text-stone-400">
-                {t("noHeadings")}
-              </p>
-            )}
-          </section>
+          <HeadingsList
+            headings={pageStructure?.headings || []}
+            onScrollToElement={scrollToElement}
+          />
         )}
 
         {activeTab === "landmarks" && (
-          <section className="p-4">
-            {pageStructure?.landmarks.length ? (
-              <ul className="space-y-2">
-                {pageStructure.landmarks.map((landmark, index) => (
-                  <li
-                    key={`${index}-${landmark}`}
-                    className="p-3 bg-stone-50 dark:bg-stone-700 rounded-lg border border-stone-200 dark:border-stone-600 hover:bg-rose-50 dark:hover:bg-stone-600 hover:border-rose-200 dark:hover:border-rose-500 cursor-pointer transition-all"
-                  >
-                    <button
-                      type="button"
-                      onClick={() => scrollToElement(landmark.xpath)}
-                      className="w-full text-left"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <span className="text-xs font-medium text-stone-600 dark:text-stone-300">
-                          {t("role")}:
-                        </span>
-                        <span className="text-sm text-stone-800 dark:text-stone-200 hover:text-rose-600 dark:hover:text-rose-400">
-                          {landmark.role}
-                        </span>
-                      </div>
-                      {landmark.label && (
-                        <div className="flex items-center space-x-2 mt-1">
-                          <span className="text-xs font-medium text-stone-600 dark:text-stone-300">
-                            {t("label")}:
-                          </span>
-                          <span className="text-sm text-stone-700 dark:text-stone-200">
-                            {landmark.label}
-                          </span>
-                        </div>
-                      )}
-                      <div className="flex items-center space-x-2 mt-1">
-                        <span className="text-xs font-medium text-stone-600 dark:text-stone-300">
-                          {t("tag")}:
-                        </span>
-                        <span className="text-xs text-stone-500 dark:text-stone-400">
-                          &lt;{landmark.tag}&gt;
-                        </span>
-                      </div>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-sm text-stone-500 dark:text-stone-400">
-                {t("noLandmarks")}
-              </p>
-            )}
-          </section>
+          <LandmarksList
+            landmarks={pageStructure?.landmarks || []}
+            onScrollToElement={scrollToElement}
+          />
         )}
       </div>
     </div>
