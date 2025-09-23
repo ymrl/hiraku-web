@@ -124,7 +124,7 @@ function App() {
   }
 
   return (
-    <div className="w-96 bg-white dark:bg-stone-900">
+    <div className="w-96 bg-white dark:bg-stone-900 flex flex-col">
       <header className="p-0 border-b border-rose-200 dark:border-stone-700">
         <h1 className="pt-2 px-2 text-sm font-bold text-rose-800 dark:text-rose-300">
           raku-web
@@ -132,7 +132,7 @@ function App() {
         <TabNavigation activeTab={activeTab} onTabChange={handleTabChange} />
       </header>
 
-      <div className="max-h-96 overflow-y-auto">
+      <div className=" overflow-y-auto">
         {activeTab === "headings" && (
           <HeadingsList
             headings={pageStructure?.headings || []}

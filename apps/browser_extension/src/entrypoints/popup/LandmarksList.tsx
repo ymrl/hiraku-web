@@ -15,7 +15,7 @@ export function LandmarksList({
   return (
     <section className="p-4">
       {landmarks.length ? (
-        <ul className="space-y-2">
+        <ul className="space-y-1">
           {landmarks.map((landmark, index) => (
             <li
               key={`${index}-${landmark}`}

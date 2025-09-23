@@ -9,5 +9,7 @@
   "level": "Level",
   "role": "Role",
   "label": "Label",
-  "tag": "Tag"
+  "tag": "Tag",
+  "Levels": "Levels",
+  "All": "All"
 }

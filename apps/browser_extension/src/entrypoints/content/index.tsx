@@ -54,9 +54,13 @@ function getLandmarks(): Landmark[] {
   ]
     .map<Landmark | undefined>((element, index) => {
       const role = getRole(element);
-      if (!role || (LANDMARK_ROLES as readonly string[]).indexOf(role) === -1)
+      if (!role || (LANDMARK_ROLES as readonly string[]).indexOf(role) === -1) {
         return undefined;
+      }
       const label = computeAccessibleName(element).trim();
+      if (element.tagName.toLowerCase() === "section" && !label) {
+        return undefined;
+      }
       const xpath = getXPath(element);
       return {
         role,
