@@ -18,6 +18,32 @@ function App() {
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"headings" | "landmarks">(
+    "headings",
+  );
+
+  useEffect(() => {
+    const loadSavedTab = async () => {
+      try {
+        const result = await browser.storage.local.get("activeTab");
+        if (result.activeTab) {
+          setActiveTab(result.activeTab);
+        }
+      } catch (err) {
+        console.error("Failed to load saved tab:", err);
+      }
+    };
+    loadSavedTab();
+  }, []);
+
+  const handleTabChange = async (tab: "headings" | "landmarks") => {
+    setActiveTab(tab);
+    try {
+      await browser.storage.local.set({ activeTab: tab });
+    } catch (err) {
+      console.error("Failed to save tab preference:", err);
+    }
+  };
 
   const loadPageStructure = useCallback(async () => {
     try {
@@ -69,7 +95,7 @@ function App() {
 
   if (loading) {
     return (
-      <div className="w-96 p-4 bg-white">
+      <div className="w-96 p-4 bg-rose-50">
         <div className="text-center text-gray-600">{t("loading")}</div>
       </div>
     );
@@ -77,12 +103,12 @@ function App() {
 
   if (error) {
     return (
-      <div className="w-96 p-4 bg-white">
-        <div className="text-center text-red-600">{t("error")}</div>
+      <div className="w-96 p-4 bg-rose-50">
+        <div className="text-center text-rose-600">{t("error")}</div>
         <button
           type="button"
           onClick={loadPageStructure}
-          className="mt-2 w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="mt-2 w-full px-4 py-2 bg-rose-500 text-white rounded hover:bg-rose-600"
         >
           Retry
         </button>
@@ -91,91 +117,115 @@ function App() {
   }
 
   return (
-    <div className="w-96 bg-white">
-      <header className="p-4 border-b border-gray-200 flex justify-between items-center">
-        <h1 className="text-lg font-semibold text-gray-800">{t("title")}</h1>
+    <div className="w-96 bg-rose-50">
+      <header className="p-4 border-b border-rose-200 bg-white">
+        <h1 className="text-lg font-semibold text-gray-800">raku-web</h1>
+        <nav className="mt-3">
+          <div className="flex space-x-1 p-1 bg-gray-100 rounded-lg">
+            <button
+              type="button"
+              onClick={() => handleTabChange("headings")}
+              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                activeTab === "headings"
+                  ? "bg-white text-rose-600 shadow-sm"
+                  : "text-gray-600 hover:text-gray-800"
+              }`}
+            >
+              {t("headings")}
+            </button>
+            <button
+              type="button"
+              onClick={() => handleTabChange("landmarks")}
+              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                activeTab === "landmarks"
+                  ? "bg-white text-rose-600 shadow-sm"
+                  : "text-gray-600 hover:text-gray-800"
+              }`}
+            >
+              {t("landmarks")}
+            </button>
+          </div>
+        </nav>
       </header>
 
-      <div className="max-h-96 overflow-y-auto">
-        <section className="p-4 border-b border-gray-100">
-          <h2 className="text-md font-medium text-gray-700 mb-3">
-            {t("headings")}
-          </h2>
-          {pageStructure?.headings.length ? (
-            <ul className="space-y-2">
-              {pageStructure.headings.map((heading, index) => (
-                <li
-                  key={`${index}-${heading}`}
-                  className="flex items-start space-x-2"
-                >
-                  <span className="flex-shrink-0 inline-flex items-center justify-center w-6 h-6 text-xs font-medium text-white bg-blue-500 rounded">
-                    H{heading.level}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => scrollToElement(heading.xpath)}
-                    className="text-left text-sm text-gray-800 leading-6 hover:text-blue-600 hover:underline cursor-pointer flex-1"
+      <div className="max-h-96 overflow-y-auto bg-white">
+        {activeTab === "headings" && (
+          <section className="p-4">
+            {pageStructure?.headings.length ? (
+              <ul className="space-y-2">
+                {pageStructure.headings.map((heading, index) => (
+                  <li
+                    key={`${index}-${heading}`}
+                    className="flex items-start space-x-2"
                   >
-                    {heading.text}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-sm text-gray-500">{t("noHeadings")}</p>
-          )}
-        </section>
+                    <span className="flex-shrink-0 inline-flex items-center justify-center w-6 h-6 text-xs font-medium text-white bg-rose-500 rounded">
+                      H{heading.level}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => scrollToElement(heading.xpath)}
+                      className="text-left text-sm text-gray-800 leading-6 hover:text-rose-600 hover:underline cursor-pointer flex-1"
+                    >
+                      {heading.text}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-gray-500">{t("noHeadings")}</p>
+            )}
+          </section>
+        )}
 
-        <section className="p-4">
-          <h2 className="text-md font-medium text-gray-700 mb-3">
-            {t("landmarks")}
-          </h2>
-          {pageStructure?.landmarks.length ? (
-            <ul className="space-y-2">
-              {pageStructure.landmarks.map((landmark, index) => (
-                <li
-                  key={`${index}-${landmark}`}
-                  className="p-2 bg-gray-50 rounded border hover:bg-gray-100 cursor-pointer transition-colors"
-                >
-                  <button
-                    type="button"
-                    onClick={() => scrollToElement(landmark.xpath)}
-                    className="w-full text-left"
+        {activeTab === "landmarks" && (
+          <section className="p-4">
+            {pageStructure?.landmarks.length ? (
+              <ul className="space-y-2">
+                {pageStructure.landmarks.map((landmark, index) => (
+                  <li
+                    key={`${index}-${landmark}`}
+                    className="p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-rose-50 hover:border-rose-200 cursor-pointer transition-all"
                   >
-                    <div className="flex items-center space-x-2">
-                      <span className="text-xs font-medium text-gray-600">
-                        {t("role")}:
-                      </span>
-                      <span className="text-sm text-gray-800 hover:text-blue-600">
-                        {landmark.role}
-                      </span>
-                    </div>
-                    {landmark.label && (
-                      <div className="flex items-center space-x-2 mt-1">
+                    <button
+                      type="button"
+                      onClick={() => scrollToElement(landmark.xpath)}
+                      className="w-full text-left"
+                    >
+                      <div className="flex items-center space-x-2">
                         <span className="text-xs font-medium text-gray-600">
-                          {t("label")}:
+                          {t("role")}:
                         </span>
-                        <span className="text-sm text-gray-700">
-                          {landmark.label}
+                        <span className="text-sm text-gray-800 hover:text-rose-600">
+                          {landmark.role}
                         </span>
                       </div>
-                    )}
-                    <div className="flex items-center space-x-2 mt-1">
-                      <span className="text-xs font-medium text-gray-600">
-                        {t("tag")}:
-                      </span>
-                      <span className="text-xs text-gray-500">
-                        &lt;{landmark.tag}&gt;
-                      </span>
-                    </div>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-sm text-gray-500">{t("noLandmarks")}</p>
-          )}
-        </section>
+                      {landmark.label && (
+                        <div className="flex items-center space-x-2 mt-1">
+                          <span className="text-xs font-medium text-gray-600">
+                            {t("label")}:
+                          </span>
+                          <span className="text-sm text-gray-700">
+                            {landmark.label}
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex items-center space-x-2 mt-1">
+                        <span className="text-xs font-medium text-gray-600">
+                          {t("tag")}:
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          &lt;{landmark.tag}&gt;
+                        </span>
+                      </div>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-gray-500">{t("noLandmarks")}</p>
+            )}
+          </section>
+        )}
       </div>
     </div>
   );
