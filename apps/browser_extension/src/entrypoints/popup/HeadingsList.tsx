@@ -38,6 +38,7 @@ export function HeadingsList({
                 onClick={() => onScrollToElement(heading.xpath)}
                 className="text-left text-sm text-stone-800 dark:text-stone-200
                     hover:text-rose-800 dark:hover:text-rose-100
+                    hover:bg-rose-50
                     dark:hover:bg-stone-800 transition-colors
                     rounded-lg border-2 border-transparent
                     hover:border-rose-300 dark:hover:border-rose-400

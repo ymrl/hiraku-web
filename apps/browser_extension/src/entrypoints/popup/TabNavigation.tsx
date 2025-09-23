@@ -54,7 +54,7 @@ const Tab = ({
 
 export function TabNavigation({ activeTab, onTabChange }: TabNavigationProps) {
   return (
-    <nav className="mt-2">
+    <nav>
       <div
         className="flex space-x-2 px-3 pt-1 bg-stone-200 dark:bg-stone-800"
         role="tablist"

@@ -16,5 +16,15 @@
     "clearSettings": "Clear All Settings",
     "clearingDescription": "This will remove all saved settings. This action cannot be undone.",
     "noSettings": "No settings saved"
+  },
+  "landmarkRoles": {
+    "banner": "Banner",
+    "complementary": "Complementary",
+    "contentinfo": "Content Information",
+    "form": "Form",
+    "main": "Main",
+    "navigation": "Navigation",
+    "region": "Region",
+    "search": "Search"
   }
 }

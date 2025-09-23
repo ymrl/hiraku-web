@@ -5,6 +5,8 @@ import { defineContentScript } from "wxt/utils/define-content-script";
 import { LANDMARK_ROLES } from "@/constants";
 import type { Heading, Landmark } from "../../types";
 import { createRootElement } from "./Root";
+import { isHidden } from "@/utils/isHidden";
+import { isAriaHidden } from "@/utils/isAriaHidden";
 
 const landmarkSelectors = [
   "header",
@@ -29,6 +31,9 @@ function getHeadings(): Heading[] {
   );
   return [...headingElements]
     .map<Heading | undefined>((element, index) => {
+      if (isHidden(element) || isAriaHidden(element)) {
+        return undefined;
+      }
       const text = element.textContent?.trim() || "";
       if (!text) return undefined;
       const tagName = element.tagName.toLowerCase();
@@ -53,6 +58,9 @@ function getLandmarks(): Landmark[] {
     ...document.querySelectorAll<HTMLElement>(landmarkSelectors.join(",")),
   ]
     .map<Landmark | undefined>((element, index) => {
+      if (isHidden(element) || isAriaHidden(element)) {
+        return undefined;
+      }
       const role = getRole(element);
       if (!role || (LANDMARK_ROLES as readonly string[]).indexOf(role) === -1) {
         return undefined;

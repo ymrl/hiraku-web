@@ -16,5 +16,15 @@
     "clearSettings": "設定のリセット",
     "clearingDescription": "保存されているすべての設定が削除されます。この操作は元に戻せません。",
     "noSettings": "保存されている設定はありません。"
+  },
+  "landmarkRoles": {
+    "banner": "バナー",
+    "complementary": "関連",
+    "contentinfo": "コンテンツ情報",
+    "form": "フォーム",
+    "main": "メイン",
+    "navigation": "ナビゲーション",
+    "region": "領域",
+    "search": "検索"
   }
 }

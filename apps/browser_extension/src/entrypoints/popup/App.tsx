@@ -161,14 +161,13 @@ function App() {
 
   return (
     <div className="w-96 bg-white dark:bg-stone-900 flex flex-col">
-      <header className="p-0 border-b border-rose-200 dark:border-stone-700">
-        <h1 className="pt-2 px-2 text-sm font-bold text-rose-800 dark:text-rose-300">
+      <header className="p-0 border-b border-stone-200 dark:border-stone-700">
+        <h1 className=" sr-only">
           raku-web
         </h1>
         <TabNavigation activeTab={activeTab} onTabChange={handleTabChange} />
       </header>
 
-      <div className=" overflow-y-auto">
         {activeTab === "headings" && (
           <HeadingsList
             headings={pageStructure?.headings || []}
@@ -184,7 +183,6 @@ function App() {
             onScrollToElement={scrollToElement}
           />
         )}
-      </div>
     </div>
   );
 }

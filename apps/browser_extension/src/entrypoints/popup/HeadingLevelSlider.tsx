@@ -13,8 +13,8 @@ export function HeadingLevelSlider({
   const id = useId();
   return (
     <div
-      className="shrink-0 flex space-x-4 justify-end items-center
-     p-3 bg-stone-50 dark:bg-stone-800 border-b border-stone-200 dark:border-stone-700"
+      className="shrink-0 flex space-x-4 justify-end items-center sticky top-0 left-0 right-0
+     p-3 bg-stone-100 dark:bg-stone-800 border-b border-stone-200 dark:border-stone-700"
     >
       <label
         htmlFor={id}
