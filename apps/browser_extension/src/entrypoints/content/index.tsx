@@ -1,5 +1,7 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
+import { browser } from "wxt/browser";
+import { defineContentScript } from "wxt/utils/define-content-script";
 import HighlightContainer from "./HighlightContainer";
 
 interface Heading {

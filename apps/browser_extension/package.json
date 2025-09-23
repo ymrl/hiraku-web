@@ -13,8 +13,8 @@
     "zip:firefox": "wxt zip -b firefox",
     "compile": "tsc --noEmit",
     "postinstall": "wxt prepare",
-    "lint": "biome check src entrypoints",
-    "lint-fix": "biome check --fix src entrypoints"
+    "lint": "biome check src",
+    "lint-fix": "biome check --fix src"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.13",

@@ -71,7 +71,7 @@ const HighlightOverlay: React.FC<HighlightOverlayProps> = ({
 
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: It does not has any pointer events
-<div
+    <div
       style={{
         position: "absolute",
         top: `${position.top}px`,

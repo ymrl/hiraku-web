@@ -1,0 +1,13 @@
+{
+  "title": "Page Structure",
+  "headings": "Headings",
+  "landmarks": "Landmarks",
+  "noHeadings": "No headings found",
+  "noLandmarks": "No landmarks found",
+  "loading": "Loading...",
+  "error": "Error loading page structure",
+  "level": "Level",
+  "role": "Role",
+  "label": "Label",
+  "tag": "Tag"
+}
