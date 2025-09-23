@@ -11,5 +11,10 @@
   "label": "Label",
   "tag": "Tag",
   "Levels": "Levels",
-  "All": "All"
+  "All": "All",
+  "options": {
+    "clearSettings": "Clear All Settings",
+    "clearingDescription": "This will remove all saved settings. This action cannot be undone.",
+    "noSettings": "No settings saved"
+  }
 }

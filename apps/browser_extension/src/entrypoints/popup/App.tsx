@@ -24,19 +24,42 @@ function App() {
   const [activeTab, setActiveTab] = useState<"headings" | "landmarks">(
     "headings",
   );
+  const [headingLevelFilter, setHeadingLevelFilter] = useState(7);
+  const [currentTabHost, setCurrentTabHost] = useState<string>("");
 
   useEffect(() => {
-    const loadSavedTab = async () => {
+    const loadSavedSettings = async () => {
       try {
-        const result = await browser.storage.local.get("activeTab");
-        if (result.activeTab) {
-          setActiveTab(result.activeTab);
+        // アクティブタブの取得
+        const [tab] = await browser.tabs.query({
+          active: true,
+          currentWindow: true,
+        });
+
+        if (tab?.url) {
+          const url = new URL(tab.url);
+          const host = url.hostname;
+          setCurrentTabHost(host);
+
+          // 設定の読み込み
+          const result = await browser.storage.local.get([
+            "activeTab",
+            `headingLevel_${host}`,
+          ]);
+
+          if (result.activeTab) {
+            setActiveTab(result.activeTab);
+          }
+
+          if (result[`headingLevel_${host}`]) {
+            setHeadingLevelFilter(result[`headingLevel_${host}`]);
+          }
         }
       } catch (err) {
-        console.error("Failed to load saved tab:", err);
+        console.error("Failed to load saved settings:", err);
       }
     };
-    loadSavedTab();
+    loadSavedSettings();
   }, []);
 
   const handleTabChange = async (tab: "headings" | "landmarks") => {
@@ -45,6 +68,19 @@ function App() {
       await browser.storage.local.set({ activeTab: tab });
     } catch (err) {
       console.error("Failed to save tab preference:", err);
+    }
+  };
+
+  const handleHeadingLevelFilterChange = async (level: number) => {
+    setHeadingLevelFilter(level);
+    if (currentTabHost) {
+      try {
+        await browser.storage.local.set({
+          [`headingLevel_${currentTabHost}`]: level,
+        });
+      } catch (err) {
+        console.error("Failed to save heading level filter:", err);
+      }
     }
   };
 
@@ -137,6 +173,8 @@ function App() {
           <HeadingsList
             headings={pageStructure?.headings || []}
             onScrollToElement={scrollToElement}
+            levelFilter={headingLevelFilter}
+            onLevelFilterChange={handleHeadingLevelFilterChange}
           />
         )}
 

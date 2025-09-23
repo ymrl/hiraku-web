@@ -1,5 +1,5 @@
 import { createI18n } from "@wxt-dev/i18n";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import type { Heading } from "../../types";
 import { HeadingLevelSlider } from "./HeadingLevelSlider";
 
@@ -8,22 +8,24 @@ const { t } = createI18n();
 interface HeadingsListProps {
   headings: Heading[];
   onScrollToElement: (xpath: string) => void;
+  levelFilter: number;
+  onLevelFilterChange: (level: number) => void;
 }
 
 export function HeadingsList({
   headings,
   onScrollToElement,
+  levelFilter,
+  onLevelFilterChange,
 }: HeadingsListProps) {
-  const [maxLevel, setMaxLevel] = useState(7);
-
   const filteredHeadings = useMemo(() => {
-    if (maxLevel === 7) return headings;
-    return headings.filter((heading) => heading.level <= maxLevel);
-  }, [headings, maxLevel]);
+    if (levelFilter === 7) return headings;
+    return headings.filter((heading) => heading.level <= levelFilter);
+  }, [headings, levelFilter]);
 
   return (
     <section className="flex flex-col">
-      <HeadingLevelSlider value={maxLevel} onChange={setMaxLevel} />
+      <HeadingLevelSlider value={levelFilter} onChange={onLevelFilterChange} />
       {filteredHeadings.length ? (
         <ul className="space-y-1 p-1">
           {filteredHeadings.map((heading, index) => (

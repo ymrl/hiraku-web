@@ -11,5 +11,10 @@
   "label": "ラベル",
   "tag": "タグ",
   "Levels": "レベル",
-  "All": "すべて"
+  "All": "すべて",
+  "options": {
+    "clearSettings": "設定のリセット",
+    "clearingDescription": "保存されているすべての設定が削除されます。この操作は元に戻せません。",
+    "noSettings": "保存されている設定はありません。"
+  }
 }
