@@ -1,5 +1,7 @@
 import { createElement } from "react";
 import { createRoot } from "react-dom/client";
+import shadow from "react-shadow";
+import style from "./content.css?inline";
 import { LandmarkNavigation } from "./LandmarkNavigation";
 
 export const createRootElement = () => {
@@ -15,16 +17,19 @@ export const createRootElement = () => {
   `;
   document.body.appendChild(root);
   const reactRoot = createRoot(root);
-  reactRoot.render(
-    createElement(Root, {})
-  );
+  reactRoot.render(createElement(Root, {}));
 
   window.addEventListener("beforeunload", () => {
-    reactRoot.unmount(); 
+    reactRoot.unmount();
   });
   return root;
-}
+};
 
 export const Root = () => {
-  return (<LandmarkNavigation />)
-} 
+  return (
+    <shadow.div>
+      <style>{style}</style>
+      <LandmarkNavigation />
+    </shadow.div>
+  );
+};

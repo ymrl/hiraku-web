@@ -11,7 +11,12 @@ const getFocusableElement = (element: Element): HTMLElement => {
   }
   const focusableChild = element.querySelector<HTMLElement>(focusableSelector);
   if (focusableChild) {
-    return focusableChild;
+    const rect = element.getBoundingClientRect();
+    const childRect = focusableChild.getBoundingClientRect();
+    console.log(rect, childRect);
+    if (childRect.top - rect.top <= window.innerHeight / 2) {
+      return focusableChild;
+    }
   }
   const emptySpan = document.createElement("span");
   emptySpan.setAttribute("tabindex", "-1");
@@ -24,7 +29,9 @@ const getFocusableElement = (element: Element): HTMLElement => {
 };
 
 const focusTargetElement = (element: Element) => {
-  element.scrollIntoView({ behavior: "smooth", block: "start" });
+  const rect = element.getBoundingClientRect();
+  const block = rect.height > window.innerHeight ? "start" : "center";
+  element.scrollIntoView({ behavior: "smooth", block });
   const timeout = setTimeout(() => {
     listener();
   }, 1000);
@@ -50,7 +57,7 @@ export const LandmarkNavigation = () => {
       document,
       null,
       XPathResult.FIRST_ORDERED_NODE_TYPE,
-      null
+      null,
     ).singleNodeValue as Element | null;
     if (element) {
       const rect = element.getBoundingClientRect();

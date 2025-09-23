@@ -1,37 +1,40 @@
+import { computeAccessibleName, getRole } from "dom-accessibility-api";
+import getXPath from "get-xpath";
 import { browser } from "wxt/browser";
 import { defineContentScript } from "wxt/utils/define-content-script";
-import type { Heading, Landmark } from "../../types";
-import getXPath from "get-xpath";
-import { computeAccessibleName, getRole } from "dom-accessibility-api";
 import { LANDMARK_ROLES } from "@/constants";
+import type { Heading, Landmark } from "../../types";
 import { createRootElement } from "./Root";
 
 const landmarkSelectors = [
-    "header",
-    "nav",
-    "main",
-    "aside",
-    "footer",
-    "section",
-    '[role="banner"]',
-    '[role="navigation"]',
-    '[role="main"]',
-    '[role="complementary"]',
-    '[role="contentinfo"]',
-    '[role="search"]',
-    '[role="form"]',
-    '[role="region"]',
-  ];
+  "header",
+  "nav",
+  "main",
+  "aside",
+  "footer",
+  "section",
+  '[role="banner"]',
+  '[role="navigation"]',
+  '[role="main"]',
+  '[role="complementary"]',
+  '[role="contentinfo"]',
+  '[role="search"]',
+  '[role="form"]',
+  '[role="region"]',
+];
 
 function getHeadings(): Heading[] {
-  const headingElements = document.querySelectorAll("h1, h2, h3, h4, h5, h6, [role='heading']");
+  const headingElements = document.querySelectorAll(
+    "h1, h2, h3, h4, h5, h6, [role='heading']",
+  );
   return [...headingElements]
     .map<Heading | undefined>((element, index) => {
       const text = element.textContent?.trim() || "";
       if (!text) return undefined;
       const tagName = element.tagName.toLowerCase();
-      const level = tagName.match(/^h[1-6]$/)?parseInt(element.tagName.substring(1), 10):
-        parseInt(element.getAttribute("aria-level") || '2', 10);
+      const level = tagName.match(/^h[1-6]$/)
+        ? parseInt(element.tagName.substring(1), 10)
+        : parseInt(element.getAttribute("aria-level") || "2", 10);
       const id = element.id || undefined;
       const xpath = getXPath(element);
       return {
@@ -46,7 +49,9 @@ function getHeadings(): Heading[] {
 }
 
 function getLandmarks(): Landmark[] {
-  return [...document.querySelectorAll<HTMLElement>(landmarkSelectors.join(","))]
+  return [
+    ...document.querySelectorAll<HTMLElement>(landmarkSelectors.join(",")),
+  ]
     .map<Landmark | undefined>((element, index) => {
       const role = getRole(element);
       if (!role || (LANDMARK_ROLES as readonly string[]).indexOf(role) === -1)
