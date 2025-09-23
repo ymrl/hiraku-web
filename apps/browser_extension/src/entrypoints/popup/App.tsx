@@ -47,7 +47,7 @@ function App() {
     loadPageStructure();
   }, [loadPageStructure]);
 
-  const scrollToHeading = async (heading: Heading) => {
+  const scrollToElement = async (xpath: string) => {
     try {
       const [tab] = await browser.tabs.query({
         active: true,
@@ -55,31 +55,15 @@ function App() {
       });
       if (!tab?.id) return;
 
-      await browser.tabs.sendMessage(tab.id, {
-        action: "scrollToHeading",
-        index: heading.index,
-        xpath: heading.xpath,
+      const result = await browser.tabs.sendMessage(tab.id, {
+        action: "scrollToElement",
+        xpath: xpath,
       });
+      if (result?.success) {
+        window.close();
+      }
     } catch (err) {
       console.error("Failed to scroll to heading:", err);
-    }
-  };
-
-  const scrollToLandmark = async (landmark: Landmark) => {
-    try {
-      const [tab] = await browser.tabs.query({
-        active: true,
-        currentWindow: true,
-      });
-      if (!tab?.id) return;
-
-      await browser.tabs.sendMessage(tab.id, {
-        action: "scrollToLandmark",
-        index: landmark.index,
-        xpath: landmark.xpath,
-      });
-    } catch (err) {
-      console.error("Failed to scroll to landmark:", err);
     }
   };
 
@@ -129,7 +113,7 @@ function App() {
                   </span>
                   <button
                     type="button"
-                    onClick={() => scrollToHeading(heading)}
+                    onClick={() => scrollToElement(heading.xpath)}
                     className="text-left text-sm text-gray-800 leading-6 hover:text-blue-600 hover:underline cursor-pointer flex-1"
                   >
                     {heading.text}
@@ -155,7 +139,7 @@ function App() {
                 >
                   <button
                     type="button"
-                    onClick={() => scrollToLandmark(landmark)}
+                    onClick={() => scrollToElement(landmark.xpath)}
                     className="w-full text-left"
                   >
                     <div className="flex items-center space-x-2">
