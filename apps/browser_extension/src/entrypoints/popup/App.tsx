@@ -1,19 +1,9 @@
-import { useEffect, useState } from "react";
-import { detectLanguage, type Language, useTranslation } from "./i18n";
+import { createI18n } from "@wxt-dev/i18n";
+import { useCallback, useEffect, useState } from "react";
+import { browser } from "wxt/browser";
+import type { Heading, Landmark } from "../../types";
 
-interface Heading {
-  level: number;
-  text: string;
-  id?: string;
-  index: number;
-}
-
-interface Landmark {
-  role: string;
-  label?: string;
-  tag: string;
-  index: number;
-}
+const { t } = createI18n();
 
 interface PageStructure {
   headings: Heading[];
@@ -23,14 +13,11 @@ interface PageStructure {
 }
 
 function App() {
-  const [language, setLanguage] = useState<Language>(detectLanguage());
   const [pageStructure, setPageStructure] = useState<PageStructure | null>(
     null,
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const t = useTranslation(language);
 
   const loadPageStructure = useCallback(async () => {
     try {
@@ -60,7 +47,7 @@ function App() {
     loadPageStructure();
   }, [loadPageStructure]);
 
-  const scrollToHeading = async (headingIndex: number) => {
+  const scrollToHeading = async (heading: Heading) => {
     try {
       const [tab] = await browser.tabs.query({
         active: true,
@@ -70,14 +57,15 @@ function App() {
 
       await browser.tabs.sendMessage(tab.id, {
         action: "scrollToHeading",
-        index: headingIndex,
+        index: heading.index,
+        xpath: heading.xpath,
       });
     } catch (err) {
       console.error("Failed to scroll to heading:", err);
     }
   };
 
-  const scrollToLandmark = async (landmarkIndex: number) => {
+  const scrollToLandmark = async (landmark: Landmark) => {
     try {
       const [tab] = await browser.tabs.query({
         active: true,
@@ -87,15 +75,12 @@ function App() {
 
       await browser.tabs.sendMessage(tab.id, {
         action: "scrollToLandmark",
-        index: landmarkIndex,
+        index: landmark.index,
+        xpath: landmark.xpath,
       });
     } catch (err) {
       console.error("Failed to scroll to landmark:", err);
     }
-  };
-
-  const toggleLanguage = () => {
-    setLanguage((prev) => (prev === "en" ? "ja" : "en"));
   };
 
   if (loading) {
@@ -125,13 +110,6 @@ function App() {
     <div className="w-96 bg-white">
       <header className="p-4 border-b border-gray-200 flex justify-between items-center">
         <h1 className="text-lg font-semibold text-gray-800">{t("title")}</h1>
-        <button
-          type="button"
-          onClick={toggleLanguage}
-          className="px-2 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
-        >
-          {language === "en" ? "日本語" : "English"}
-        </button>
       </header>
 
       <div className="max-h-96 overflow-y-auto">
@@ -151,7 +129,7 @@ function App() {
                   </span>
                   <button
                     type="button"
-                    onClick={() => scrollToHeading(heading.index)}
+                    onClick={() => scrollToHeading(heading)}
                     className="text-left text-sm text-gray-800 leading-6 hover:text-blue-600 hover:underline cursor-pointer flex-1"
                   >
                     {heading.text}
@@ -177,7 +155,7 @@ function App() {
                 >
                   <button
                     type="button"
-                    onClick={() => scrollToLandmark(landmark.index)}
+                    onClick={() => scrollToLandmark(landmark)}
                     className="w-full text-left"
                   >
                     <div className="flex items-center space-x-2">

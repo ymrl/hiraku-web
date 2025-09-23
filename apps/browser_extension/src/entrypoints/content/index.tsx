@@ -2,174 +2,75 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { browser } from "wxt/browser";
 import { defineContentScript } from "wxt/utils/define-content-script";
+import type { Heading, Landmark } from "../../types";
 import HighlightContainer from "./HighlightContainer";
+import getXPath from "get-xpath";
+import { computeAccessibleName, getRole } from "dom-accessibility-api";
+import { LANDMARK_ROLES } from "@/constants";
 
-interface Heading {
-  level: number;
-  text: string;
-  id?: string;
-  index: number;
-}
-
-interface Landmark {
-  role: string;
-  label?: string;
-  tag: string;
-  index: number;
-}
+const landmarkSelectors = [
+  "header",
+  "nav",
+  "main",
+  "aside",
+  "footer",
+  "section",
+  "section",
+  '[role="banner"]',
+  '[role="navigation"]',
+  '[role="main"]',
+  '[role="complementary"]',
+  '[role="contentinfo"]',
+  '[role="search"]',
+  '[role="form"]',
+  '[role="region"]',
+];
 
 function getHeadings(): Heading[] {
-  const headings: Heading[] = [];
-  const headingElements = document.querySelectorAll("h1, h2, h3, h4, h5, h6");
-
-  headingElements.forEach((element, index) => {
-    const level = parseInt(element.tagName.substring(1), 10);
-    const text = element.textContent?.trim() || "";
-    const id = element.id || undefined;
-
-    if (text) {
-      element.setAttribute("data-page-structure-heading", index.toString());
-      headings.push({ level, text, id, index });
-    }
-  });
-
-  return headings;
+  const headingElements = document.querySelectorAll(
+    "h1, h2, h3, h4, h5, h6, [role='heading']"
+  );
+  return [...headingElements]
+    .map<Heading | undefined>((element, index) => {
+      const text = element.textContent?.trim() || "";
+      if (!text) return undefined;
+      const tagName = element.tagName.toLowerCase();
+      const level = tagName.match(/^h[1-6]$/)
+        ? parseInt(element.tagName.substring(1), 10)
+        : parseInt(element.getAttribute("aria-level") || "2", 10);
+      const id = element.id || undefined;
+      const xpath = getXPath(element);
+      return {
+        level,
+        text,
+        id,
+        index,
+        xpath,
+      };
+    })
+    .filter((h): h is Heading => h !== undefined);
 }
 
 function getLandmarks(): Landmark[] {
-  const landmarks: Landmark[] = [];
-  const processedElements = new Set<Element>();
-  let landmarkIndex = 0;
-
-  // まず、明示的なARIAロールを持つ要素を検索
-  const explicitRoles = [
-    "banner",
-    "navigation",
-    "main",
-    "complementary",
-    "contentinfo",
-    "search",
-    "form",
-    "region",
-  ];
-
-  explicitRoles.forEach((roleName) => {
-    const elements = document.querySelectorAll(`[role="${roleName}"]`);
-    elements.forEach((element) => {
-      if (!processedElements.has(element)) {
-        processedElements.add(element);
-
-        const label =
-          element.getAttribute("aria-label") ||
-          (element.getAttribute("aria-labelledby") &&
-            document
-              .getElementById(element.getAttribute("aria-labelledby")!)
-              ?.textContent?.trim()) ||
-          undefined;
-
-        element.setAttribute(
-          "data-page-structure-landmark",
-          landmarkIndex.toString(),
-        );
-        landmarks.push({
-          role: roleName,
-          label,
-          tag: element.tagName.toLowerCase(),
-          index: landmarkIndex,
-        });
-        landmarkIndex++;
-      }
-    });
-  });
-
-  // 次に、HTML5セマンティック要素を検索（まだ処理されていないもの）
-  const semanticElements = [
-    { tag: "nav", role: "navigation" },
-    { tag: "main", role: "main" },
-    { tag: "header", role: "banner" },
-    { tag: "footer", role: "contentinfo" },
-    { tag: "aside", role: "complementary" },
-  ];
-
-  semanticElements.forEach(({ tag, role }) => {
-    const elements = document.querySelectorAll(tag);
-    elements.forEach((element) => {
-      if (!processedElements.has(element)) {
-        // header要素の特別な処理：mainやarticle、section内のheaderはbannerではない
-        if (tag === "header") {
-          const parent = element.closest("main, article, section");
-          if (parent) {
-            return; // main, article, section内のheaderはスキップ
-          }
-        }
-
-        // footer要素の特別な処理：mainやarticle、section内のfooterはcontentinfoではない
-        if (tag === "footer") {
-          const parent = element.closest("main, article, section");
-          if (parent) {
-            return; // main, article, section内のfooterはスキップ
-          }
-        }
-
-        processedElements.add(element);
-
-        const label =
-          element.getAttribute("aria-label") ||
-          (element.getAttribute("aria-labelledby") &&
-            document
-              .getElementById(element.getAttribute("aria-labelledby")!)
-              ?.textContent?.trim()) ||
-          undefined;
-
-        element.setAttribute(
-          "data-page-structure-landmark",
-          landmarkIndex.toString(),
-        );
-        landmarks.push({
-          role,
-          label,
-          tag,
-          index: landmarkIndex,
-        });
-        landmarkIndex++;
-      }
-    });
-  });
-
-  // 最後に、aria-labelまたはaria-labelledbyを持つsection要素を検索
-  const labeledSections = document.querySelectorAll(
-    "section[aria-label], section[aria-labelledby]",
-  );
-  labeledSections.forEach((element) => {
-    if (!processedElements.has(element)) {
-      processedElements.add(element);
-
-      const label =
-        element.getAttribute("aria-label") ||
-        (element.getAttribute("aria-labelledby") &&
-          document
-            .getElementById(element.getAttribute("aria-labelledby")!)
-            ?.textContent?.trim()) ||
-        undefined;
-
-      element.setAttribute(
-        "data-page-structure-landmark",
-        landmarkIndex.toString(),
-      );
-      landmarks.push({
-        role: "region",
+  return [
+    ...document.querySelectorAll<HTMLElement>(landmarkSelectors.join(",")),
+  ]
+    .map<Landmark | undefined>((element, index) => {
+      const role = getRole(element);
+      if (!role || (LANDMARK_ROLES as readonly string[]).indexOf(role) === -1)
+        return undefined;
+      const label = computeAccessibleName(element).trim();
+      const xpath = getXPath(element);
+      return {
+        role,
         label,
-        tag: "section",
-        index: landmarkIndex,
-      });
-      landmarkIndex++;
-    }
-  });
-
-  return landmarks;
+        tag: element.tagName.toLowerCase(),
+        index,
+        xpath,
+      };
+    })
+    .filter((l): l is Landmark => l !== undefined);
 }
-
-// ハイライト機能の管理
 
 // ハイライト機能の参照
 let highlightFunction: ((element: Element | null) => void) | null = null;
@@ -200,7 +101,7 @@ function initializeReactHighlight() {
       onHighlightMount: (highlightFunc: (element: Element | null) => void) => {
         highlightFunction = highlightFunc;
       },
-    }),
+    })
   );
 }
 
@@ -218,20 +119,28 @@ function highlightElement(element: Element) {
   }
 }
 
-function scrollToHeading(headingIndex: number) {
-  const element = document.querySelector(
-    `[data-page-structure-heading="${headingIndex}"]`,
-  );
+function scrollToHeading(xpath: string) {
+  const element = document.evaluate(
+    xpath,
+    document,
+    null,
+    XPathResult.FIRST_ORDERED_NODE_TYPE,
+    null
+  ).singleNodeValue as Element | null;
   if (element) {
     element.scrollIntoView({ behavior: "smooth", block: "center" });
     highlightElement(element);
   }
 }
 
-function scrollToLandmark(landmarkIndex: number) {
-  const element = document.querySelector(
-    `[data-page-structure-landmark="${landmarkIndex}"]`,
-  );
+function scrollToLandmark(xpath: string) {
+  const element = document.evaluate(
+    xpath,
+    document,
+    null,
+    XPathResult.FIRST_ORDERED_NODE_TYPE,
+    null
+  ).singleNodeValue as Element | null;
   if (element) {
     element.scrollIntoView({ behavior: "smooth", block: "center" });
     highlightElement(element);
@@ -249,7 +158,7 @@ export default defineContentScript({
     }
 
     // ポップアップからのメッセージをリスンし、ページ情報を返す
-    browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    browser.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       if (message.action === "getPageStructure") {
         const headings = getHeadings();
         const landmarks = getLandmarks();
@@ -261,10 +170,10 @@ export default defineContentScript({
           title: document.title,
         });
       } else if (message.action === "scrollToHeading") {
-        scrollToHeading(message.index);
+        scrollToHeading(message.xpath);
         sendResponse({ success: true });
       } else if (message.action === "scrollToLandmark") {
-        scrollToLandmark(message.index);
+        scrollToLandmark(message.xpath);
         sendResponse({ success: true });
       }
       return true;
@@ -276,7 +185,7 @@ export default defineContentScript({
         reactRoot.unmount();
         reactRoot = null;
       }
-      if (overlayContainer && overlayContainer.parentNode) {
+      if (overlayContainer?.parentNode) {
         overlayContainer.parentNode.removeChild(overlayContainer);
         overlayContainer = null;
       }

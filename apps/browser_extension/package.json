@@ -19,6 +19,8 @@
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.13",
     "@wxt-dev/i18n": "^0.2.4",
+    "dom-accessibility-api": "^0.7.0",
+    "get-xpath": "^3.3.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "tailwindcss": "^4.1.13"
