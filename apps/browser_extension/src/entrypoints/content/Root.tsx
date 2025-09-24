@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import shadow from "react-shadow";
 import style from "./content.css?inline";
 import { LandmarkNavigation } from "./LandmarkNavigation";
+import { TextStyleTweaker } from "./TextStyleTweaker";
 
 export const createRootElement = () => {
   const root = document.createElement("div");
@@ -27,9 +28,12 @@ export const createRootElement = () => {
 
 export const Root = () => {
   return (
-    <shadow.div>
-      <style>{style}</style>
-      <LandmarkNavigation />
-    </shadow.div>
+    <>
+      <TextStyleTweaker />
+      <shadow.div>
+        <style>{style}</style>
+        <LandmarkNavigation />
+      </shadow.div>
+    </>
   );
 };

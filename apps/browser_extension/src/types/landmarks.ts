@@ -7,6 +7,7 @@ export type LandmarkRole =
   | "navigation"
   | "search"
   | "region";
+
 export type Landmark = {
   role: string;
   label?: string;
@@ -14,6 +15,7 @@ export type Landmark = {
   index: number;
   xpath: string;
 };
+
 export type Heading = {
   level: number;
   text: string;

@@ -3,10 +3,10 @@ import getXPath from "get-xpath";
 import { browser } from "wxt/browser";
 import { defineContentScript } from "wxt/utils/define-content-script";
 import { LANDMARK_ROLES } from "@/constants";
+import { isAriaHidden } from "@/utils/isAriaHidden";
+import { isHidden } from "@/utils/isHidden";
 import type { Heading, Landmark } from "../../types";
 import { createRootElement } from "./Root";
-import { isHidden } from "@/utils/isHidden";
-import { isAriaHidden } from "@/utils/isAriaHidden";
 
 const landmarkSelectors = [
   "header",
@@ -103,6 +103,7 @@ export default defineContentScript({
           title: document.title,
         });
       }
+      // これ以外のメッセージは別の場所で処理している
       return true;
     });
   },

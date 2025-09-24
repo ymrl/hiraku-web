@@ -1,10 +1,11 @@
 import { createI18n } from "@wxt-dev/i18n";
 import { useCallback, useEffect, useState } from "react";
 import { browser } from "wxt/browser";
-import type { Heading, Landmark } from "../../types";
+import type { Heading, Landmark, TextStyleSettings } from "../../types";
 import { HeadingsList } from "./HeadingsList";
 import { LandmarksList } from "./LandmarksList";
 import { TabNavigation } from "./TabNavigation";
+import { TextStyleSettings as TextStyleSettingsComponent } from "./TextStyleSettings";
 
 const { t } = createI18n();
 
@@ -21,11 +22,20 @@ function App() {
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"headings" | "landmarks">(
+  const [activeTab, setActiveTab] = useState<"headings" | "landmarks" | "text">(
     "headings",
   );
   const [headingLevelFilter, setHeadingLevelFilter] = useState(7);
   const [currentTabHost, setCurrentTabHost] = useState<string>("");
+  const [textStyleSettings, setTextStyleSettings] = useState<TextStyleSettings>(
+    {
+      fontSize: 1.0,
+      lineHeight: 1.5,
+      paragraphSpacing: 1.0,
+      letterSpacing: 0.0,
+      wordSpacing: 0.0,
+    },
+  );
 
   useEffect(() => {
     const loadSavedSettings = async () => {
@@ -45,6 +55,7 @@ function App() {
           const result = await browser.storage.local.get([
             "activeTab",
             `headingLevel_${host}`,
+            `textStyle_${host}`,
           ]);
 
           if (result.activeTab) {
@@ -54,6 +65,10 @@ function App() {
           if (result[`headingLevel_${host}`]) {
             setHeadingLevelFilter(result[`headingLevel_${host}`]);
           }
+
+          if (result[`textStyle_${host}`]) {
+            setTextStyleSettings(result[`textStyle_${host}`]);
+          }
         }
       } catch (err) {
         console.error("Failed to load saved settings:", err);
@@ -62,7 +77,7 @@ function App() {
     loadSavedSettings();
   }, []);
 
-  const handleTabChange = async (tab: "headings" | "landmarks") => {
+  const handleTabChange = async (tab: "headings" | "landmarks" | "text") => {
     setActiveTab(tab);
     try {
       await browser.storage.local.set({ activeTab: tab });
@@ -80,6 +95,31 @@ function App() {
         });
       } catch (err) {
         console.error("Failed to save heading level filter:", err);
+      }
+    }
+  };
+
+  const handleTextStyleSettingsChange = async (settings: TextStyleSettings) => {
+    setTextStyleSettings(settings);
+    if (currentTabHost) {
+      try {
+        await browser.storage.local.set({
+          [`textStyle_${currentTabHost}`]: settings,
+        });
+
+        // コンテンツスクリプトに設定変更を通知
+        const [tab] = await browser.tabs.query({
+          active: true,
+          currentWindow: true,
+        });
+        if (tab?.id) {
+          await browser.tabs.sendMessage(tab.id, {
+            action: "updateTextStyle",
+            settings: settings,
+          });
+        }
+      } catch (err) {
+        console.error("Failed to save text style settings:", err);
       }
     }
   };
@@ -162,27 +202,32 @@ function App() {
   return (
     <div className="w-96 bg-white dark:bg-stone-900 flex flex-col">
       <header className="p-0 border-b border-stone-200 dark:border-stone-700">
-        <h1 className=" sr-only">
-          raku-web
-        </h1>
+        <h1 className=" sr-only">raku-web</h1>
         <TabNavigation activeTab={activeTab} onTabChange={handleTabChange} />
       </header>
 
-        {activeTab === "headings" && (
-          <HeadingsList
-            headings={pageStructure?.headings || []}
-            onScrollToElement={scrollToElement}
-            levelFilter={headingLevelFilter}
-            onLevelFilterChange={handleHeadingLevelFilterChange}
-          />
-        )}
+      {activeTab === "headings" && (
+        <HeadingsList
+          headings={pageStructure?.headings || []}
+          onScrollToElement={scrollToElement}
+          levelFilter={headingLevelFilter}
+          onLevelFilterChange={handleHeadingLevelFilterChange}
+        />
+      )}
 
-        {activeTab === "landmarks" && (
-          <LandmarksList
-            landmarks={pageStructure?.landmarks || []}
-            onScrollToElement={scrollToElement}
-          />
-        )}
+      {activeTab === "landmarks" && (
+        <LandmarksList
+          landmarks={pageStructure?.landmarks || []}
+          onScrollToElement={scrollToElement}
+        />
+      )}
+
+      {activeTab === "text" && (
+        <TextStyleSettingsComponent
+          settings={textStyleSettings}
+          onSettingsChange={handleTextStyleSettingsChange}
+        />
+      )}
     </div>
   );
 }
