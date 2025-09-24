@@ -19,10 +19,6 @@ export const createRootElement = () => {
   document.body.appendChild(root);
   const reactRoot = createRoot(root);
   reactRoot.render(createElement(Root, {}));
-
-  window.addEventListener("beforeunload", () => {
-    reactRoot.unmount();
-  });
   return root;
 };
 
