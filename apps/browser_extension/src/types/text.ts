@@ -1,7 +1,7 @@
 export type TextStyleSettings = {
-  fontSize: number;
-  lineHeight: number;
-  paragraphSpacing: number;
-  letterSpacing: number;
-  wordSpacing: number;
+  fontSize: number | undefined;
+  lineHeight: number | undefined;
+  paragraphSpacing: number | undefined;
+  letterSpacing: number | undefined;
+  wordSpacing: number | undefined;
 };

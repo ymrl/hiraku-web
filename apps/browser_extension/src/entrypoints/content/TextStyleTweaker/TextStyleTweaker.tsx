@@ -19,7 +19,7 @@ export const TextStyleTweaker = () => {
 
   const applyTextStyleSettings = useCallback(
     (newSettings: TextStyleSettings) => {
-      setSettings((prev) => ({ ...prev, ...newSettings }));
+      setSettings(newSettings);
     },
     [],
   );

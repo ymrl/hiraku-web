@@ -2,6 +2,7 @@
   "title": "ページ構造",
   "headings": "見出し",
   "landmarks": "ランドマーク",
+  "text": "文字",
   "noHeadings": "見出しが見つかりません",
   "noLandmarks": "ランドマークが見つかりません",
   "loading": "読み込み中...",
@@ -15,7 +16,11 @@
   "options": {
     "clearSettings": "設定のリセット",
     "clearingDescription": "保存されているすべての設定が削除されます。この操作は元に戻せません。",
-    "noSettings": "保存されている設定はありません。"
+    "noSettings": "保存されている設定はありません。",
+    "textStyleDefaults": "テキストスタイルのデフォルト値",
+    "textStyleDefaultsDescription": "各サイトで「リセット」ボタンを押した時に適用される値を設定します。",
+    "save": "保存",
+    "saved": "保存しました"
   },
   "landmarkRoles": {
     "banner": "バナー",
@@ -26,5 +31,18 @@
     "navigation": "ナビゲーション",
     "region": "領域",
     "search": "検索"
+  },
+  "textStyle": {
+    "title": "テキストスタイル",
+    "reset": "リセット",
+    "fontSize": "文字の大きさ",
+    "lineHeight": "行の高さ",
+    "paragraphSpacing": "段落の間隔",
+    "letterSpacing": "文字の間隔",
+    "wordSpacing": "単語の間隔",
+    "units": {
+      "times": "倍",
+      "em": "em"
+    }
   }
 }

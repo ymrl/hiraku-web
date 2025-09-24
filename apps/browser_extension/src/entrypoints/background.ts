@@ -7,9 +7,12 @@ export default defineBackground(() => {
       const hostname = request.hostname;
       if (hostname) {
         browser.storage.local
-          .get(`textStyle_${hostname}`)
+          .get([`textStyle_${hostname}`, "defaultTextStyle"])
           .then((result) => {
-            sendResponse(result[`textStyle_${hostname}`] || null);
+            const hostSettings = result[`textStyle_${hostname}`];
+            const defaultSettings = result.defaultTextStyle;
+            // ホスト固有の設定がある場合はそれを、なければデフォルト設定を返す
+            sendResponse(hostSettings || defaultSettings || null);
           })
           .catch((err) => {
             console.error("Failed to get text style settings:", err);

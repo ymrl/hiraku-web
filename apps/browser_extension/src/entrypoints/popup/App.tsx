@@ -68,6 +68,13 @@ function App() {
 
           if (result[`textStyle_${host}`]) {
             setTextStyleSettings(result[`textStyle_${host}`]);
+          } else {
+            // ホスト固有の設定がない場合は、デフォルト設定を読み込む
+            const defaultResult =
+              await browser.storage.local.get("defaultTextStyle");
+            if (defaultResult.defaultTextStyle) {
+              setTextStyleSettings(defaultResult.defaultTextStyle);
+            }
           }
         }
       } catch (err) {

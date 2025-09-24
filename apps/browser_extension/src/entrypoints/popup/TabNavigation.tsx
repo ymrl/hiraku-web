@@ -71,7 +71,7 @@ export function TabNavigation({ activeTab, onTabChange }: TabNavigationProps) {
         />
         <Tab
           isActive={activeTab === "text"}
-          label="文字"
+          label={t("text")}
           onClick={() => onTabChange("text")}
         />
       </div>
