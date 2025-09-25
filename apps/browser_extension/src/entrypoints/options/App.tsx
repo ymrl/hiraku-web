@@ -1,6 +1,7 @@
 import { createI18n } from "@wxt-dev/i18n";
 import { useCallback, useEffect, useId, useState } from "react";
 import { browser } from "wxt/browser";
+import { Slider } from "@/components/Slider";
 import type { TextStyleSettings } from "../../types/text";
 
 const { t } = createI18n();
@@ -97,12 +98,11 @@ function App() {
                 {t("textStyle.fontSize")}
               </label>
               <div className="flex items-center space-x-4">
-                <input
+                <Slider
                   id={`${id}-fontSize`}
-                  type="range"
-                  min="0.5"
-                  max="3.0"
-                  step="0.1"
+                  min={0.5}
+                  max={3.0}
+                  step={0.1}
                   value={defaultTextStyle.fontSize ?? 1.0}
                   onChange={(e) =>
                     setDefaultTextStyle((prev) => ({
@@ -110,7 +110,6 @@ function App() {
                       fontSize: Number(e.target.value),
                     }))
                   }
-                  className="flex-1 h-2 bg-stone-200 dark:bg-stone-600 rounded-lg appearance-none cursor-pointer"
                 />
                 <span className="text-sm font-bold text-rose-600 dark:text-rose-400 min-w-16 text-right">
                   {defaultTextStyle.fontSize?.toFixed(1) ?? 1.0}
@@ -128,12 +127,11 @@ function App() {
                 {t("textStyle.lineHeight")}
               </label>
               <div className="flex items-center space-x-4">
-                <input
+                <Slider
                   id={`${id}-lineHeight`}
-                  type="range"
-                  min="1.0"
-                  max="3.0"
-                  step="0.1"
+                  min={1.0}
+                  max={3.0}
+                  step={0.1}
                   value={defaultTextStyle.lineHeight ?? 1.5}
                   onChange={(e) =>
                     setDefaultTextStyle((prev) => ({
@@ -141,7 +139,6 @@ function App() {
                       lineHeight: Number(e.target.value),
                     }))
                   }
-                  className="flex-1 h-2 bg-stone-200 dark:bg-stone-600 rounded-lg appearance-none cursor-pointer"
                 />
                 <span className="text-sm font-bold text-rose-600 dark:text-rose-400 min-w-16 text-right">
                   {defaultTextStyle.lineHeight?.toFixed(1) ?? 1.5}
@@ -158,12 +155,11 @@ function App() {
                 {t("textStyle.paragraphSpacing")}
               </label>
               <div className="flex items-center space-x-4">
-                <input
+                <Slider
                   id={`${id}-paragraphSpacing`}
-                  type="range"
-                  min="1.0"
-                  max="3.0"
-                  step="0.1"
+                  min={1.0}
+                  max={3.0}
+                  step={0.1}
                   value={defaultTextStyle.paragraphSpacing ?? 1.0}
                   onChange={(e) =>
                     setDefaultTextStyle((prev) => ({
@@ -171,7 +167,6 @@ function App() {
                       paragraphSpacing: Number(e.target.value),
                     }))
                   }
-                  className="flex-1 h-2 bg-stone-200 dark:bg-stone-600 rounded-lg appearance-none cursor-pointer"
                 />
                 <span className="text-sm font-bold text-rose-600 dark:text-rose-400 min-w-16 text-right">
                   {defaultTextStyle.paragraphSpacing?.toFixed(1) ?? 1.0}
@@ -189,12 +184,11 @@ function App() {
                 {t("textStyle.letterSpacing")}
               </label>
               <div className="flex items-center space-x-4">
-                <input
+                <Slider
                   id={`${id}-letterSpacing`}
-                  type="range"
-                  min="0.0"
-                  max="0.5"
-                  step="0.01"
+                  min={0.0}
+                  max={0.5}
+                  step={0.01}
                   value={defaultTextStyle.letterSpacing ?? 0.0}
                   onChange={(e) =>
                     setDefaultTextStyle((prev) => ({
@@ -202,7 +196,6 @@ function App() {
                       letterSpacing: Number(e.target.value),
                     }))
                   }
-                  className="flex-1 h-2 bg-stone-200 dark:bg-stone-600 rounded-lg appearance-none cursor-pointer"
                 />
                 <span className="text-sm font-bold text-rose-600 dark:text-rose-400 min-w-16 text-right">
                   {defaultTextStyle.letterSpacing?.toFixed(2) ?? 0.0}
@@ -220,12 +213,11 @@ function App() {
                 {t("textStyle.wordSpacing")}
               </label>
               <div className="flex items-center space-x-4">
-                <input
+                <Slider
                   id={`${id}-wordSpacing`}
-                  type="range"
-                  min="0.0"
-                  max="0.5"
-                  step="0.01"
+                  min={0.0}
+                  max={0.5}
+                  step={0.01}
                   value={defaultTextStyle.wordSpacing ?? 0.0}
                   onChange={(e) =>
                     setDefaultTextStyle((prev) => ({
@@ -233,7 +225,6 @@ function App() {
                       wordSpacing: Number(e.target.value),
                     }))
                   }
-                  className="flex-1 h-2 bg-stone-200 dark:bg-stone-600 rounded-lg appearance-none cursor-pointer"
                 />
                 <span className="text-sm font-bold text-rose-600 dark:text-rose-400 min-w-16 text-right">
                   {defaultTextStyle.wordSpacing?.toFixed(2) ?? 0.0}
