@@ -3,19 +3,8 @@ import { browser } from "wxt/browser";
 import type { TextStyleSettings } from "../../../types";
 export const TextStyleTweaker = () => {
   const styleElementRef = useRef<HTMLStyleElement | null>(null);
-  const [settings, setSettings] = useState<{
-    fontSize: number | undefined;
-    lineHeight: number | undefined;
-    paragraphSpacing: number | undefined;
-    letterSpacing: number | undefined;
-    wordSpacing: number | undefined;
-  }>({
-    fontSize: undefined,
-    lineHeight: undefined,
-    paragraphSpacing: undefined,
-    letterSpacing: undefined,
-    wordSpacing: undefined,
-  });
+  const defaultSettingsRef = useRef<Partial<TextStyleSettings>>({});
+  const [settings, setSettings] = useState<TextStyleSettings>({});
 
   const applyTextStyleSettings = useCallback(
     (newSettings: TextStyleSettings) => {
@@ -24,25 +13,41 @@ export const TextStyleTweaker = () => {
     [],
   );
 
-  const loadTextStyleSettings = useCallback(async () => {
+  const loadTextStyleSettings = async () => {
     try {
       const hostname = window.location.hostname;
       const settings = await browser.runtime.sendMessage({
         action: "getTextStyleSettings",
         hostname: hostname,
       });
-
       if (settings) {
         applyTextStyleSettings(settings);
       }
     } catch (error) {
       console.error("Failed to load text style settings:", error);
     }
-  }, [applyTextStyleSettings]);
+  };
+
+  const setPageDefaultSettings = () => {
+    renderedOnceRef.current = true;
+    const defaults = getComputedStyle(document.documentElement);
+    const fontSizePx = parseFloat(defaults.fontSize);
+    const lineHeightPx =
+      defaults.lineHeight === "normal"
+        ? 1.2 * fontSizePx
+        : parseFloat(defaults.lineHeight);
+    defaultSettingsRef.current = {
+      fontSize: Number.isNaN(fontSizePx) ? 1.0 : fontSizePx / 16,
+      lineHeight:
+        Number.isNaN(lineHeightPx) || fontSizePx === 0
+          ? 1.2
+          : lineHeightPx / fontSizePx,
+    };
+  };
 
   const renderedOnceRef = useRef(false);
   if (!renderedOnceRef.current) {
-    renderedOnceRef.current = true;
+    setPageDefaultSettings();
     loadTextStyleSettings();
   }
 
@@ -53,6 +58,8 @@ export const TextStyleTweaker = () => {
       if (message.action === "updateTextStyle") {
         applyTextStyleSettings(message.settings);
         sendResponse({ success: true });
+      } else if (message.action === "getDefaultTextStyle") {
+        sendResponse({ defaultSettings: defaultSettingsRef.current });
       }
     };
     browser.runtime.onMessage.addListener(listener);

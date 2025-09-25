@@ -1,11 +1,12 @@
 import { createI18n } from "@wxt-dev/i18n";
 import { useCallback, useEffect, useState } from "react";
 import { browser } from "wxt/browser";
-import type { Heading, Landmark, TextStyleSettings } from "../../types";
+import { getCurrentTabId } from "@/browser/getCurrentTabId";
+import type { Heading, Landmark } from "../../types";
 import { HeadingsList } from "./HeadingsList";
 import { LandmarksList } from "./LandmarksList";
 import { TabNavigation } from "./TabNavigation";
-import { TextStyleSettings as TextStyleSettingsComponent } from "./TextStyleSettings";
+import { TextStyle } from "./TextStyle";
 
 const { t } = createI18n();
 
@@ -27,15 +28,6 @@ function App() {
   );
   const [headingLevelFilter, setHeadingLevelFilter] = useState(7);
   const [currentTabHost, setCurrentTabHost] = useState<string>("");
-  const [textStyleSettings, setTextStyleSettings] = useState<TextStyleSettings>(
-    {
-      fontSize: 1.0,
-      lineHeight: 1.5,
-      paragraphSpacing: 1.0,
-      letterSpacing: 0.0,
-      wordSpacing: 0.0,
-    },
-  );
 
   useEffect(() => {
     const loadSavedSettings = async () => {
@@ -55,7 +47,6 @@ function App() {
           const result = await browser.storage.local.get([
             "activeTab",
             `headingLevel_${host}`,
-            `textStyle_${host}`,
           ]);
 
           if (result.activeTab) {
@@ -64,17 +55,6 @@ function App() {
 
           if (result[`headingLevel_${host}`]) {
             setHeadingLevelFilter(result[`headingLevel_${host}`]);
-          }
-
-          if (result[`textStyle_${host}`]) {
-            setTextStyleSettings(result[`textStyle_${host}`]);
-          } else {
-            // ホスト固有の設定がない場合は、デフォルト設定を読み込む
-            const defaultResult =
-              await browser.storage.local.get("defaultTextStyle");
-            if (defaultResult.defaultTextStyle) {
-              setTextStyleSettings(defaultResult.defaultTextStyle);
-            }
           }
         }
       } catch (err) {
@@ -106,45 +86,17 @@ function App() {
     }
   };
 
-  const handleTextStyleSettingsChange = async (settings: TextStyleSettings) => {
-    setTextStyleSettings(settings);
-    if (currentTabHost) {
-      try {
-        await browser.storage.local.set({
-          [`textStyle_${currentTabHost}`]: settings,
-        });
-
-        // コンテンツスクリプトに設定変更を通知
-        const [tab] = await browser.tabs.query({
-          active: true,
-          currentWindow: true,
-        });
-        if (tab?.id) {
-          await browser.tabs.sendMessage(tab.id, {
-            action: "updateTextStyle",
-            settings: settings,
-          });
-        }
-      } catch (err) {
-        console.error("Failed to save text style settings:", err);
-      }
-    }
-  };
-
   const loadPageStructure = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
+      const tabId = await getCurrentTabId();
 
-      const [tab] = await browser.tabs.query({
-        active: true,
-        currentWindow: true,
-      });
-      if (!tab?.id) {
+      if (!tabId) {
         throw new Error("No active tab found");
       }
 
-      const response = await browser.tabs.sendMessage(tab.id, {
+      const response = await browser.tabs.sendMessage(tabId, {
         action: "getPageStructure",
       });
       setPageStructure(response);
@@ -161,13 +113,12 @@ function App() {
 
   const scrollToElement = async (xpath: string) => {
     try {
-      const [tab] = await browser.tabs.query({
-        active: true,
-        currentWindow: true,
-      });
-      if (!tab?.id) return;
+      const tabId = await getCurrentTabId();
 
-      const result = await browser.tabs.sendMessage(tab.id, {
+      if (!tabId) {
+        throw new Error("No active tab found");
+      }
+      const result = await browser.tabs.sendMessage(tabId, {
         action: "scrollToElement",
         xpath: xpath,
       });
@@ -229,12 +180,7 @@ function App() {
         />
       )}
 
-      {activeTab === "text" && (
-        <TextStyleSettingsComponent
-          settings={textStyleSettings}
-          onSettingsChange={handleTextStyleSettingsChange}
-        />
-      )}
+      {activeTab === "text" && <TextStyle currentTabHost={currentTabHost} />}
     </div>
   );
 }

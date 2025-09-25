@@ -1,8 +1,9 @@
 import { createI18n } from "@wxt-dev/i18n";
-import { useId } from "react";
+import { useCallback, useEffect, useId, useState } from "react";
 import { browser } from "wxt/browser";
+import { getCurrentTabId } from "@/browser/getCurrentTabId";
 import { Slider } from "@/components/Slider";
-import type { TextStyleSettings as TextStyleSettingsType } from "../../types";
+import type { TextStyleSettings } from "../../types";
 
 const { t } = createI18n();
 
@@ -58,53 +59,104 @@ function ValueSlider({
 }
 
 type TextStyleSettingsProps = {
-  settings: TextStyleSettingsType;
-  onSettingsChange: (settings: TextStyleSettingsType) => void;
+  currentTabHost: string;
 };
 
-export function TextStyleSettings({
-  settings,
-  onSettingsChange,
-}: TextStyleSettingsProps) {
+export function TextStyle({ currentTabHost }: TextStyleSettingsProps) {
   // デフォルト値を設定
-  const safeSettings = {
-    fontSize: settings?.fontSize ?? 1.0,
-    lineHeight: settings?.lineHeight ?? 1.5,
-    paragraphSpacing: settings?.paragraphSpacing ?? 1.0,
-    letterSpacing: settings?.letterSpacing ?? 0.0,
-    wordSpacing: settings?.wordSpacing ?? 0.0,
-  };
-  const handleChange = (key: keyof TextStyleSettingsType, value: number) => {
-    onSettingsChange({
-      ...settings,
-      [key]: value,
+  const [pageDefaultSettings, setPageDefaultSettings] =
+    useState<TextStyleSettings>({});
+  const [settings, setSettings] = useState<TextStyleSettings>({});
+
+  const handleChange = (key: keyof TextStyleSettings, value: number) => {
+    setSettings((prev) => {
+      const newSettings = {
+        ...prev,
+        [key]: value,
+      };
+      saveSettings(newSettings);
+      return newSettings;
     });
   };
+
+  const saveSettings = async (settings: TextStyleSettings) => {
+    if (currentTabHost) {
+      try {
+        await browser.storage.local.set({
+          [`textStyle_${currentTabHost}`]: settings,
+        });
+
+        // コンテンツスクリプトに設定変更を通知
+        const tabId = await getCurrentTabId();
+        if (tabId) {
+          await browser.tabs.sendMessage(tabId, {
+            action: "updateTextStyle",
+            settings: settings,
+          });
+        }
+      } catch (err) {
+        console.error("Failed to save text style settings:", err);
+      }
+    }
+  };
+
+  const loadPageDefaultSettings = useCallback(async () => {
+    try {
+      const tabId = await getCurrentTabId();
+      const { defaultSettings } =
+        tabId &&
+        (await browser.tabs.sendMessage(tabId, {
+          action: "getDefaultTextStyle",
+        }));
+      if (defaultSettings) {
+        console.log("Loaded page default settings:", defaultSettings);
+        setPageDefaultSettings(defaultSettings);
+      }
+    } catch (err) {
+      console.error("Failed to load page default settings:", err);
+    }
+  }, []);
 
   const resetToDefaults = async () => {
     try {
       // ストレージからデフォルト値を取得
       const result = await browser.storage.local.get("defaultTextStyle");
-      const defaults = result.defaultTextStyle || {
-        fontSize: undefined,
-        lineHeight: undefined,
-        paragraphSpacing: undefined,
-        letterSpacing: undefined,
-        wordSpacing: undefined,
-      };
-      onSettingsChange(defaults);
+      const defaults = result.defaultTextStyle || {};
+      setSettings(defaults);
+      saveSettings(defaults);
     } catch (err) {
       console.error("Failed to load default settings:", err);
       // エラーが発生した場合はハードコードされたデフォルト値を使用
-      onSettingsChange({
-        fontSize: undefined,
-        lineHeight: undefined,
-        paragraphSpacing: undefined,
-        letterSpacing: undefined,
-        wordSpacing: undefined,
-      });
+      setSettings({});
+      saveSettings({});
     }
   };
+  useEffect(() => {
+    loadPageDefaultSettings();
+  }, [loadPageDefaultSettings]);
+
+  useEffect(() => {
+    const loadSavedSettings = async () => {
+      try {
+        const result = await browser.storage.local.get([
+          `textStyle_${currentTabHost}`,
+        ]);
+        if (result[`textStyle_${currentTabHost}`]) {
+          setSettings(result[`textStyle_${currentTabHost}`]);
+        } else {
+          // ホスト固有の設定がない場合は、デフォルト設定を読み込む
+          const defaultResult =
+            await browser.storage.local.get("defaultTextStyle");
+          if (defaultResult.defaultTextStyle) {
+            setSettings(defaultResult.defaultTextStyle);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load saved settings:", err);
+      }
+    };
+    loadSavedSettings();
+  }, [currentTabHost]);
 
   return (
     <section className="flex flex-col">
@@ -126,7 +178,7 @@ export function TextStyleSettings({
       <div className="p-4">
         <ValueSlider
           label={t("textStyle.fontSize")}
-          value={safeSettings.fontSize}
+          value={settings.fontSize ?? pageDefaultSettings.fontSize ?? 1.0}
           min={0.5}
           max={3.0}
           step={0.01}
@@ -138,7 +190,7 @@ export function TextStyleSettings({
 
         <ValueSlider
           label={t("textStyle.lineHeight")}
-          value={safeSettings.lineHeight}
+          value={settings.lineHeight ?? pageDefaultSettings.lineHeight ?? 1.2}
           min={1.0}
           max={3.0}
           step={0.01}
@@ -150,7 +202,11 @@ export function TextStyleSettings({
 
         <ValueSlider
           label={t("textStyle.paragraphSpacing")}
-          value={safeSettings.paragraphSpacing}
+          value={
+            settings.paragraphSpacing ??
+            pageDefaultSettings.paragraphSpacing ??
+            1.0
+          }
           min={1.0}
           max={3.0}
           step={0.1}
@@ -160,7 +216,9 @@ export function TextStyleSettings({
 
         <ValueSlider
           label={t("textStyle.letterSpacing")}
-          value={safeSettings.letterSpacing}
+          value={
+            settings.letterSpacing ?? pageDefaultSettings.letterSpacing ?? 0.0
+          }
           min={0.0}
           max={0.5}
           step={0.01}
@@ -170,7 +228,7 @@ export function TextStyleSettings({
 
         <ValueSlider
           label={t("textStyle.wordSpacing")}
-          value={safeSettings.wordSpacing}
+          value={settings.wordSpacing ?? pageDefaultSettings.wordSpacing ?? 0.0}
           min={0.0}
           max={0.5}
           step={0.01}
