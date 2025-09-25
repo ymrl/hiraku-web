@@ -117,19 +117,22 @@ export function TextStyle({ currentTabHost }: TextStyleSettingsProps) {
     }
   }, []);
 
-  const resetToDefaults = async () => {
+  const loadDefaultSettings = useCallback(async () => {
     try {
-      // ストレージからデフォルト値を取得
       const result = await browser.storage.local.get("defaultTextStyle");
       const defaults = result.defaultTextStyle || {};
-      setSettings(defaults);
-      saveSettings(defaults);
+      return defaults;
     } catch (err) {
       console.error("Failed to load default settings:", err);
-      // エラーが発生した場合はハードコードされたデフォルト値を使用
-      setSettings({});
-      saveSettings({});
+      return {};
     }
+  }, []);
+
+  const resetToDefaults = async () => {
+    // ストレージからデフォルト値を取得
+    const defaults = await loadDefaultSettings();
+    setSettings(defaults);
+    saveSettings(defaults);
   };
   useEffect(() => {
     loadPageDefaultSettings();

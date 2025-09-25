@@ -2,6 +2,7 @@ import { createI18n } from "@wxt-dev/i18n";
 import { useCallback, useEffect, useId, useState } from "react";
 import { browser } from "wxt/browser";
 import { Slider } from "@/components/Slider";
+import { TextCSS } from "@/components/TextCSS";
 import type { TextStyleSettings } from "../../types/text";
 
 const { t } = createI18n();
@@ -9,13 +10,10 @@ const { t } = createI18n();
 function App() {
   const [isClearing, setIsClearing] = useState(false);
   const [savedKeys, setSavedKeys] = useState<string[]>([]);
-  const [defaultTextStyle, setDefaultTextStyle] = useState<TextStyleSettings>({
-    fontSize: 1.0,
-    lineHeight: 1.5,
-    paragraphSpacing: 1.0,
-    letterSpacing: 0.0,
-    wordSpacing: 0.0,
-  });
+  const [defaultTextStyle, setDefaultTextStyle] = useState<TextStyleSettings>(
+    {},
+  );
+  const [savedTextStyle, setSavedTextStyle] = useState<TextStyleSettings>({});
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
 
@@ -28,6 +26,7 @@ function App() {
       const result = await browser.storage.local.get("defaultTextStyle");
       if (result.defaultTextStyle) {
         setDefaultTextStyle(result.defaultTextStyle);
+        setSavedTextStyle(result.defaultTextStyle);
       }
     } catch (err) {
       console.error("Failed to load default settings:", err);
@@ -43,6 +42,7 @@ function App() {
     try {
       setIsSaving(true);
       setSaveStatus(null);
+      setSavedTextStyle(defaultTextStyle);
       await browser.storage.local.set({ defaultTextStyle: defaultTextStyle });
       setSaveStatus(t("options.saved"));
       setTimeout(() => setSaveStatus(null), 2000);
@@ -132,7 +132,7 @@ function App() {
                   min={1.0}
                   max={3.0}
                   step={0.01}
-                  value={defaultTextStyle.lineHeight ?? 1.5}
+                  value={defaultTextStyle.lineHeight ?? 1.2}
                   onChange={(e) =>
                     setDefaultTextStyle((prev) => ({
                       ...prev,
@@ -287,6 +287,7 @@ function App() {
           )}
         </section>
       </div>
+      <TextCSS settings={savedTextStyle} />
     </div>
   );
 }

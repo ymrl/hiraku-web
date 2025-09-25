@@ -2,7 +2,8 @@ import { createI18n } from "@wxt-dev/i18n";
 import { useCallback, useEffect, useState } from "react";
 import { browser } from "wxt/browser";
 import { getCurrentTabId } from "@/browser/getCurrentTabId";
-import type { Heading, Landmark } from "../../types";
+import { TextCSS } from "@/components/TextCSS";
+import type { Heading, Landmark, TextStyleSettings } from "../../types";
 import { HeadingsList } from "./HeadingsList";
 import { LandmarksList } from "./LandmarksList";
 import { TabNavigation } from "./TabNavigation";
@@ -28,6 +29,9 @@ function App() {
   );
   const [headingLevelFilter, setHeadingLevelFilter] = useState(7);
   const [currentTabHost, setCurrentTabHost] = useState<string>("");
+  const [textStyleSettings, setTextStyleSettings] = useState<TextStyleSettings>(
+    {},
+  );
 
   useEffect(() => {
     const loadSavedSettings = async () => {
@@ -45,12 +49,17 @@ function App() {
 
           // 設定の読み込み
           const result = await browser.storage.local.get([
+            "defaultTextStyle",
             "activeTab",
             `headingLevel_${host}`,
           ]);
 
           if (result.activeTab) {
             setActiveTab(result.activeTab);
+          }
+
+          if (result.defaultTextStyle) {
+            setTextStyleSettings(result.defaultTextStyle);
           }
 
           if (result[`headingLevel_${host}`]) {
@@ -159,6 +168,7 @@ function App() {
 
   return (
     <div className="w-96 bg-white dark:bg-stone-900 flex flex-col">
+      <TextCSS settings={textStyleSettings} />
       <header className="p-0 border-b border-stone-200 dark:border-stone-700">
         <h1 className=" sr-only">raku-web</h1>
         <TabNavigation activeTab={activeTab} onTabChange={handleTabChange} />
