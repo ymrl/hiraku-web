@@ -14,6 +14,7 @@ interface ValueSliderProps {
   step: number;
   onChange: (value: number) => void;
   unit?: string;
+  displayValue?: (value: number) => string;
 }
 
 function ValueSlider({
@@ -24,8 +25,13 @@ function ValueSlider({
   step,
   onChange,
   unit = "",
+  displayValue,
 }: ValueSliderProps) {
   const id = useId();
+  const displayText = displayValue
+    ? displayValue(value ?? 0)
+    : `${(value ?? 0).toFixed(step < 0.1 ? 2 : 1)}${unit}`;
+
   return (
     <div className="mb-4">
       <div className="flex items-center justify-between mb-2">
@@ -36,8 +42,7 @@ function ValueSlider({
           {label}
         </label>
         <span className="text-sm font-bold text-rose-600 dark:text-rose-400 min-w-12 text-right">
-          {(value ?? 0).toFixed(step < 0.1 ? 2 : 1)}
-          {unit}
+          {displayText}
         </span>
       </div>
       <Slider
@@ -124,9 +129,11 @@ export function TextStyleSettings({
           value={safeSettings.fontSize}
           min={0.5}
           max={3.0}
-          step={0.1}
+          step={0.01}
           onChange={(value) => handleChange("fontSize", value)}
-          unit={t("textStyle.units.times")}
+          displayValue={(value) =>
+            `${Math.round(value * 100)}${t("textStyle.units.percent")}`
+          }
         />
 
         <ValueSlider
@@ -134,8 +141,11 @@ export function TextStyleSettings({
           value={safeSettings.lineHeight}
           min={1.0}
           max={3.0}
-          step={0.1}
+          step={0.01}
           onChange={(value) => handleChange("lineHeight", value)}
+          displayValue={(value) =>
+            `${Math.round(value * 100)}${t("textStyle.units.percent")}`
+          }
         />
 
         <ValueSlider

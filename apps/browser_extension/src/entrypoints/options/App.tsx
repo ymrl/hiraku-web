@@ -102,7 +102,7 @@ function App() {
                   id={`${id}-fontSize`}
                   min={0.5}
                   max={3.0}
-                  step={0.1}
+                  step={0.01}
                   value={defaultTextStyle.fontSize ?? 1.0}
                   onChange={(e) =>
                     setDefaultTextStyle((prev) => ({
@@ -112,8 +112,8 @@ function App() {
                   }
                 />
                 <span className="text-sm font-bold text-rose-600 dark:text-rose-400 min-w-16 text-right">
-                  {defaultTextStyle.fontSize?.toFixed(1) ?? 1.0}
-                  {t("textStyle.units.times")}
+                  {Math.round((defaultTextStyle.fontSize ?? 1.0) * 100)}
+                  {t("textStyle.units.percent")}
                 </span>
               </div>
             </div>
@@ -131,7 +131,7 @@ function App() {
                   id={`${id}-lineHeight`}
                   min={1.0}
                   max={3.0}
-                  step={0.1}
+                  step={0.01}
                   value={defaultTextStyle.lineHeight ?? 1.5}
                   onChange={(e) =>
                     setDefaultTextStyle((prev) => ({
@@ -141,7 +141,8 @@ function App() {
                   }
                 />
                 <span className="text-sm font-bold text-rose-600 dark:text-rose-400 min-w-16 text-right">
-                  {defaultTextStyle.lineHeight?.toFixed(1) ?? 1.5}
+                  {Math.round((defaultTextStyle.lineHeight ?? 1.5) * 100)}
+                  {t("textStyle.units.percent")}
                 </span>
               </div>
             </div>

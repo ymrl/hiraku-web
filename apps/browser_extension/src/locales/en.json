@@ -2,6 +2,7 @@
   "title": "Page Structure",
   "headings": "Headings",
   "landmarks": "Landmarks",
+  "text": "Text",
   "noHeadings": "No headings found",
   "noLandmarks": "No landmarks found",
   "loading": "Loading...",
@@ -15,7 +16,11 @@
   "options": {
     "clearSettings": "Clear All Settings",
     "clearingDescription": "This will remove all saved settings. This action cannot be undone.",
-    "noSettings": "No settings saved"
+    "noSettings": "No settings saved",
+    "textStyleDefaults": "Text Style Defaults",
+    "textStyleDefaultsDescription": "Configure the default values that will be applied when the reset button is pressed on each site.",
+    "save": "Save",
+    "saved": "Saved"
   },
   "landmarkRoles": {
     "banner": "Banner",
@@ -26,5 +31,19 @@
     "navigation": "Navigation",
     "region": "Region",
     "search": "Search"
+  },
+  "textStyle": {
+    "title": "Text Style",
+    "reset": "Reset",
+    "fontSize": "Font Size",
+    "lineHeight": "Line Height",
+    "paragraphSpacing": "Paragraph Spacing",
+    "letterSpacing": "Letter Spacing",
+    "wordSpacing": "Word Spacing",
+    "units": {
+      "percent": "%",
+      "times": "×",
+      "em": "em"
+    }
   }
 }

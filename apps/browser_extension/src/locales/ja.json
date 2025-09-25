@@ -41,6 +41,7 @@
     "letterSpacing": "文字の間隔",
     "wordSpacing": "単語の間隔",
     "units": {
+      "percent": "％",
       "times": "倍",
       "em": "em"
     }
