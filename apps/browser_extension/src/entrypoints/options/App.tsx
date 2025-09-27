@@ -1,6 +1,7 @@
 import { createI18n } from "@wxt-dev/i18n";
 import { useCallback, useEffect, useState } from "react";
 import { browser } from "wxt/browser";
+import { Button } from "@/components/Button";
 import { SettingSlider } from "@/components/SettingSlider";
 import { TextCSS } from "@/components/TextCSS";
 import type { TextStyleSettings } from "../../types/text";
@@ -182,37 +183,24 @@ function App() {
 
           {/* 保存・リセットボタン */}
           <div className="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
+            <Button
+              appearance="primary"
               onClick={saveDefaultSettings}
               disabled={
                 isSaving ||
                 textStyleStatus === "default" ||
                 textStyleStatus === "saved"
               }
-              className="px-4 py-2 text-sm cursor-pointer
-                  bg-rose-600 text-white rounded-lg
-                  hover:not-disabled:bg-rose-700 disabled:bg-stone-400
-                  dark:bg-rose-600 dark:not-disabled:hover:bg-rose-700
-                  dark:disabled:bg-stone-600
-                  dark:disabled:text-stone-400
-                  transition-colors font-medium"
             >
               {t("options.save")}
-            </button>
-            <button
-              type="button"
+            </Button>
+            <Button
+              appearance="secondary"
               onClick={resetToDefaults}
               disabled={isSaving || textStyleStatus === "default"}
-              className="px-4 py-2 text-sm
-                  bg-stone-300  text-stone-700 rounded-lg
-                  hover:not-disabled:bg-stone-200 disabled:bg-stone-200 disabled:text-stone-500
-                  dark:bg-stone-600 dark:border-stone-400 dark:text-white dark:not-disabled:hover:bg-stone-700
-                  dark:disabled:bg-stone-700 dark:disabled:text-stone-400
-                  transition-colors font-medium"
             >
               {t("options.resetToDefaults")}
-            </button>
+            </Button>
           </div>
         </div>
       </section>
@@ -227,18 +215,13 @@ function App() {
         </p>
 
         {savedKeys.length > 0 ? (
-          <button
-            type="button"
+          <Button
+            appearance="secondary"
             onClick={clearAllSettings}
             disabled={isClearing}
-            className="px-4 py-2 text-sm
-                  bg-rose-600 text-white rounded-lg
-                  hover:not-disabled:bg-rose-700 disabled:bg-stone-400
-                  dark:bg-rose-600 dark:not-disabled:hover:bg-rose-700
-                  transition-colors font-medium"
           >
             {t("options.clearSettings")}
-          </button>
+          </Button>
         ) : (
           <p className="text-stone-700 dark:text-stone-300">
             {t("options.noSettings")}

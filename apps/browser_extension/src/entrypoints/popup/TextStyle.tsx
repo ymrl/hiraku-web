@@ -2,6 +2,7 @@ import { createI18n } from "@wxt-dev/i18n";
 import { useCallback, useEffect, useState } from "react";
 import { browser } from "wxt/browser";
 import { getCurrentTabId } from "@/browser/getCurrentTabId";
+import { Button } from "@/components/Button";
 import { SettingSlider } from "@/components/SettingSlider";
 import type { TextStyleSettings } from "../../types";
 
@@ -144,23 +145,14 @@ export function TextStyle({ currentTabHost }: TextStyleSettingsProps) {
 
   return (
     <section className="flex flex-col">
-      <div className="sticky top-0 left-0 right-0 p-3 bg-stone-100 dark:bg-stone-800 border-b border-stone-200 dark:border-stone-700">
+      <div className="sticky top-0 left-0 right-0 px-3 py-2 bg-stone-100 dark:bg-stone-800 border-b border-stone-200 dark:border-stone-700">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-medium text-stone-800 dark:text-stone-200">
             {t("textStyle.title")}
           </h3>
-          <button
-            type="button"
-            onClick={resetToDefaults}
-            className="px-3 py-2 text-xs
-            bg-stone-300  text-stone-700 rounded-lg
-            hover:not-disabled:bg-stone-200 disabled:bg-stone-200 disabled:text-stone-500
-            dark:bg-stone-600 dark:border-stone-400 dark:text-white dark:not-disabled:hover:bg-stone-700
-            dark:disabled:bg-stone-700 dark:disabled:text-stone-400
-             transition-colors font-medium"
-          >
+          <Button appearance="secondary" onClick={resetToDefaults} size="small">
             {t("textStyle.reset")}
-          </button>
+          </Button>
         </div>
       </div>
 
