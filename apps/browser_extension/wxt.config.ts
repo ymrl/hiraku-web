@@ -10,6 +10,11 @@ export default defineConfig({
     permissions: ["storage", "activeTab"],
     options_ui: {
       page: "options.html",
-    }
+    },
+    browser_specific_settings: {
+      gecko: {
+        id: "raku-web@ymrl.net",
+      },
+    },
   },
 });
