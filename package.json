@@ -13,12 +13,14 @@
     "typecheck": "pnpm --filter=@raku-web/browser-extension compile",
     "lint": "pnpm --filter=@raku-web/* lint",
     "lint-fix": "pnpm --filter=@raku-web/* lint-fix",
-    "test": "pnpm --filter=@raku-web/* test"
+    "test": "pnpm --filter=@raku-web/* test",
+    "install-playwright": "playwright install chromium firefox"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "@biomejs/biome": "^2.2.4"
+    "@biomejs/biome": "^2.2.4",
+    "playwright": "^1.55.1"
   }
 }

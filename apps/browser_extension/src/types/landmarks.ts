@@ -1,3 +1,5 @@
+import type { LANDMARK_ROLE } from "@/constants";
+
 export type LandmarkRole =
   | "banner"
   | "complementary"
@@ -9,17 +11,14 @@ export type LandmarkRole =
   | "region";
 
 export type Landmark = {
-  role: string;
+  role: LANDMARK_ROLE;
   label?: string;
   tag: string;
-  index: number;
   xpath: string;
 };
 
 export type Heading = {
   level: number;
   text: string;
-  id?: string;
-  index: number;
   xpath: string;
 };
