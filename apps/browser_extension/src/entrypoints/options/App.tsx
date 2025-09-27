@@ -4,6 +4,7 @@ import { browser } from "wxt/browser";
 import { Button } from "@/components/Button";
 import { SettingSlider } from "@/components/SettingSlider";
 import { TextCSS } from "@/components/TextCSS";
+import { loadDefaultTextStyleSettings } from "@/TextStyle";
 import type { TextStyleSettings } from "../../types/text";
 
 const { t } = createI18n();
@@ -25,15 +26,11 @@ function App() {
   }, []);
 
   const loadDefaultSettings = useCallback(async () => {
-    try {
-      const result = await browser.storage.sync.get("defaultTextStyle");
-      if (result.defaultTextStyle) {
-        setTextStyleStatus("loaded");
-        setDefaultTextStyle(result.defaultTextStyle);
-        setSavedTextStyle(result.defaultTextStyle);
-      }
-    } catch (err) {
-      console.error("Failed to load default settings:", err);
+    const result = await loadDefaultTextStyleSettings();
+    if (result) {
+      setTextStyleStatus("loaded");
+      setDefaultTextStyle(result);
+      setSavedTextStyle(result);
     }
   }, []);
 

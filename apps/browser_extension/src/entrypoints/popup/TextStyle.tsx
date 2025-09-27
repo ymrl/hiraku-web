@@ -4,6 +4,7 @@ import { browser } from "wxt/browser";
 import { getCurrentTabId } from "@/browser/getCurrentTabId";
 import { Button } from "@/components/Button";
 import { SettingSlider } from "@/components/SettingSlider";
+import { loadDefaultTextStyleSettings, loadHostTextStyle } from "@/TextStyle";
 import type { TextStyleSettings } from "../../types";
 
 const { t } = createI18n();
@@ -69,39 +70,11 @@ export function TextStyle({ currentTabHost }: TextStyleSettingsProps) {
     }
   }, []);
 
-  const loadHostSettings = useCallback(async () => {
-    try {
-      const result = await browser.storage.local.get(
-        `textStyle_${currentTabHost}`,
-      );
-      const hostSettings = result[`textStyle_${currentTabHost}`];
-      if (hostSettings) {
-        console.log("Loaded host settings for", currentTabHost, hostSettings);
-        return hostSettings;
-      }
-    } catch (err) {
-      console.error("Failed to load host settings:", err);
-      return undefined;
-    }
-  }, [currentTabHost]);
-
-  const loadDefaultSettings = useCallback(async () => {
-    try {
-      const result = await browser.storage.sync.get("defaultTextStyle");
-      const defaults = result.defaultTextStyle;
-      console.log("Loaded default text style settings", defaults);
-      return defaults;
-    } catch (err) {
-      console.error("Failed to load default settings:", err);
-      return undefined;
-    }
-  }, []);
-
   const resetToDefaults = async () => {
     // ページの設定を削除
     browser.storage.local.remove(`textStyle_${currentTabHost}`);
     // ストレージからデフォルト値を取得
-    const defaults = await loadDefaultSettings();
+    const defaults = await loadDefaultTextStyleSettings();
     if (defaults) {
       setSettings(defaults);
       sendSettingsToContentScript(defaults);
@@ -117,31 +90,13 @@ export function TextStyle({ currentTabHost }: TextStyleSettingsProps) {
 
   useEffect(() => {
     const loadSavedSettings = async () => {
-      try {
-        // まずホスト固有の設定を読み込む
-        const hostSettings = await loadHostSettings();
-        if (hostSettings) {
-          console.log(
-            "Loaded settings for host:",
-            currentTabHost,
-            hostSettings,
-          );
-          setSettings(hostSettings);
-          return;
-        }
-        // ホスト固有の設定がない場合は、デフォルト設定を読み込む
-        const defaultSettings = await loadDefaultSettings();
-        if (defaultSettings) {
-          console.log("Loaded default text style settings", defaultSettings);
-          setSettings(defaultSettings);
-          return;
-        }
-      } catch (err) {
-        console.error("Failed to load saved settings:", err);
+      const settings = await loadHostTextStyle(currentTabHost);
+      if (settings) {
+        setSettings(settings);
       }
     };
     loadSavedSettings();
-  }, [currentTabHost, loadHostSettings, loadDefaultSettings]);
+  }, [currentTabHost]);
 
   return (
     <section className="flex flex-col">
