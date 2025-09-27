@@ -15,18 +15,17 @@ export default defineContentScript({
 
     // ポップアップからのメッセージをリスンし、ページ情報を返す
     browser.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-      if (message.action === "getPageStructure") {
+      if (message.action === "getHeadings") {
         const headings = getHeadings();
+        sendResponse({ headings });
+        return true;
+      }
+      if (message.action === "getLandmarks") {
         const landmarks = getLandmarks();
-        sendResponse({
-          headings,
-          landmarks,
-          url: window.location.href,
-          title: document.title,
-        });
+        sendResponse({ landmarks });
+        return true;
       }
       // これ以外のメッセージは別の場所で処理している
-      return true;
     });
   },
 });

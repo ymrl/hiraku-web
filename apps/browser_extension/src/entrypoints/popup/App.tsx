@@ -1,29 +1,14 @@
-import { createI18n } from "@wxt-dev/i18n";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { browser } from "wxt/browser";
 import { getCurrentTabId } from "@/browser/getCurrentTabId";
 import { TextCSS } from "@/components/TextCSS";
-import type { Heading, Landmark, TextStyleSettings } from "../../types";
+import type { TextStyleSettings } from "../../types";
 import { HeadingsList } from "./HeadingsList";
 import { LandmarksList } from "./LandmarksList";
 import { TabNavigation } from "./TabNavigation";
 import { TextStyle } from "./TextStyle";
 
-const { t } = createI18n();
-
-interface PageStructure {
-  headings: Heading[];
-  landmarks: Landmark[];
-  url: string;
-  title: string;
-}
-
 function App() {
-  const [pageStructure, setPageStructure] = useState<PageStructure | null>(
-    null,
-  );
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"headings" | "landmarks" | "text">(
     "headings",
   );
@@ -76,31 +61,6 @@ function App() {
     }
   };
 
-  const loadPageStructure = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const tabId = await getCurrentTabId();
-
-      if (!tabId) {
-        throw new Error("No active tab found");
-      }
-
-      const response = await browser.tabs.sendMessage(tabId, {
-        action: "getPageStructure",
-      });
-      setPageStructure(response);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadPageStructure();
-  }, [loadPageStructure]);
-
   const scrollToElement = async (xpath: string) => {
     try {
       const tabId = await getCurrentTabId();
@@ -120,33 +80,6 @@ function App() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="w-96 p-4 bg-rose-50 dark:bg-stone-900">
-        <div className="text-center text-stone-600 dark:text-stone-300">
-          {t("loading")}
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="w-96 p-4 bg-rose-50 dark:bg-stone-900">
-        <div className="text-center text-rose-600 dark:text-rose-400">
-          {t("error")}
-        </div>
-        <button
-          type="button"
-          onClick={loadPageStructure}
-          className="mt-2 w-full px-4 py-2 bg-rose-500 text-white rounded hover:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-700"
-        >
-          Retry
-        </button>
-      </div>
-    );
-  }
-
   return (
     <div className="w-96 bg-white dark:bg-stone-900 flex flex-col">
       <TextCSS settings={textStyleSettings} />
@@ -156,17 +89,11 @@ function App() {
       </header>
 
       {activeTab === "headings" && (
-        <HeadingsList
-          headings={pageStructure?.headings || []}
-          onScrollToElement={scrollToElement}
-        />
+        <HeadingsList onScrollToElement={scrollToElement} />
       )}
 
       {activeTab === "landmarks" && (
-        <LandmarksList
-          landmarks={pageStructure?.landmarks || []}
-          onScrollToElement={scrollToElement}
-        />
+        <LandmarksList onScrollToElement={scrollToElement} />
       )}
 
       {activeTab === "text" && <TextStyle currentTabHost={currentTabHost} />}

@@ -1,21 +1,57 @@
 import { createI18n } from "@wxt-dev/i18n";
+import { useEffect, useState } from "react";
+import { browser } from "wxt/browser";
+import { getCurrentTabId } from "@/browser/getCurrentTabId";
 import type { Landmark } from "../../types";
 
 const { t } = createI18n();
 
 interface LandmarksListProps {
-  landmarks: Landmark[];
   onScrollToElement: (xpath: string) => void;
 }
 
+const getLandmarks = async (): Promise<Landmark[]> => {
+  try {
+    const tabId = await getCurrentTabId();
+    if (!tabId) {
+      return [];
+    }
+    const response = await browser.tabs.sendMessage(tabId, {
+      action: "getLandmarks",
+    });
+    if (response?.landmarks) {
+      return response.landmarks;
+    }
+    return [];
+  } catch (err) {
+    console.error("Failed to get landmarks from content script:", err);
+    return [];
+  }
+};
 export function LandmarksList({
-  landmarks,
+  // landmarks,
   onScrollToElement,
 }: LandmarksListProps) {
+  const [loading, setLoading] = useState(true);
+  const [landmarks, setLandmarks] = useState<Landmark[]>([]);
+
+  useEffect(() => {
+    getLandmarks().then((landmarks) => {
+      setLoading(false);
+      setLandmarks(landmarks);
+    });
+  }, []);
+
   return (
     <section className="flex flex-col">
-      {landmarks.length ? (
-        <ul className="space-y-1 p-1">
+      {loading ? (
+        <div className="h-32 flex justify-center items-center">
+          <p className="text-sm text-stone-500 dark:text-stone-400">
+            {t("loading")}
+          </p>
+        </div>
+      ) : landmarks.length ? (
+        <ul className="space-y-1 p-1 min-h-32">
           {landmarks.map((landmark, index) => (
             <li
               key={`${index}-${landmark}`}
@@ -47,9 +83,11 @@ export function LandmarksList({
           ))}
         </ul>
       ) : (
-        <p className="text-sm text-stone-500 dark:text-stone-400">
-          {t("noLandmarks")}
-        </p>
+        <div className="h-32 flex justify-center items-center">
+          <p className="text-sm text-stone-500 dark:text-stone-400">
+            {t("noLandmarks")}
+          </p>
+        </div>
       )}
     </section>
   );
