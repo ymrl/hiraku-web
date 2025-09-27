@@ -1,5 +1,6 @@
 import { createI18n } from "@wxt-dev/i18n";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { browser } from "wxt/browser";
 import type { Heading } from "../../types";
 import { HeadingLevelSlider } from "./HeadingLevelSlider";
 
@@ -8,16 +9,47 @@ const { t } = createI18n();
 interface HeadingsListProps {
   headings: Heading[];
   onScrollToElement: (xpath: string) => void;
-  levelFilter: number;
-  onLevelFilterChange: (level: number) => void;
 }
+
+const loadLevelFilter = async (): Promise<number> => {
+  try {
+    const result = await browser.storage.local.get("headingLevel");
+    if (result.headingLevel) {
+      return result.headingLevel;
+    }
+    return 7;
+  } catch (err) {
+    console.error("Failed to load heading level filter:", err);
+    return 7;
+  }
+};
+
+const saveLevelFlter = async (levelFilter: number) => {
+  try {
+    browser.storage.local.set({
+      headingLevel: levelFilter,
+    });
+  } catch (err) {
+    console.error("Failed to save heading level filter:", err);
+  }
+};
 
 export function HeadingsList({
   headings,
   onScrollToElement,
-  levelFilter,
-  onLevelFilterChange,
 }: HeadingsListProps) {
+  const [levelFilter, setLevelFilter] = useState(7);
+  const onLevelFilterChange = (level: number) => {
+    setLevelFilter(level);
+    saveLevelFlter(level);
+  };
+
+  useEffect(() => {
+    loadLevelFilter().then((level) => {
+      setLevelFilter(level);
+    });
+  }, []);
+
   const filteredHeadings = useMemo(() => {
     if (levelFilter === 7) return headings;
     return headings.filter((heading) => heading.level <= levelFilter);

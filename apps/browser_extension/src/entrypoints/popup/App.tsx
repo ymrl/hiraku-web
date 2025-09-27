@@ -27,7 +27,6 @@ function App() {
   const [activeTab, setActiveTab] = useState<"headings" | "landmarks" | "text">(
     "headings",
   );
-  const [headingLevelFilter, setHeadingLevelFilter] = useState(7);
   const [currentTabHost, setCurrentTabHost] = useState<string>("");
   const [textStyleSettings, setTextStyleSettings] = useState<TextStyleSettings>(
     {},
@@ -51,7 +50,6 @@ function App() {
           const result = await browser.storage.local.get([
             "defaultTextStyle",
             "activeTab",
-            `headingLevel_${host}`,
           ]);
 
           if (result.activeTab) {
@@ -60,10 +58,6 @@ function App() {
 
           if (result.defaultTextStyle) {
             setTextStyleSettings(result.defaultTextStyle);
-          }
-
-          if (result[`headingLevel_${host}`]) {
-            setHeadingLevelFilter(result[`headingLevel_${host}`]);
           }
         }
       } catch (err) {
@@ -79,19 +73,6 @@ function App() {
       await browser.storage.local.set({ activeTab: tab });
     } catch (err) {
       console.error("Failed to save tab preference:", err);
-    }
-  };
-
-  const handleHeadingLevelFilterChange = async (level: number) => {
-    setHeadingLevelFilter(level);
-    if (currentTabHost) {
-      try {
-        await browser.storage.local.set({
-          [`headingLevel_${currentTabHost}`]: level,
-        });
-      } catch (err) {
-        console.error("Failed to save heading level filter:", err);
-      }
     }
   };
 
@@ -178,8 +159,6 @@ function App() {
         <HeadingsList
           headings={pageStructure?.headings || []}
           onScrollToElement={scrollToElement}
-          levelFilter={headingLevelFilter}
-          onLevelFilterChange={handleHeadingLevelFilterChange}
         />
       )}
 
