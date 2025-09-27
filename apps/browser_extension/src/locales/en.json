@@ -1,4 +1,6 @@
 {
+  "extesionName": "Raku-Web",
+  "openPopup": "Open Popup",
   "title": "Page Structure",
   "headings": "Headings",
   "landmarks": "Landmarks",
@@ -44,5 +46,10 @@
       "percent": "%",
       "em": "em"
     }
+  },
+  "contextMenu": {
+    "openHeadingsList": "Open Headings List...",
+    "openLandmarksList": "Open Landmarks List...",
+    "openTextSettings": "Open Text Settings..."
   }
 }

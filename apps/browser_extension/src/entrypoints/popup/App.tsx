@@ -18,6 +18,29 @@ function App() {
   );
 
   useEffect(() => {
+    const listener: Parameters<
+      typeof browser.runtime.onMessage.addListener
+    >[0] = (message, _sender, sendResponse) => {
+      if (message.action === "selectHeadingsTab") {
+        setActiveTab("headings");
+        sendResponse({ success: true });
+      }
+      if (message.action === "selectLandmarksTab") {
+        setActiveTab("landmarks");
+        sendResponse({ success: true });
+      }
+      if (message.action === "selectTextTab") {
+        setActiveTab("text");
+        sendResponse({ success: true });
+      }
+    };
+    browser.runtime.onMessage.addListener(listener);
+    return () => {
+      browser.runtime.onMessage.removeListener(listener);
+    };
+  }, []);
+
+  useEffect(() => {
     const loadSavedSettings = async () => {
       try {
         // アクティブタブの取得

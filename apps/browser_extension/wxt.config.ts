@@ -7,7 +7,7 @@ export default defineConfig({
   imports: false,
   manifest: {
     default_locale: "en",
-    permissions: ["storage", "activeTab"],
+    permissions: ["storage", "activeTab", "contextMenus"],
     options_ui: {
       page: "options.html",
     },

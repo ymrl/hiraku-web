@@ -1,4 +1,6 @@
 {
+  "extesionName": "らくウェブ",
+  "openPopup": "ポップアップを開く",
   "title": "ページ構造",
   "headings": "見出し",
   "landmarks": "ランドマーク",
@@ -44,5 +46,10 @@
       "percent": "％",
       "em": "em"
     }
+  },
+  "contextMenu": {
+    "openHeadingsList": "見出しリストを開く...",
+    "openLandmarksList": "ランドマークのリストを開く...",
+    "openTextSettings": "文字の設定を開く..."
   }
 }
