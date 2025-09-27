@@ -58,8 +58,8 @@ export const TextStyleTweaker = () => {
       if (message.action === "updateTextStyle") {
         applyTextStyleSettings(message.settings);
         sendResponse({ success: true });
-      } else if (message.action === "getDefaultTextStyle") {
-        sendResponse({ defaultSettings: defaultSettingsRef.current });
+      } else if (message.action === "getPageTextStyle") {
+        sendResponse({ pageTextStyle: defaultSettingsRef.current });
       }
     };
     browser.runtime.onMessage.addListener(listener);

@@ -1,7 +1,7 @@
 import { createI18n } from "@wxt-dev/i18n";
-import { useCallback, useEffect, useId, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { browser } from "wxt/browser";
-import { Slider } from "@/components/Slider";
+import { SettingSlider } from "@/components/SettingSlider";
 import { TextCSS } from "@/components/TextCSS";
 import type { TextStyleSettings } from "../../types/text";
 
@@ -15,7 +15,9 @@ function App() {
   );
   const [savedTextStyle, setSavedTextStyle] = useState<TextStyleSettings>({});
   const [isSaving, setIsSaving] = useState(false);
-  const [saveStatus, setSaveStatus] = useState<string | null>(null);
+  const [textStyleStatus, setTextStyleStatus] = useState<
+    "default" | "changed" | "saved" | "loaded"
+  >("default");
 
   const loadSavedKeys = useCallback(async () => {
     setSavedKeys(await browser.storage.local.getKeys());
@@ -23,8 +25,9 @@ function App() {
 
   const loadDefaultSettings = useCallback(async () => {
     try {
-      const result = await browser.storage.local.get("defaultTextStyle");
+      const result = await browser.storage.sync.get("defaultTextStyle");
       if (result.defaultTextStyle) {
+        setTextStyleStatus("loaded");
         setDefaultTextStyle(result.defaultTextStyle);
         setSavedTextStyle(result.defaultTextStyle);
       }
@@ -41,30 +44,34 @@ function App() {
   const saveDefaultSettings = useCallback(async () => {
     try {
       setIsSaving(true);
-      setSaveStatus(null);
-      setSavedTextStyle(defaultTextStyle);
-      await browser.storage.local.set({ defaultTextStyle: defaultTextStyle });
-      setSaveStatus(t("options.saved"));
-      setTimeout(() => setSaveStatus(null), 2000);
+      await browser.storage.sync.set({ defaultTextStyle: defaultTextStyle });
     } catch (err) {
       console.error("Failed to save default settings:", err);
     } finally {
       setIsSaving(false);
+      setTextStyleStatus("saved");
+      setSavedTextStyle(defaultTextStyle);
     }
   }, [defaultTextStyle]);
+
+  const resetToDefaults = useCallback(async () => {
+    try {
+      setIsSaving(true);
+      await browser.storage.sync.remove("defaultTextStyle");
+    } catch (err) {
+      console.error("Failed to reset to defaults:", err);
+    } finally {
+      setIsSaving(false);
+      setTextStyleStatus("default");
+      setDefaultTextStyle({});
+      setSavedTextStyle({});
+    }
+  }, []);
 
   const clearAllSettings = useCallback(async () => {
     try {
       setIsClearing(true);
-      // すべての設定を削除（デフォルト設定は除く）
-      const result = await browser.storage.local.get("defaultTextStyle");
       await browser.storage.local.clear();
-      // デフォルト設定は復元
-      if (result.defaultTextStyle) {
-        await browser.storage.local.set({
-          defaultTextStyle: result.defaultTextStyle,
-        });
-      }
       await loadSavedKeys();
     } catch (err) {
       console.error("Failed to clear settings:", err);
@@ -73,220 +80,171 @@ function App() {
     }
   }, [loadSavedKeys]);
 
-  const id = useId();
-
   return (
-    <div className="min-h-screen bg-white dark:bg-stone-900 p-8">
-      <div className="max-w-2xl mx-auto space-y-12">
-        {/* テキストスタイルのデフォルト値設定 */}
-        <section>
-          <h2 className="text-xl font-semibold text-stone-800 dark:text-stone-200 mb-4">
-            {t("options.textStyleDefaults")}
-          </h2>
+    <div className="bg-white dark:bg-stone-900 px-4 space-y-4">
+      {/* テキストスタイルのデフォルト値設定 */}
+      <section className="mb-6">
+        <h2 className="text-lg font-bold text-stone-800 dark:text-stone-200 mb-2">
+          {t("options.textStyleDefaults")}
+        </h2>
+        <p className="text-sm text-stone-700 dark:text-stone-300 mb-4">
+          {t("options.textStyleDefaultsDescription")}
+        </p>
+        <div className="space-y-4">
+          {/* 文字の大きさ */}
+          <SettingSlider
+            min={0.5}
+            max={3.0}
+            step={0.01}
+            label={t("textStyle.fontSize")}
+            value={defaultTextStyle.fontSize ?? 1.0}
+            displayValue={(value) =>
+              `${Math.round(value * 100)}${t("textStyle.units.percent")}`
+            }
+            onChange={(value) => {
+              setTextStyleStatus("changed");
+              setDefaultTextStyle((prev) => ({
+                ...prev,
+                fontSize: value,
+              }));
+            }}
+          />
 
-          <p className="text-stone-700 dark:text-stone-300 mb-6">
-            {t("options.textStyleDefaultsDescription")}
-          </p>
+          {/* 行の高さ */}
+          <SettingSlider
+            min={1.0}
+            max={3.0}
+            step={0.01}
+            label={t("textStyle.lineHeight")}
+            value={defaultTextStyle.lineHeight ?? 1.5}
+            displayValue={(value) =>
+              `${Math.round(value * 100)}${t("textStyle.units.percent")}`
+            }
+            onChange={(value) => {
+              setTextStyleStatus("changed");
+              setDefaultTextStyle((prev) => ({
+                ...prev,
+                lineHeight: value,
+              }));
+            }}
+          />
 
-          <div className="space-y-6 bg-stone-50 dark:bg-stone-800 p-6 rounded-lg">
-            {/* 文字の大きさ */}
-            <div>
-              <label
-                htmlFor={`${id}-fontSize`}
-                className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2"
-              >
-                {t("textStyle.fontSize")}
-              </label>
-              <div className="flex items-center space-x-4">
-                <Slider
-                  id={`${id}-fontSize`}
-                  min={0.5}
-                  max={3.0}
-                  step={0.01}
-                  value={defaultTextStyle.fontSize ?? 1.0}
-                  onChange={(e) =>
-                    setDefaultTextStyle((prev) => ({
-                      ...prev,
-                      fontSize: Number(e.target.value),
-                    }))
-                  }
-                />
-                <span className="text-sm font-bold text-rose-600 dark:text-rose-400 min-w-16 text-right">
-                  {Math.round((defaultTextStyle.fontSize ?? 1.0) * 100)}
-                  {t("textStyle.units.percent")}
-                </span>
-              </div>
-            </div>
+          {/* 段落の間隔 */}
+          <SettingSlider
+            min={1.0}
+            max={3.0}
+            step={0.1}
+            label={t("textStyle.paragraphSpacing")}
+            value={defaultTextStyle.paragraphSpacing ?? 1.0}
+            unit={t("textStyle.units.em")}
+            onChange={(value) => {
+              setTextStyleStatus("changed");
+              setDefaultTextStyle((prev) => ({
+                ...prev,
+                paragraphSpacing: value,
+              }));
+            }}
+          />
 
-            {/* 行の高さ */}
-            <div>
-              <label
-                htmlFor={`${id}-lineHeight`}
-                className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2"
-              >
-                {t("textStyle.lineHeight")}
-              </label>
-              <div className="flex items-center space-x-4">
-                <Slider
-                  id={`${id}-lineHeight`}
-                  min={1.0}
-                  max={3.0}
-                  step={0.01}
-                  value={defaultTextStyle.lineHeight ?? 1.2}
-                  onChange={(e) =>
-                    setDefaultTextStyle((prev) => ({
-                      ...prev,
-                      lineHeight: Number(e.target.value),
-                    }))
-                  }
-                />
-                <span className="text-sm font-bold text-rose-600 dark:text-rose-400 min-w-16 text-right">
-                  {Math.round((defaultTextStyle.lineHeight ?? 1.5) * 100)}
-                  {t("textStyle.units.percent")}
-                </span>
-              </div>
-            </div>
+          {/* 文字の間隔 */}
+          <SettingSlider
+            min={0.0}
+            max={0.5}
+            step={0.01}
+            label={t("textStyle.letterSpacing")}
+            value={defaultTextStyle.letterSpacing ?? 0.0}
+            unit={t("textStyle.units.em")}
+            onChange={(value) => {
+              setTextStyleStatus("changed");
+              setDefaultTextStyle((prev) => ({
+                ...prev,
+                letterSpacing: value,
+              }));
+            }}
+          />
 
-            {/* 段落の間隔 */}
-            <div>
-              <label
-                htmlFor={`${id}-paragraphSpacing`}
-                className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2"
-              >
-                {t("textStyle.paragraphSpacing")}
-              </label>
-              <div className="flex items-center space-x-4">
-                <Slider
-                  id={`${id}-paragraphSpacing`}
-                  min={1.0}
-                  max={3.0}
-                  step={0.1}
-                  value={defaultTextStyle.paragraphSpacing ?? 1.0}
-                  onChange={(e) =>
-                    setDefaultTextStyle((prev) => ({
-                      ...prev,
-                      paragraphSpacing: Number(e.target.value),
-                    }))
-                  }
-                />
-                <span className="text-sm font-bold text-rose-600 dark:text-rose-400 min-w-16 text-right">
-                  {defaultTextStyle.paragraphSpacing?.toFixed(1) ?? 1.0}
-                  {t("textStyle.units.em")}
-                </span>
-              </div>
-            </div>
+          {/* 単語の間隔 */}
+          <SettingSlider
+            min={0.0}
+            max={0.5}
+            step={0.01}
+            label={t("textStyle.wordSpacing")}
+            value={defaultTextStyle.wordSpacing ?? 0.0}
+            unit={t("textStyle.units.em")}
+            onChange={(value) => {
+              setTextStyleStatus("changed");
+              setDefaultTextStyle((prev) => ({
+                ...prev,
+                wordSpacing: value,
+              }));
+            }}
+          />
 
-            {/* 文字の間隔 */}
-            <div>
-              <label
-                htmlFor={`${id}-letterSpacing`}
-                className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2"
-              >
-                {t("textStyle.letterSpacing")}
-              </label>
-              <div className="flex items-center space-x-4">
-                <Slider
-                  id={`${id}-letterSpacing`}
-                  min={0.0}
-                  max={0.5}
-                  step={0.01}
-                  value={defaultTextStyle.letterSpacing ?? 0.0}
-                  onChange={(e) =>
-                    setDefaultTextStyle((prev) => ({
-                      ...prev,
-                      letterSpacing: Number(e.target.value),
-                    }))
-                  }
-                />
-                <span className="text-sm font-bold text-rose-600 dark:text-rose-400 min-w-16 text-right">
-                  {defaultTextStyle.letterSpacing?.toFixed(2) ?? 0.0}
-                  {t("textStyle.units.em")}
-                </span>
-              </div>
-            </div>
+          {/* 保存・リセットボタン */}
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={saveDefaultSettings}
+              disabled={
+                isSaving ||
+                textStyleStatus === "default" ||
+                textStyleStatus === "saved"
+              }
+              className="px-4 py-2 text-sm cursor-pointer
+                  bg-rose-600 text-white rounded-lg
+                  hover:not-disabled:bg-rose-700 disabled:bg-stone-400
+                  dark:bg-rose-600 dark:not-disabled:hover:bg-rose-700
+                  dark:disabled:bg-stone-600
+                  dark:disabled:text-stone-400
+                  transition-colors font-medium"
+            >
+              {t("options.save")}
+            </button>
+            <button
+              type="button"
+              onClick={resetToDefaults}
+              disabled={isSaving || textStyleStatus === "default"}
+              className="px-4 py-2 text-sm
+                  bg-stone-300  text-stone-700 rounded-lg
+                  hover:not-disabled:bg-stone-200 disabled:bg-stone-200 disabled:text-stone-500
+                  dark:bg-stone-600 dark:border-stone-400 dark:text-white dark:not-disabled:hover:bg-stone-700
+                  dark:disabled:bg-stone-700 dark:disabled:text-stone-400
+                  transition-colors font-medium"
+            >
+              {t("options.resetToDefaults")}
+            </button>
+          </div>
+        </div>
+      </section>
 
-            {/* 単語の間隔 */}
-            <div>
-              <label
-                htmlFor={`${id}-wordSpacing`}
-                className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2"
-              >
-                {t("textStyle.wordSpacing")}
-              </label>
-              <div className="flex items-center space-x-4">
-                <Slider
-                  id={`${id}-wordSpacing`}
-                  min={0.0}
-                  max={0.5}
-                  step={0.01}
-                  value={defaultTextStyle.wordSpacing ?? 0.0}
-                  onChange={(e) =>
-                    setDefaultTextStyle((prev) => ({
-                      ...prev,
-                      wordSpacing: Number(e.target.value),
-                    }))
-                  }
-                />
-                <span className="text-sm font-bold text-rose-600 dark:text-rose-400 min-w-16 text-right">
-                  {defaultTextStyle.wordSpacing?.toFixed(2) ?? 0.0}
-                  {t("textStyle.units.em")}
-                </span>
-              </div>
-            </div>
+      {/* 設定のクリア */}
+      <section>
+        <h2 className="text-lg font-bold text-stone-800 dark:text-stone-200 mb-2">
+          {t("options.clearSettings")}
+        </h2>
+        <p className="text-sm text-stone-700 dark:text-stone-300 mb-4">
+          {t("options.clearingDescription")}
+        </p>
 
-            {/* 保存ボタン */}
-            <div className="flex items-center space-x-4 pt-4">
-              <button
-                type="button"
-                onClick={saveDefaultSettings}
-                disabled={isSaving}
-                className="px-6 py-3 cursor-pointer disabled:cursor-not-allowed
+        {savedKeys.length > 0 ? (
+          <button
+            type="button"
+            onClick={clearAllSettings}
+            disabled={isClearing}
+            className="px-4 py-2 text-sm
                   bg-rose-600 text-white rounded-lg
                   hover:not-disabled:bg-rose-700 disabled:bg-stone-400
                   dark:bg-rose-600 dark:not-disabled:hover:bg-rose-700
                   transition-colors font-medium"
-              >
-                {t("options.save")}
-              </button>
-              {saveStatus && (
-                <span className="text-sm text-green-600 dark:text-green-400">
-                  {saveStatus}
-                </span>
-              )}
-            </div>
-          </div>
-        </section>
-
-        {/* 設定のクリア */}
-        <section>
-          <h2 className="text-xl font-semibold text-stone-800 dark:text-stone-200 mb-4">
+          >
             {t("options.clearSettings")}
-          </h2>
-
-          <p className="text-stone-700 dark:text-stone-300 mb-6">
-            {t("options.clearingDescription")}
+          </button>
+        ) : (
+          <p className="text-stone-700 dark:text-stone-300">
+            {t("options.noSettings")}
           </p>
-
-          {savedKeys.length > 0 ? (
-            <button
-              type="button"
-              onClick={clearAllSettings}
-              disabled={isClearing || savedKeys.length === 0}
-              className="px-6 py-3 cursor-pointer disabled:cursor-not-allowed
-                bg-rose-700 text-white rounded-lg
-                hover:not-disabled:bg-rose-800 disabled:bg-stone-400
-                dark:bg-rose-700 dark:not-disabled:hover:bg-rose-800
-                transition-colors font-medium"
-            >
-              {t("options.clearSettings")}
-            </button>
-          ) : (
-            <p className="text-stone-700 dark:text-stone-300">
-              {t("options.noSettings")}
-            </p>
-          )}
-        </section>
-      </div>
+        )}
+      </section>
       <TextCSS settings={savedTextStyle} />
     </div>
   );

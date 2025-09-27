@@ -14,13 +14,13 @@
   "Levels": "レベル",
   "All": "すべて",
   "options": {
-    "clearSettings": "設定のリセット",
-    "clearingDescription": "保存されているすべての設定が削除されます。この操作は元に戻せません。",
+    "clearSettings": "Webサイトごとの設定をクリア",
+    "clearingDescription": "Webサイトごとに調整した文字の設定などを削除します。この操作は元に戻せません。",
     "noSettings": "保存されている設定はありません。",
-    "textStyleDefaults": "テキストスタイルのデフォルト値",
-    "textStyleDefaultsDescription": "各サイトで「リセット」ボタンを押した時に適用される値を設定します。",
+    "textStyleDefaults": "文字の設定",
+    "textStyleDefaultsDescription": "文字の設定はWebサイトごとに調整できます",
     "save": "保存",
-    "saved": "保存しました"
+    "resetToDefaults": "設定をリセット"
   },
   "landmarkRoles": {
     "banner": "バナー",
@@ -33,7 +33,7 @@
     "search": "検索"
   },
   "textStyle": {
-    "title": "テキストスタイル",
+    "title": "文字の設定（Webサイトごと）",
     "reset": "リセット",
     "fontSize": "文字の大きさ",
     "lineHeight": "行の高さ",
@@ -42,7 +42,6 @@
     "wordSpacing": "単語の間隔",
     "units": {
       "percent": "％",
-      "times": "倍",
       "em": "em"
     }
   }

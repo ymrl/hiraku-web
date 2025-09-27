@@ -14,13 +14,13 @@
   "Levels": "Levels",
   "All": "All",
   "options": {
-    "clearSettings": "Clear All Settings",
-    "clearingDescription": "This will remove all saved settings. This action cannot be undone.",
+    "clearSettings": "Clear per-website settings",
+    "clearingDescription": "Remove settings saved per website. This action cannot be undone.",
     "noSettings": "No settings saved",
-    "textStyleDefaults": "Text Style Defaults",
-    "textStyleDefaultsDescription": "Configure the default values that will be applied when the reset button is pressed on each site.",
+    "textStyleDefaults": "Text Style Settings",
+    "textStyleDefaultsDescription": "These settings can be adjusted per website",
     "save": "Save",
-    "saved": "Saved"
+    "resetToDefaults": "Reset to Defaults"
   },
   "landmarkRoles": {
     "banner": "Banner",
@@ -42,7 +42,6 @@
     "wordSpacing": "Word Spacing",
     "units": {
       "percent": "%",
-      "times": "×",
       "em": "em"
     }
   }
