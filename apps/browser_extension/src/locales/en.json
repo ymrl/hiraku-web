@@ -51,5 +51,10 @@
     "openHeadingsList": "Open Headings List...",
     "openLandmarksList": "Open Landmarks List...",
     "openTextSettings": "Open Text Settings..."
+  },
+  "speech": {
+    "readThisPartAloud": "Read this part aloud",
+    "pauseReading": "Pause reading",
+    "resumeReading": "Resume reading"
   }
 }

@@ -51,5 +51,10 @@
     "openHeadingsList": "見出しリストを開く...",
     "openLandmarksList": "ランドマークのリストを開く...",
     "openTextSettings": "文字の設定を開く..."
+  },
+  "speech": {
+    "readThisPartAloud": "この部分を読み上げる",
+    "pauseReading": "読み上げの一時停止",
+    "resumeReading": "読み上げの再開"
   }
 }
