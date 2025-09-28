@@ -1,5 +1,6 @@
 {
-  "extesionName": "ひらくウェブ",
+  "extensionName": "ひらくウェブ",
+  "extensionDescription": "もっと楽にウェブを読むための拡張機能。目次を表示したり、文字の大きさを変えたり、音声で読み上げたりできます。",
   "openPopup": "ポップアップを開く",
   "title": "ページ構造",
   "headings": "見出し",

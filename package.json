@@ -1,8 +1,9 @@
 {
   "name": "hiraku-web",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "",
   "main": "index.js",
+  "private": true,
   "scripts": {
     "dev": "pnpm --filter=@hiraku-web/browser-extension dev",
     "dev:firefox": "pnpm --filter=@hiraku-web/browser-extension dev:firefox",

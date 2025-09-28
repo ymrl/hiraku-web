@@ -1,5 +1,6 @@
 {
-  "extesionName": "Hiraku Web",
+  "extensionName": "Hiraku Web",
+  "extensionDescription": "A browser extension to make web reading easier. You can display a table of contents, change text size, and have text read aloud.",
   "openPopup": "Open Popup",
   "title": "Page Structure",
   "headings": "Headings",

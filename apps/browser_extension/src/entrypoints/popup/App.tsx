@@ -117,7 +117,7 @@ function App() {
     <div className="w-96 bg-white dark:bg-stone-900 flex flex-col">
       <TextCSS settings={textStyleSettings} />
       <header className="p-0 border-b border-stone-200 dark:border-stone-700">
-        <h1 className=" sr-only">{t("extesionName")}</h1>
+        <h1 className=" sr-only">{t("extensionName")}</h1>
         <TabNavigation activeTab={activeTab} onTabChange={handleTabChange} />
       </header>
 
