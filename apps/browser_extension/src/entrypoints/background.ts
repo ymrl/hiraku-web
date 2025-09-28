@@ -44,6 +44,12 @@ export default defineBackground(() => {
       type: "checkbox",
     });
     browser.contextMenus.create({
+      id: "separator1",
+      parentId: "root",
+      type: "separator",
+      contexts: ["all"],
+    });
+    browser.contextMenus.create({
       id: "openHeadingsList",
       parentId: "root",
       title: t("contextMenu.openHeadingsList"),
@@ -61,6 +67,12 @@ export default defineBackground(() => {
       title: t("contextMenu.openTextSettings"),
       contexts: ["all"],
     });
+    browser.contextMenus.create({
+      id: "openSpeechSettings",
+      parentId: "root",
+      title: t("contextMenu.openSpeechSettings"),
+      contexts: ["all"],
+    });
   });
 
   browser.contextMenus.onClicked.addListener((info) => {
@@ -74,6 +86,10 @@ export default defineBackground(() => {
     }
     if (info.menuItemId === "openTextSettings") {
       openTextSettings();
+      return;
+    }
+    if (info.menuItemId === "openSpeechSettings") {
+      openSpeechSettings();
       return;
     }
     if (info.menuItemId === "speech") {
@@ -120,6 +136,20 @@ const openTextSettings = async () => {
   }
   try {
     browser.runtime.sendMessage({ action: "selectTextTab" });
+  } catch (err) {
+    console.error("Failed to send message to popup:", err);
+  }
+};
+
+const openSpeechSettings = async () => {
+  try {
+    await browser.storage.local.set({ activeTab: "speech" });
+    await browser.action.openPopup();
+  } catch (err) {
+    console.error("Failed to open popup:", err);
+  }
+  try {
+    browser.runtime.sendMessage({ action: "selectSpeechTab" });
   } catch (err) {
     console.error("Failed to send message to popup:", err);
   }
