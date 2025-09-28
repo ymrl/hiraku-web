@@ -7,7 +7,7 @@ const { t } = createI18n();
 
 const findBlock = (element: Element): Element | null => {
   return element.closest(
-    "div, p, article, section, main, header, footer, aside, nav, ul, ol, dl, li, dt, dd, blockquote, h1, h2, h3, h4, h5, h6, table, pre",
+    "div, p, article, section, main, header, footer, aside, nav, ul, ol, dl, li, dt, dd, blockquote, h1, h2, h3, h4, h5, h6, table, pre"
   );
 };
 
@@ -30,13 +30,13 @@ export const Speech = ({
     volume: 1,
     voice: "",
   });
-  const [buttonRect, setButtonRect] = useState<Rect | undefined>(undefined);
+  const [targetRect, setTargetRect] = useState<Rect | undefined>(undefined);
   const [speakingRect, setSpeakingRect] = useState<Rect | undefined>(undefined);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
 
   const ref = useRef<HTMLDivElement>(null);
-  const blockElementRef = useRef<Element | null>(null);
+  const targetElementRef = useRef<Element | null>(null);
   const speakingElementRef = useRef<Element | null>(null);
 
   const handleSpeechEnd = useCallback(() => {
@@ -46,7 +46,7 @@ export const Speech = ({
   }, []);
 
   const speech = useCallback(async () => {
-    if (!blockElementRef.current) {
+    if (!targetElementRef.current) {
       return;
     }
     if (isSpeaking) {
@@ -54,9 +54,10 @@ export const Speech = ({
     }
     setIsPaused(false);
     setIsSpeaking(true);
-    setSpeakingRect(buttonRect);
+    setSpeakingRect(targetRect);
+    setTargetRect(undefined);
     const utter = new SpeechSynthesisUtterance();
-    utter.text = blockElementRef.current.textContent;
+    utter.text = targetElementRef.current.textContent;
 
     // 設定を適用
     utter.rate = speechSettings.rate || 1;
@@ -66,7 +67,7 @@ export const Speech = ({
     if (speechSettings.voice) {
       const voices = speechSynthesis.getVoices();
       const selectedVoice = voices.find(
-        (voice) => voice.name === speechSettings.voice,
+        (voice) => voice.name === speechSettings.voice
       );
       if (selectedVoice) {
         utter.voice = selectedVoice;
@@ -74,9 +75,9 @@ export const Speech = ({
     }
 
     speechSynthesis.speak(utter);
-    speakingElementRef.current = blockElementRef.current;
+    speakingElementRef.current = targetElementRef.current;
     utter.onend = handleSpeechEnd;
-  }, [isSpeaking, buttonRect, handleSpeechEnd, speechSettings]);
+  }, [isSpeaking, targetRect, handleSpeechEnd, speechSettings]);
 
   const handleMouseMove = useCallback(
     (event: MouseEvent) => {
@@ -87,30 +88,30 @@ export const Speech = ({
         .elementsFromPoint(event.clientX, event.clientY)
         .find(
           (el) =>
-            !shadowRootRef.current?.contains(el) && !ref.current?.contains(el),
+            !shadowRootRef.current?.contains(el) && !ref.current?.contains(el)
         );
       const candidate =
-        blockElementRef.current === element
-          ? blockElementRef.current
+        targetElementRef.current === element
+          ? targetElementRef.current
           : element
-            ? findBlock(element)
-            : null;
+          ? findBlock(element)
+          : null;
       const blockElement =
         candidate !== speakingElementRef.current ? candidate : null;
       if (blockElement) {
-        blockElementRef.current = blockElement;
+        targetElementRef.current = blockElement;
         const rect = blockElement.getBoundingClientRect();
-        setButtonRect({
+        setTargetRect({
           top: rect.top + window.scrollY,
           left: rect.left + window.scrollX,
           width: rect.width,
           height: rect.height,
         });
       } else {
-        setButtonRect(undefined);
+        setTargetRect(undefined);
       }
     },
-    [shadowRootRef],
+    [shadowRootRef]
   );
 
   const enableSpeech = useCallback(async () => {
@@ -121,7 +122,7 @@ export const Speech = ({
   const disableSpeech = useCallback(async () => {
     setIsEnabled(false);
     speechSynthesis.cancel();
-    setButtonRect(undefined);
+    setTargetRect(undefined);
     setSpeakingRect(undefined);
     setIsSpeaking(false);
     setIsPaused(false);
@@ -136,13 +137,13 @@ export const Speech = ({
 
   useEffect(() => {
     if (!isEnabled) {
-      setButtonRect(undefined);
+      setTargetRect(undefined);
       setSpeakingRect(undefined);
       setIsSpeaking(false);
       setIsPaused(false);
       speechSynthesis.cancel();
       speakingElementRef.current = null;
-      blockElementRef.current = null;
+      targetElementRef.current = null;
       return;
     }
     window.addEventListener("mousemove", handleMouseMove);
@@ -189,44 +190,101 @@ export const Speech = ({
   return (
     isEnabled && (
       <div ref={ref}>
-        {buttonRect && (
+        {targetRect && (
           <button
-            aria-label={t("speech.readThisPartAloud")}
             onClick={() => {
               speech();
             }}
             type="button"
+            className="absolute z-10
+              before:content-['']
+              before:absolute
+              before:-inset-0.5
+              before:border-2
+              before:border-solid
+              before:border-indigo-50
+              before:rounded
+              before:z-20
+              after:content-['']
+              after:absolute
+              after:-inset-0.5
+              after:border-4
+              after:box-content
+              after:border-solid
+              after:border-indigo-400
+              after:rounded
+              after:z-10
+              "
             style={{
-              border: 0,
-              position: "absolute",
-              backgroundColor: "rgba(255, 128, 128, 0.3)",
-              top: `${buttonRect.top}px`,
-              left: `${buttonRect.left}px`,
-              width: `${buttonRect.width}px`,
-              height: `${buttonRect.height}px`,
+              top: `${targetRect.top}px`,
+              left: `${targetRect.left}px`,
+              width: `${targetRect.width}px`,
+              height: `${targetRect.height}px`,
             }}
-          />
+          >
+            <span className="flex justify-center absolute bottom-full left-0 right-0">
+              <span className="z-20 p-1 block rounded-lg bg-indigo-800 text-white text-xs whitespace-nowrap shadow mb-2 relative
+               before:content-[''] before:absolute before:bg-transparent
+               before:border-solid
+               before:border-l-8 before:border-l-transparent
+               before:border-r-8 before:border-r-transparent
+               before:border-t-8 before:border-t-indigo-800
+               before:-bottom-2 before:left-1/2 before:-ml-[8px]
+              ">
+                {t("speech.clickTo")}
+                {t("speech.readThisPartAloud")}
+              </span>
+            </span>
+          </button>
         )}
         {isSpeaking && speakingRect && (
           <button
-            aria-label={
-              isPaused ? t("speech.resumeReading") : t("speech.pauseReading")
-            }
             onClick={() => {
               isPaused ? speechSynthesis.resume() : speechSynthesis.pause();
               setIsPaused(!isPaused);
             }}
             type="button"
+            className="absolute z-30
+              before:content-['']
+              before:absolute
+              before:-inset-0.5
+              before:border-2
+              before:border-solid
+              before:border-emerald-50
+              before:rounded
+              before:z-20
+              after:content-['']
+              after:absolute
+              after:-inset-0.5
+              after:border-4
+              after:box-content
+              after:border-solid
+              after:border-emerald-400
+              after:rounded
+              after:z-10"
             style={{
-              border: 0,
-              position: "absolute",
-              backgroundColor: "rgba(128 128, 255, 0.3)",
               top: `${speakingRect.top}px`,
               left: `${speakingRect.left}px`,
               width: `${speakingRect.width}px`,
               height: `${speakingRect.height}px`,
             }}
-          />
+          >
+            <span className="flex justify-center absolute bottom-full left-0 right-0">
+              <span className="z-40 p-1 block rounded-lg bg-emerald-800 text-white text-xs whitespace-nowrap shadow mb-2 relative
+               before:content-[''] before:absolute before:bg-transparent
+               before:border-solid
+               before:border-l-8 before:border-l-transparent
+               before:border-r-8 before:border-r-transparent
+               before:border-t-8 before:border-t-emerald-800
+               before:-bottom-2 before:left-1/2 before:-ml-[8px]
+              ">
+                {t("speech.clickTo")}
+                {isPaused
+                  ? t("speech.resumeReading")
+                  : t("speech.pauseReading")}
+              </span>
+            </span>
+          </button>
         )}
       </div>
     )

@@ -64,6 +64,7 @@
     "volume": "Volume",
     "voice": "Voice",
     "default": "Default",
+    "clickTo": "Click to ",
     "pauseReading": "Pause reading",
     "resumeReading": "Resume reading",
     "resetToDefaults": "Reset to Defaults"
