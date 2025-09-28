@@ -8,17 +8,8 @@ import type { SpeechSettings } from "@/types";
 
 const { t } = createI18n();
 
-interface SpeechProps {
-  currentTabHost: string;
-}
-
-export function Speech({ currentTabHost }: SpeechProps) {
-  const [speechSettings, setSpeechSettings] = useState<SpeechSettings>({
-    rate: 1,
-    pitch: 1,
-    volume: 1,
-    voice: "",
-  });
+export function Speech() {
+  const [speechSettings, setSpeechSettings] = useState<SpeechSettings>({});
   const [availableVoices, setAvailableVoices] = useState<
     SpeechSynthesisVoice[]
   >([]);
@@ -28,7 +19,7 @@ export function Speech({ currentTabHost }: SpeechProps) {
   const sendSpeechMessage = useCallback(
     async (
       action: "enableSpeech" | "disableSpeech" | "updateSpeechSettings",
-      settings?: SpeechSettings,
+      settings?: SpeechSettings
     ) => {
       try {
         const tabId = await getCurrentTabId();
@@ -42,59 +33,48 @@ export function Speech({ currentTabHost }: SpeechProps) {
         console.error("Failed to send speech message:", err);
       }
     },
-    [],
+    []
   );
 
   const loadSpeechSettings = useCallback(async () => {
     try {
       const result = await browser.storage.local.get([
-        `speechSettings_${currentTabHost}`,
-        "defaultSpeechSettings",
+        "speechSettings",
       ]);
 
-      const hostSettings = result[`speechSettings_${currentTabHost}`];
-      const defaultSettings = result.defaultSpeechSettings;
-      const settings = hostSettings || defaultSettings || {};
-
-      setSpeechSettings({
-        rate: settings.rate || 1,
-        pitch: settings.pitch || 1,
-        volume: settings.volume || 1,
-        voice: settings.voice || "",
-      });
+      setSpeechSettings(result.speechSettings || {});
     } catch (err) {
       console.error("Failed to load speech settings:", err);
     }
-  }, [currentTabHost]);
+  }, []);
 
   const saveSpeechSettings = useCallback(
     async (newSettings: SpeechSettings) => {
       try {
         await browser.storage.local.set({
-          [`speechSettings_${currentTabHost}`]: newSettings,
+          speechSettings: newSettings,
         });
-        setSpeechSettings(newSettings);
         await sendSpeechMessage("updateSpeechSettings", newSettings);
       } catch (err) {
         console.error("Failed to save speech settings:", err);
       }
     },
-    [currentTabHost, sendSpeechMessage],
+    [sendSpeechMessage]
   );
 
   const handleSettingChange = useCallback(
     (key: keyof SpeechSettings, value: number | string) => {
-      const newSettings = { ...speechSettings, [key]: value };
-      saveSpeechSettings(newSettings);
-    },
-    [speechSettings, saveSpeechSettings],
+      setSpeechSettings((prev) => {
+        const newSettings = { ...prev, [key]: value };
+        saveSpeechSettings(newSettings);
+        return newSettings;
+      });
+    },[saveSpeechSettings]
   );
 
   useEffect(() => {
-    if (currentTabHost) {
-      loadSpeechSettings();
-    }
-  }, [currentTabHost, loadSpeechSettings]);
+    loadSpeechSettings();
+  }, [loadSpeechSettings]);
 
   useEffect(() => {
     const loadVoices = () => {
@@ -124,21 +104,14 @@ export function Speech({ currentTabHost }: SpeechProps) {
 
   const resetToDefaults = useCallback(async () => {
     try {
-      const result = await browser.storage.local.get("defaultSpeechSettings");
-      const defaultSettings = result.defaultSpeechSettings || {
-        rate: 1,
-        pitch: 1,
-        volume: 1,
-        voice: "",
-      };
 
-      await browser.storage.local.remove(`speechSettings_${currentTabHost}`);
-      setSpeechSettings(defaultSettings);
-      await sendSpeechMessage("updateSpeechSettings", defaultSettings);
+      await browser.storage.local.remove("speechSettings");
+      setSpeechSettings({});
+      await sendSpeechMessage("updateSpeechSettings", {});
     } catch (err) {
       console.error("Failed to reset speech settings:", err);
     }
-  }, [currentTabHost, sendSpeechMessage]);
+  }, [sendSpeechMessage]);
   const id = useId();
 
   return (
@@ -225,7 +198,7 @@ export function Speech({ currentTabHost }: SpeechProps) {
             onChange={(e) => handleSettingChange("voice", e.target.value)}
             className="w-52 px-3 py-2 text-sm border border-stone-300 rounded-md bg-white dark:bg-stone-700 dark:border-stone-600 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent"
           >
-            <option value="">デフォルト</option>
+            <option value="">{t("speech.default")}</option>
             {availableVoices.map((voice) => (
               <option key={voice.name} value={voice.name}>
                 {voice.name} ({voice.lang})

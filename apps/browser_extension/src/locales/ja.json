@@ -62,6 +62,7 @@
     "pitch": "声の高さ",
     "volume": "声の大きさ",
     "voice": "声の種類",
+    "default": "指定なし",
     "pauseReading": "読み上げの一時停止",
     "resumeReading": "読み上げの再開",
     "resetToDefaults": "設定をリセット"
