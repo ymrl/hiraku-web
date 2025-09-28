@@ -2,12 +2,13 @@ import { createI18n } from "@wxt-dev/i18n";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { browser } from "wxt/browser";
 import type { SpeechMessage, SpeechSettings } from "@/types";
+import { getSpeechContent } from "./getSpeechContent";
 
 const { t } = createI18n();
 
 const findBlock = (element: Element): Element | null => {
   return element.closest(
-    "div, p, article, section, main, header, footer, aside, nav, ul, ol, dl, li, dt, dd, blockquote, h1, h2, h3, h4, h5, h6, table, pre"
+    "div, p, article, section, main, header, footer, aside, nav, ul, ol, dl, li, dt, dd, blockquote, h1, h2, h3, h4, h5, h6, table, pre",
   );
 };
 
@@ -57,7 +58,8 @@ export const Speech = ({
     setSpeakingRect(targetRect);
     setTargetRect(undefined);
     const utter = new SpeechSynthesisUtterance();
-    utter.text = targetElementRef.current.textContent;
+    const content = getSpeechContent(targetElementRef.current);
+    utter.text = content;
 
     // 設定を適用
     utter.rate = speechSettings.rate || 1;
@@ -67,7 +69,7 @@ export const Speech = ({
     if (speechSettings.voice) {
       const voices = speechSynthesis.getVoices();
       const selectedVoice = voices.find(
-        (voice) => voice.name === speechSettings.voice
+        (voice) => voice.name === speechSettings.voice,
       );
       if (selectedVoice) {
         utter.voice = selectedVoice;
@@ -88,14 +90,14 @@ export const Speech = ({
         .elementsFromPoint(event.clientX, event.clientY)
         .find(
           (el) =>
-            !shadowRootRef.current?.contains(el) && !ref.current?.contains(el)
+            !shadowRootRef.current?.contains(el) && !ref.current?.contains(el),
         );
       const candidate =
         targetElementRef.current === element
           ? targetElementRef.current
           : element
-          ? findBlock(element)
-          : null;
+            ? findBlock(element)
+            : null;
       const blockElement =
         candidate !== speakingElementRef.current ? candidate : null;
       if (blockElement) {
@@ -111,7 +113,7 @@ export const Speech = ({
         setTargetRect(undefined);
       }
     },
-    [shadowRootRef]
+    [shadowRootRef],
   );
 
   const enableSpeech = useCallback(async () => {
@@ -211,7 +213,7 @@ export const Speech = ({
               after:border-4
               after:box-content
               after:border-solid
-              after:border-indigo-400
+              after:border-indigo-600
               after:rounded
               after:z-10
               "
@@ -223,14 +225,17 @@ export const Speech = ({
             }}
           >
             <span className="flex justify-center absolute bottom-full left-0 right-0">
-              <span className="z-20 p-1 block rounded-lg bg-indigo-800 text-white text-xs whitespace-nowrap shadow mb-2 relative
+              <span
+                className="z-20 py-1 px-2 block rounded-lg border-2 border-solid border-indigo-600 bg-white text-indigo-800 text-xs font-bold whitespace-nowrap
+               mb-2 relative
                before:content-[''] before:absolute before:bg-transparent
                before:border-solid
                before:border-l-8 before:border-l-transparent
                before:border-r-8 before:border-r-transparent
-               before:border-t-8 before:border-t-indigo-800
+               before:border-t-8 before:border-t-indigo-600
                before:-bottom-2 before:left-1/2 before:-ml-[8px]
-              ">
+              "
+              >
                 {t("speech.clickTo")}
                 {t("speech.readThisPartAloud")}
               </span>
@@ -259,7 +264,7 @@ export const Speech = ({
               after:border-4
               after:box-content
               after:border-solid
-              after:border-emerald-400
+              after:border-emerald-600
               after:rounded
               after:z-10"
             style={{
@@ -270,14 +275,17 @@ export const Speech = ({
             }}
           >
             <span className="flex justify-center absolute bottom-full left-0 right-0">
-              <span className="z-40 p-1 block rounded-lg bg-emerald-800 text-white text-xs whitespace-nowrap shadow mb-2 relative
+              <span
+                className="z-20 py-1 px-2 block rounded-lg border-2 border-solid border-emerald-600 bg-white text-emerald-800 text-xs font-bold whitespace-nowrap
+               mb-2 relative
                before:content-[''] before:absolute before:bg-transparent
                before:border-solid
                before:border-l-8 before:border-l-transparent
                before:border-r-8 before:border-r-transparent
-               before:border-t-8 before:border-t-emerald-800
+               before:border-t-8 before:border-t-emerald-600
                before:-bottom-2 before:left-1/2 before:-ml-[8px]
-              ">
+              "
+              >
                 {t("speech.clickTo")}
                 {isPaused
                   ? t("speech.resumeReading")
