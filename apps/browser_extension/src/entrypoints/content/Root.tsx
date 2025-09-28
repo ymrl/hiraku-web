@@ -8,7 +8,7 @@ import { TextStyleTweaker } from "./TextStyleTweaker";
 
 export const createRootElement = () => {
   const root = document.createElement("div");
-  root.id = "raku-web-popup-root";
+  root.id = "hiraku-web-content-root";
   root.style.cssText = `
     position: absolute;
     top: 0;

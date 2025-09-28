@@ -19,7 +19,7 @@ export default defineConfig({
     },
     browser_specific_settings: {
       gecko: {
-        id: "raku-web@ymrl.net",
+        id: "hiraku-web@ymrl.net",
       },
     },
   },

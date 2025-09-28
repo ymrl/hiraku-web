@@ -1,3 +1,4 @@
+import { createI18n } from "@wxt-dev/i18n";
 import { useEffect, useState } from "react";
 import { browser } from "wxt/browser";
 import { getCurrentTabId } from "@/browser/getCurrentTabId";
@@ -8,6 +9,8 @@ import { LandmarksList } from "./LandmarksList";
 import { Speech } from "./Speech";
 import { TabNavigation } from "./TabNavigation";
 import { TextStyle } from "./TextStyle";
+
+const { t } = createI18n();
 
 function App() {
   const [activeTab, setActiveTab] = useState<
@@ -114,7 +117,7 @@ function App() {
     <div className="w-96 bg-white dark:bg-stone-900 flex flex-col">
       <TextCSS settings={textStyleSettings} />
       <header className="p-0 border-b border-stone-200 dark:border-stone-700">
-        <h1 className=" sr-only">raku-web</h1>
+        <h1 className=" sr-only">{t("extensionName")}</h1>
         <TabNavigation activeTab={activeTab} onTabChange={handleTabChange} />
       </header>
 
@@ -128,7 +131,7 @@ function App() {
 
       {activeTab === "text" && <TextStyle currentTabHost={currentTabHost} />}
 
-      {activeTab === "speech" && <Speech currentTabHost={currentTabHost} />}
+      {activeTab === "speech" && <Speech />}
     </div>
   );
 }

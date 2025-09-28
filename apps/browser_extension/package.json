@@ -1,5 +1,5 @@
 {
-  "name": "@raku-web/browser-extension",
+  "name": "@hiraku-web/browser-extension",
   "description": "manifest.json description",
   "private": true,
   "version": "0.0.0",

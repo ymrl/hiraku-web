@@ -19,7 +19,7 @@ export function Speech() {
   const sendSpeechMessage = useCallback(
     async (
       action: "enableSpeech" | "disableSpeech" | "updateSpeechSettings",
-      settings?: SpeechSettings
+      settings?: SpeechSettings,
     ) => {
       try {
         const tabId = await getCurrentTabId();
@@ -33,14 +33,12 @@ export function Speech() {
         console.error("Failed to send speech message:", err);
       }
     },
-    []
+    [],
   );
 
   const loadSpeechSettings = useCallback(async () => {
     try {
-      const result = await browser.storage.local.get([
-        "speechSettings",
-      ]);
+      const result = await browser.storage.local.get(["speechSettings"]);
 
       setSpeechSettings(result.speechSettings || {});
     } catch (err) {
@@ -59,7 +57,7 @@ export function Speech() {
         console.error("Failed to save speech settings:", err);
       }
     },
-    [sendSpeechMessage]
+    [sendSpeechMessage],
   );
 
   const handleSettingChange = useCallback(
@@ -69,7 +67,8 @@ export function Speech() {
         saveSpeechSettings(newSettings);
         return newSettings;
       });
-    },[saveSpeechSettings]
+    },
+    [saveSpeechSettings],
   );
 
   useEffect(() => {
@@ -104,7 +103,6 @@ export function Speech() {
 
   const resetToDefaults = useCallback(async () => {
     try {
-
       await browser.storage.local.remove("speechSettings");
       setSpeechSettings({});
       await sendSpeechMessage("updateSpeechSettings", {});
