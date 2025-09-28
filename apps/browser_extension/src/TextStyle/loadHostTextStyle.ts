@@ -23,7 +23,6 @@ const loadHostSettings = async (
     const result = await browser.storage.local.get(`textStyle_${host}`);
     const hostSettings = result[`textStyle_${host}`];
     if (hostSettings) {
-      console.log("Loaded host settings for", host, hostSettings);
       return hostSettings;
     }
   } catch (err) {

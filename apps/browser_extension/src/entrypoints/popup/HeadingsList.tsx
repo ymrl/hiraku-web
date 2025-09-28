@@ -86,7 +86,7 @@ export function HeadingsList({ onScrollToElement }: HeadingsListProps) {
       aria-labelledby={`${id}-heading`}
     >
       <h2 className="sr-only" id={`${id}-heading`}>
-        {t("headingsk")}
+        {t("headings")}
       </h2>
       <HeadingLevelSlider value={levelFilter} onChange={onLevelFilterChange} />
       {loading ? (

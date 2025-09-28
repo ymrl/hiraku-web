@@ -113,6 +113,27 @@ export const Speech = ({
     [shadowRootRef],
   );
 
+  const enableSpeech = useCallback(async () => {
+    setIsEnabled(true);
+    await browser.runtime.sendMessage({ action: "speechEnabled" });
+  }, []);
+
+  const disableSpeech = useCallback(async () => {
+    setIsEnabled(false);
+    speechSynthesis.cancel();
+    setButtonRect(undefined);
+    setSpeakingRect(undefined);
+    setIsSpeaking(false);
+    setIsPaused(false);
+    await browser.runtime.sendMessage({ action: "speechDisabled" });
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener("visibilitychange", disableSpeech);
+    return () =>
+      document.removeEventListener("visibilitychange", disableSpeech);
+  }, [disableSpeech]);
+
   useEffect(() => {
     if (!isEnabled) {
       setButtonRect(undefined);
@@ -132,28 +153,38 @@ export const Speech = ({
     const messageListener: Parameters<
       typeof browser.runtime.onMessage.addListener
     >[0] = (message: SpeechMessage, _sender, sendResponse) => {
-      if (message.action === "enableSpeech") {
-        setIsEnabled(true);
-        if (message.settings) {
-          setSpeechSettings(message.settings);
-        }
-        sendResponse({ success: true });
-      } else if (message.action === "disableSpeech") {
-        setIsEnabled(false);
-        sendResponse({ success: true });
-      } else if (message.action === "updateSpeechSettings") {
-        if (message.settings) {
-          setSpeechSettings(message.settings);
-        }
-        sendResponse({ success: true });
+      if (message.action === "speechStatus") {
+        sendResponse({ isEnabled });
+        return true;
       }
+      if (message.action === "enableSpeech") {
+        enableSpeech();
+        if (message.settings) {
+          setSpeechSettings(message.settings);
+        }
+        sendResponse({ success: true });
+        return true;
+      }
+      if (message.action === "disableSpeech") {
+        disableSpeech();
+        sendResponse({ success: true });
+        return true;
+      }
+      if (message.action === "updateSpeechSettings") {
+        if (message.settings) {
+          setSpeechSettings(message.settings);
+        }
+        sendResponse({ success: true });
+        return true;
+      }
+      return false;
     };
 
     browser.runtime.onMessage.addListener(messageListener);
     return () => {
       browser.runtime.onMessage.removeListener(messageListener);
     };
-  }, []);
+  }, [enableSpeech, disableSpeech, isEnabled]);
 
   return (
     isEnabled && (

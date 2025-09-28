@@ -5,7 +5,12 @@ export interface SpeechSettings {
   voice?: string; // 音声名、デフォルトはブラウザの設定
 }
 
-export interface SpeechMessage {
-  action: "enableSpeech" | "disableSpeech" | "updateSpeechSettings";
-  settings?: SpeechSettings;
-}
+export type SpeechMessage =
+  | {
+      action: "enableSpeech" | "disableSpeech" | "updateSpeechSettings";
+      settings?: SpeechSettings;
+    }
+  | {
+      action: "speechStatus";
+      isEnabled?: boolean;
+    };

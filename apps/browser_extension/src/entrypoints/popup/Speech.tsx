@@ -13,7 +13,7 @@ export function Speech() {
   const [availableVoices, setAvailableVoices] = useState<
     SpeechSynthesisVoice[]
   >([]);
-  const [isEnabled, setIsEnabled] = useState(true);
+  const [isEnabled, setIsEnabled] = useState(false);
   const voiceSelectId = useId();
 
   const sendSpeechMessage = useCallback(
@@ -70,10 +70,26 @@ export function Speech() {
     },
     [saveSpeechSettings],
   );
+  const sendSpeechStatus = useCallback(async () => {
+    try {
+      const tabId = await getCurrentTabId();
+      if (!tabId) throw new Error("No active tab found");
+
+      const result = await browser.tabs.sendMessage(tabId, {
+        action: "speechStatus",
+      });
+      if (result && result.isEnabled !== undefined) {
+        setIsEnabled(result.isEnabled);
+      }
+    } catch (err) {
+      console.error("Failed to send speech status message:", err);
+    }
+  }, []);
 
   useEffect(() => {
     loadSpeechSettings();
-  }, [loadSpeechSettings]);
+    sendSpeechStatus();
+  }, [loadSpeechSettings, sendSpeechStatus]);
 
   useEffect(() => {
     const loadVoices = () => {
@@ -89,17 +105,17 @@ export function Speech() {
     };
   }, []);
 
-  useEffect(() => {
-    if (isEnabled) {
-      sendSpeechMessage("enableSpeech", speechSettings);
-    } else {
-      sendSpeechMessage("disableSpeech");
-    }
+  const enableSpeech = useCallback(async () => {
+    setIsEnabled(true);
+    await sendSpeechMessage("enableSpeech", speechSettings);
+    await browser.runtime.sendMessage({ action: "speechEnabled" });
+  }, [speechSettings, sendSpeechMessage]);
 
-    return () => {
-      sendSpeechMessage("disableSpeech");
-    };
-  }, [isEnabled, speechSettings, sendSpeechMessage]);
+  const disableSpeech = useCallback(async () => {
+    setIsEnabled(false);
+    await sendSpeechMessage("disableSpeech");
+    await browser.runtime.sendMessage({ action: "speechDisabled" });
+  }, [sendSpeechMessage]);
 
   const resetToDefaults = useCallback(async () => {
     try {
@@ -125,7 +141,7 @@ export function Speech() {
         <label className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => setIsEnabled((prev) => !prev)}
+            onClick={() => (isEnabled ? disableSpeech() : enableSpeech())}
             className={
               "w-11 h-6 rounded-full relative " +
               "before:content-[''] before:absolute before:rounded-full before:h-5 before:w-5 before:transition-all " +

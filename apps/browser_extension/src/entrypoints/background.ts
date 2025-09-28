@@ -1,6 +1,7 @@
 import { createI18n } from "@wxt-dev/i18n";
 import { browser } from "wxt/browser";
 import { defineBackground } from "wxt/utils/define-background";
+import { getCurrentTabId } from "@/browser/getCurrentTabId";
 import { loadHostTextStyle } from "@/TextStyle";
 
 const { t } = createI18n();
@@ -18,6 +19,14 @@ export default defineBackground(() => {
       });
       return true; // 非同期レスポンスを示す
     }
+    if (request.action === "speechEnabled") {
+      browser.contextMenus.update("speech", { checked: true });
+      return true;
+    }
+    if (request.action === "speechDisabled") {
+      browser.contextMenus.update("speech", { checked: false });
+      return true;
+    }
     return false;
   });
 
@@ -26,6 +35,13 @@ export default defineBackground(() => {
       id: "root",
       title: t("extesionName"),
       contexts: ["all"],
+    });
+    browser.contextMenus.create({
+      id: "speech",
+      parentId: "root",
+      title: t("contextMenu.speech"),
+      contexts: ["all"],
+      type: "checkbox",
     });
     browser.contextMenus.create({
       id: "openHeadingsList",
@@ -58,6 +74,10 @@ export default defineBackground(() => {
     }
     if (info.menuItemId === "openTextSettings") {
       openTextSettings();
+      return;
+    }
+    if (info.menuItemId === "speech") {
+      toggleSpeech(info.checked);
       return;
     }
   });
@@ -102,5 +122,22 @@ const openTextSettings = async () => {
     browser.runtime.sendMessage({ action: "selectTextTab" });
   } catch (err) {
     console.error("Failed to send message to popup:", err);
+  }
+};
+
+const toggleSpeech = async (enabled: boolean | undefined) => {
+  try {
+    const tabId = await getCurrentTabId();
+    if (!tabId) return;
+    const settings = enabled
+      ? await browser.storage.local.get("speechSettings")
+      : undefined;
+
+    await browser.tabs.sendMessage(tabId, {
+      action: enabled ? "enableSpeech" : "disableSpeech",
+      settings,
+    });
+  } catch (err) {
+    console.error("Failed to send speech message:", err);
   }
 };

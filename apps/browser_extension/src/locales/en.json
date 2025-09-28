@@ -51,7 +51,8 @@
   "contextMenu": {
     "openHeadingsList": "Open Headings List...",
     "openLandmarksList": "Open Landmarks List...",
-    "openTextSettings": "Open Text Settings..."
+    "openTextSettings": "Open Text Settings...",
+    "speech": "Speech"
   },
   "speech": {
     "enableSpeech": "Enable Speech",
