@@ -1,5 +1,7 @@
 import { createI18n } from "@wxt-dev/i18n";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { browser } from "wxt/browser";
+import type { SpeechMessage, SpeechSettings } from "@/types";
 
 const { t } = createI18n();
 
@@ -21,7 +23,13 @@ export const Speech = ({
 }: {
   shadowRootRef: React.RefObject<HTMLDivElement | null>;
 }) => {
-  const [isEnabled, _setIsEnabled] = useState(false);
+  const [isEnabled, setIsEnabled] = useState(false);
+  const [speechSettings, setSpeechSettings] = useState<SpeechSettings>({
+    rate: 1,
+    pitch: 1,
+    volume: 1,
+    voice: "",
+  });
   const [buttonRect, setButtonRect] = useState<Rect | undefined>(undefined);
   const [speakingRect, setSpeakingRect] = useState<Rect | undefined>(undefined);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -49,10 +57,26 @@ export const Speech = ({
     setSpeakingRect(buttonRect);
     const utter = new SpeechSynthesisUtterance();
     utter.text = blockElementRef.current.textContent;
+
+    // 設定を適用
+    utter.rate = speechSettings.rate || 1;
+    utter.pitch = speechSettings.pitch || 1;
+    utter.volume = speechSettings.volume || 1;
+
+    if (speechSettings.voice) {
+      const voices = speechSynthesis.getVoices();
+      const selectedVoice = voices.find(
+        (voice) => voice.name === speechSettings.voice,
+      );
+      if (selectedVoice) {
+        utter.voice = selectedVoice;
+      }
+    }
+
     speechSynthesis.speak(utter);
     speakingElementRef.current = blockElementRef.current;
     utter.onend = handleSpeechEnd;
-  }, [isSpeaking, buttonRect, handleSpeechEnd]);
+  }, [isSpeaking, buttonRect, handleSpeechEnd, speechSettings]);
 
   const handleMouseMove = useCallback(
     (event: MouseEvent) => {
@@ -103,6 +127,33 @@ export const Speech = ({
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, [handleMouseMove, isEnabled]);
+
+  useEffect(() => {
+    const messageListener: Parameters<
+      typeof browser.runtime.onMessage.addListener
+    >[0] = (message: SpeechMessage, _sender, sendResponse) => {
+      if (message.action === "enableSpeech") {
+        setIsEnabled(true);
+        if (message.settings) {
+          setSpeechSettings(message.settings);
+        }
+        sendResponse({ success: true });
+      } else if (message.action === "disableSpeech") {
+        setIsEnabled(false);
+        sendResponse({ success: true });
+      } else if (message.action === "updateSpeechSettings") {
+        if (message.settings) {
+          setSpeechSettings(message.settings);
+        }
+        sendResponse({ success: true });
+      }
+    };
+
+    browser.runtime.onMessage.addListener(messageListener);
+    return () => {
+      browser.runtime.onMessage.removeListener(messageListener);
+    };
+  }, []);
 
   return (
     isEnabled && (

@@ -5,13 +5,14 @@ import { TextCSS } from "@/components/TextCSS";
 import type { TextStyleSettings } from "../../types";
 import { HeadingsList } from "./HeadingsList";
 import { LandmarksList } from "./LandmarksList";
+import { Speech } from "./Speech";
 import { TabNavigation } from "./TabNavigation";
 import { TextStyle } from "./TextStyle";
 
 function App() {
-  const [activeTab, setActiveTab] = useState<"headings" | "landmarks" | "text">(
-    "headings",
-  );
+  const [activeTab, setActiveTab] = useState<
+    "headings" | "landmarks" | "text" | "speech"
+  >("headings");
   const [currentTabHost, setCurrentTabHost] = useState<string>("");
   const [textStyleSettings, setTextStyleSettings] = useState<TextStyleSettings>(
     {},
@@ -31,6 +32,10 @@ function App() {
       }
       if (message.action === "selectTextTab") {
         setActiveTab("text");
+        sendResponse({ success: true });
+      }
+      if (message.action === "selectSpeechTab") {
+        setActiveTab("speech");
         sendResponse({ success: true });
       }
     };
@@ -75,7 +80,9 @@ function App() {
     loadSavedSettings();
   }, []);
 
-  const handleTabChange = async (tab: "headings" | "landmarks" | "text") => {
+  const handleTabChange = async (
+    tab: "headings" | "landmarks" | "text" | "speech",
+  ) => {
     setActiveTab(tab);
     try {
       await browser.storage.local.set({ activeTab: tab });
@@ -120,6 +127,8 @@ function App() {
       )}
 
       {activeTab === "text" && <TextStyle currentTabHost={currentTabHost} />}
+
+      {activeTab === "speech" && <Speech currentTabHost={currentTabHost} />}
     </div>
   );
 }

@@ -97,7 +97,7 @@ function App() {
             label={t("textStyle.fontSize")}
             value={defaultTextStyle.fontSize ?? 1.0}
             displayValue={(value) =>
-              `${Math.round(value * 100)}${t("textStyle.units.percent")}`
+              `${Math.round(value * 100)}${t("units.percent")}`
             }
             onChange={(value) => {
               setTextStyleStatus("changed");
@@ -116,7 +116,7 @@ function App() {
             label={t("textStyle.lineHeight")}
             value={defaultTextStyle.lineHeight ?? 1.5}
             displayValue={(value) =>
-              `${Math.round(value * 100)}${t("textStyle.units.percent")}`
+              `${Math.round(value * 100)}${t("units.percent")}`
             }
             onChange={(value) => {
               setTextStyleStatus("changed");
@@ -134,7 +134,7 @@ function App() {
             step={0.1}
             label={t("textStyle.paragraphSpacing")}
             value={defaultTextStyle.paragraphSpacing ?? 1.0}
-            unit={t("textStyle.units.em")}
+            unit={t("units.em")}
             onChange={(value) => {
               setTextStyleStatus("changed");
               setDefaultTextStyle((prev) => ({
@@ -151,7 +151,7 @@ function App() {
             step={0.01}
             label={t("textStyle.letterSpacing")}
             value={defaultTextStyle.letterSpacing ?? 0.0}
-            unit={t("textStyle.units.em")}
+            unit={t("units.em")}
             onChange={(value) => {
               setTextStyleStatus("changed");
               setDefaultTextStyle((prev) => ({
@@ -168,7 +168,7 @@ function App() {
             step={0.01}
             label={t("textStyle.wordSpacing")}
             value={defaultTextStyle.wordSpacing ?? 0.0}
-            unit={t("textStyle.units.em")}
+            unit={t("units.em")}
             onChange={(value) => {
               setTextStyleStatus("changed");
               setDefaultTextStyle((prev) => ({

@@ -1,5 +1,5 @@
 import { createI18n } from "@wxt-dev/i18n";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useId, useState } from "react";
 import { browser } from "wxt/browser";
 import { getCurrentTabId } from "@/browser/getCurrentTabId";
 import { Button } from "@/components/Button";
@@ -97,21 +97,29 @@ export function TextStyle({ currentTabHost }: TextStyleSettingsProps) {
     };
     loadSavedSettings();
   }, [currentTabHost]);
+  const id = useId();
 
   return (
-    <section className="flex flex-col">
+    <section
+      className="flex flex-col"
+      role="tabpanel"
+      aria-labelledby={`${id}-heading`}
+    >
       <div className="sticky top-0 left-0 right-0 px-3 py-2 bg-stone-100 dark:bg-stone-800 border-b border-stone-200 dark:border-stone-700">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium text-stone-800 dark:text-stone-200">
+          <h2
+            className="text-sm font-medium text-stone-800 dark:text-stone-200"
+            id={`${id}-heading`}
+          >
             {t("textStyle.title")}
-          </h3>
+          </h2>
           <Button appearance="secondary" onClick={resetToDefaults} size="small">
             {t("textStyle.reset")}
           </Button>
         </div>
       </div>
 
-      <div className="p-4 space-y-4">
+      <div className="flex flex-col gap-4 p-4">
         <SettingSlider
           label={t("textStyle.fontSize")}
           value={settings.fontSize ?? pageStyles.fontSize ?? 1.0}
@@ -120,7 +128,7 @@ export function TextStyle({ currentTabHost }: TextStyleSettingsProps) {
           step={0.01}
           onChange={(value) => handleChange("fontSize", value)}
           displayValue={(value) =>
-            `${Math.round(value * 100)}${t("textStyle.units.percent")}`
+            `${Math.round(value * 100)}${t("units.percent")}`
           }
         />
 
@@ -132,7 +140,7 @@ export function TextStyle({ currentTabHost }: TextStyleSettingsProps) {
           step={0.01}
           onChange={(value) => handleChange("lineHeight", value)}
           displayValue={(value) =>
-            `${Math.round(value * 100)}${t("textStyle.units.percent")}`
+            `${Math.round(value * 100)}${t("units.percent")}`
           }
         />
 
@@ -145,7 +153,7 @@ export function TextStyle({ currentTabHost }: TextStyleSettingsProps) {
           max={3.0}
           step={0.1}
           onChange={(value) => handleChange("paragraphSpacing", value)}
-          unit={t("textStyle.units.em")}
+          unit={t("units.em")}
         />
 
         <SettingSlider
@@ -155,7 +163,7 @@ export function TextStyle({ currentTabHost }: TextStyleSettingsProps) {
           max={0.5}
           step={0.01}
           onChange={(value) => handleChange("letterSpacing", value)}
-          unit={t("textStyle.units.em")}
+          unit={t("units.em")}
         />
 
         <SettingSlider
@@ -165,7 +173,7 @@ export function TextStyle({ currentTabHost }: TextStyleSettingsProps) {
           max={0.5}
           step={0.01}
           onChange={(value) => handleChange("wordSpacing", value)}
-          unit={t("textStyle.units.em")}
+          unit={t("units.em")}
         />
       </div>
     </section>

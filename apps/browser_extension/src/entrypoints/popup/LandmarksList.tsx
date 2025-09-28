@@ -1,5 +1,5 @@
 import { createI18n } from "@wxt-dev/i18n";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { browser } from "wxt/browser";
 import { getCurrentTabId } from "@/browser/getCurrentTabId";
 import type { Landmark } from "../../types";
@@ -42,8 +42,16 @@ export function LandmarksList({
     });
   }, []);
 
+  const id = useId();
   return (
-    <section className="flex flex-col">
+    <section
+      className="flex flex-col"
+      role="tabpanel"
+      aria-labelledby={`${id}-heading`}
+    >
+      <h2 className="sr-only" id={`${id}-heading`}>
+        {t("landmarks")}
+      </h2>
       {loading ? (
         <div className="h-32 flex justify-center items-center">
           <p className="text-sm text-stone-500 dark:text-stone-400">

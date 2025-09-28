@@ -1,5 +1,5 @@
 import { createI18n } from "@wxt-dev/i18n";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { browser } from "wxt/browser";
 import { getCurrentTabId } from "@/browser/getCurrentTabId";
 import type { Heading } from "../../types";
@@ -78,8 +78,16 @@ export function HeadingsList({ onScrollToElement }: HeadingsListProps) {
     return headings.filter((heading) => heading.level <= levelFilter);
   }, [headings, levelFilter]);
 
+  const id = useId();
   return (
-    <section className="flex flex-col">
+    <section
+      className="flex flex-col"
+      role="tabpanel"
+      aria-labelledby={`${id}-heading`}
+    >
+      <h2 className="sr-only" id={`${id}-heading`}>
+        {t("headingsk")}
+      </h2>
       <HeadingLevelSlider value={levelFilter} onChange={onLevelFilterChange} />
       {loading ? (
         <div className="h-32 flex justify-center items-center">

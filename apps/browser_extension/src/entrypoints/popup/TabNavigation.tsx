@@ -4,8 +4,8 @@ import type { MouseEventHandler } from "react";
 const { t } = createI18n();
 
 interface TabNavigationProps {
-  activeTab: "headings" | "landmarks" | "text";
-  onTabChange: (tab: "headings" | "landmarks" | "text") => void;
+  activeTab: "headings" | "landmarks" | "text" | "speech";
+  onTabChange: (tab: "headings" | "landmarks" | "text" | "speech") => void;
 }
 const onTabKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
   if (e.key === "ArrowLeft") {
@@ -73,6 +73,11 @@ export function TabNavigation({ activeTab, onTabChange }: TabNavigationProps) {
           isActive={activeTab === "text"}
           label={t("text")}
           onClick={() => onTabChange("text")}
+        />
+        <Tab
+          isActive={activeTab === "speech"}
+          label={t("speeches")}
+          onClick={() => onTabChange("speech")}
         />
       </div>
     </nav>

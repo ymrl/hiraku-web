@@ -4,6 +4,7 @@
   "title": "ページ構造",
   "headings": "見出し",
   "landmarks": "ランドマーク",
+  "speeches": "読み上げ",
   "text": "文字",
   "noHeadings": "見出しが見つかりません",
   "noLandmarks": "ランドマークが見つかりません",
@@ -41,11 +42,11 @@
     "lineHeight": "行の高さ",
     "paragraphSpacing": "段落の間隔",
     "letterSpacing": "文字の間隔",
-    "wordSpacing": "単語の間隔",
-    "units": {
-      "percent": "％",
-      "em": "em"
-    }
+    "wordSpacing": "単語の間隔"
+  },
+  "units": {
+    "percent": "％",
+    "em": "em"
   },
   "contextMenu": {
     "openHeadingsList": "見出しリストを開く...",
@@ -53,8 +54,16 @@
     "openTextSettings": "文字の設定を開く..."
   },
   "speech": {
+    "enableSpeech": "読み上げを有効にする",
+    "speechModeEnabled": "音声読み上げモード: オン",
+    "speechModeDisabled": "音声読み上げモード: オフ",
     "readThisPartAloud": "この部分を読み上げる",
+    "speed": "読み上げる速さ",
+    "pitch": "声の高さ",
+    "volume": "声の大きさ",
+    "voice": "声の種類",
     "pauseReading": "読み上げの一時停止",
-    "resumeReading": "読み上げの再開"
+    "resumeReading": "読み上げの再開",
+    "resetToDefaults": "設定をリセット"
   }
 }
