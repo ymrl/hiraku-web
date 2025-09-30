@@ -33,7 +33,7 @@ export default defineBackground(() => {
   browser.runtime.onInstalled.addListener(() => {
     browser.contextMenus.create({
       id: "root",
-      title: t("extesionName"),
+      title: t("extensionName"),
       contexts: ["all"],
     });
     browser.contextMenus.create({
