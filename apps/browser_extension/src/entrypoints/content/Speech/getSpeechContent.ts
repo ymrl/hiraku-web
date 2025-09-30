@@ -60,7 +60,7 @@ const IGNORE_ELEMENTS = [
   "slot",
   "style",
   "template",
-]
+];
 
 export const getSpeechContent = (el: Element): string => nodeContent(el).trim();
 
