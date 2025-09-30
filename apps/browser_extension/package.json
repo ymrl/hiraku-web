@@ -16,7 +16,8 @@
     "lint": "biome check src",
     "lint-fix": "biome check --fix src",
     "test": "vitest run --config vite.test.config.ts",
-    "test:watch": "vitest --config vite.test.config.ts"
+    "test:watch": "vitest --config vite.test.config.ts",
+    "bump_version": "pnpm version --no-git-tag-version"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.13",

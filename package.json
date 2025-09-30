@@ -15,7 +15,9 @@
     "lint": "pnpm --filter=@hiraku-web/* lint",
     "lint-fix": "pnpm --filter=@hiraku-web/* lint-fix",
     "test": "pnpm --filter=@hiraku-web/* test",
-    "install-playwright": "playwright install chromium firefox"
+    "install-playwright": "playwright install chromium firefox",
+    "bump_version:packages": "pnpm --filter @hiraku-web/* --no-git-tag-version bump_version",
+    "bump_version": "pnpm version --no-git-tag-version"
   },
   "keywords": [],
   "author": "",
