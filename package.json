@@ -10,7 +10,7 @@
     "build": "pnpm --filter=@hiraku-web/browser-extension build",
     "build:firefox": "pnpm --filter=@hiraku-web/browser-extension build",
     "zip": "pnpm --filter=@hiraku-web/browser-extension zip",
-    "zip:firefox": "pnpm --filter=@hiraku-web/browser-extension zip",
+    "zip:firefox": "pnpm --filter=@hiraku-web/browser-extension zip:firefox",
     "typecheck": "pnpm --filter=@hiraku-web/browser-extension compile",
     "lint": "pnpm --filter=@hiraku-web/* lint",
     "lint-fix": "pnpm --filter=@hiraku-web/* lint-fix",

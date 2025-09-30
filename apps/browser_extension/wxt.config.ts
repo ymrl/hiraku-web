@@ -4,7 +4,11 @@ import { defineConfig } from "wxt";
 export default defineConfig({
   modules: ["@wxt-dev/module-react", "@wxt-dev/i18n/module"],
   srcDir: "src",
+  outDir: "dist",
   imports: false,
+  zip: {
+    artifactTemplate: "hiraku-web-{{version}}-{{browser}}.zip",
+  },
   manifest: {
     name: "__MSG_extensionName__",
     description: "__MSG_extensionDescription__",
