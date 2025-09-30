@@ -47,6 +47,21 @@ const INLINE_ELEMENTS = [
   "var",
 ];
 
+const IGNORE_ELEMENTS = [
+  "col",
+  "colgroup",
+  "datalist",
+  "head",
+  "link",
+  "meta",
+  "noscript",
+  "rp",
+  "script",
+  "slot",
+  "style",
+  "template",
+]
+
 export const getSpeechContent = (el: Element): string => nodeContent(el).trim();
 
 const nodeContent = (node: Node): string => {
@@ -61,6 +76,9 @@ const nodeContent = (node: Node): string => {
     return "";
   }
   const tagName = el.tagName.toLowerCase();
+  if (IGNORE_ELEMENTS.includes(tagName)) {
+    return "";
+  }
   const role = getRole(el);
   if (role && PRESENTATIONAL_ROLES.includes(role)) {
     return computeAccessibleName(el) || "";

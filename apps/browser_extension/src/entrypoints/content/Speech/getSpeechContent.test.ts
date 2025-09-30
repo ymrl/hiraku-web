@@ -130,6 +130,22 @@ describe("getSpeechContent", () => {
     expect(result).toContain("Submit button");
   });
 
+  test("無視対象の要素は無視される", () => {
+    const div = document.createElement("div");
+    const script = document.createElement("script");
+    const style = document.createElement("style");
+
+    div.textContent = "Visible text";
+    script.textContent = "console.log('Hello');";
+    style.textContent = ".hidden { display: none; }";
+
+    div.appendChild(script);
+    div.appendChild(style);
+    document.body.appendChild(div);
+
+    expect(getSpeechContent(div)).toBe("Visible text");
+  });
+
   test("visibility:hiddenの要素は無視される", () => {
     const style = document.createElement("style");
     style.textContent = `.invisible { visibility: hidden; }`;
