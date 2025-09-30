@@ -1,4 +1,6 @@
 import { computeAccessibleName, getRole } from "dom-accessibility-api";
+import { isAriaHidden, isInAriaHidden } from "@/utils/isAriaHidden";
+import { isHidden } from "@/utils/isHidden";
 
 const PRESENTATIONAL_ROLES = [
   "button",
@@ -45,7 +47,7 @@ const INLINE_ELEMENTS = [
   "var",
 ];
 
-export const getSpeechContent = (el: Element): string => nodeContent(el);
+export const getSpeechContent = (el: Element): string => nodeContent(el).trim();
 
 const nodeContent = (node: Node): string => {
   if (node.nodeType === Node.TEXT_NODE) {
@@ -55,6 +57,9 @@ const nodeContent = (node: Node): string => {
     return "";
   }
   const el = node as Element;
+  if (isHidden(el) || isAriaHidden(el) || isInAriaHidden(el)) {
+    return "";
+  }
   const tagName = el.tagName.toLowerCase();
   const role = getRole(el);
   if (role && PRESENTATIONAL_ROLES.includes(role)) {
