@@ -24,7 +24,12 @@
     "textStyleDefaults": "文字の設定",
     "textStyleDefaultsDescription": "文字の設定はWebサイトごとに調整できます",
     "save": "保存",
-    "resetToDefaults": "設定をリセット"
+    "resetToDefaults": "設定をリセット",
+    "enableFontSize": "文字の大きさを変更する",
+    "enableLineHeight": "行の高さを変更する",
+    "enableParagraphSpacing": "段落の間隔を変更する",
+    "enableLetterSpacing": "文字の間隔を変更する",
+    "enableWordSpacing": "単語の間隔を変更する"
   },
   "landmarkRoles": {
     "banner": "バナー",

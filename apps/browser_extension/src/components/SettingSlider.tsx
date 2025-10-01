@@ -10,6 +10,7 @@ export const SettingSlider = ({
   onChange,
   unit = "",
   displayValue,
+  disabled = false,
 }: {
   label: string;
   value: number;
@@ -19,6 +20,7 @@ export const SettingSlider = ({
   onChange: (value: number) => void;
   unit?: string;
   displayValue?: (value: number) => string;
+  disabled?: boolean;
 }) => {
   const id = useId();
   const displayText = displayValue
@@ -30,11 +32,21 @@ export const SettingSlider = ({
       <div className="flex items-center justify-between mb-2">
         <label
           htmlFor={id}
-          className="text-sm font-medium text-stone-700 dark:text-stone-300"
+          className={`text-sm font-medium ${
+            disabled
+              ? "text-stone-600 dark:text-stone-400"
+              : "text-stone-800 dark:text-stone-300"
+          }`}
         >
           {label}
         </label>
-        <span className="text-sm font-bold text-rose-600 dark:text-rose-400 min-w-12 text-right">
+        <span
+          className={`text-sm font-bold ${
+            disabled
+              ? "text-stone-600 dark:text-stone-400"
+              : "text-rose-600 dark:text-rose-400"
+          } min-w-12 text-right`}
+        >
           {displayText}
         </span>
       </div>
@@ -45,6 +57,7 @@ export const SettingSlider = ({
         step={step}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
+        disabled={disabled}
       />
     </div>
   );
