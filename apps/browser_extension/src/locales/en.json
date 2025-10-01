@@ -24,7 +24,12 @@
     "textStyleDefaults": "Text Style Settings",
     "textStyleDefaultsDescription": "These settings can be adjusted per website",
     "save": "Save",
-    "resetToDefaults": "Reset to Defaults"
+    "resetToDefaults": "Reset to Defaults",
+    "enableFontSize": "Enable Font Size",
+    "enableLineHeight": "Enable Line Height",
+    "enableParagraphSpacing": "Enable Paragraph Spacing",
+    "enableLetterSpacing": "Enable Letter Spacing",
+    "enableWordSpacing": "Enable Word Spacing"
   },
   "landmarkRoles": {
     "banner": "Banner",

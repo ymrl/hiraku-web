@@ -90,93 +90,222 @@ function App() {
         </p>
         <div className="space-y-4">
           {/* 文字の大きさ */}
-          <SettingSlider
-            min={0.5}
-            max={3.0}
-            step={0.01}
-            label={t("textStyle.fontSize")}
-            value={defaultTextStyle.fontSize ?? 1.0}
-            displayValue={(value) =>
-              `${Math.round(value * 100)}${t("units.percent")}`
-            }
-            onChange={(value) => {
-              setTextStyleStatus("changed");
-              setDefaultTextStyle((prev) => ({
-                ...prev,
-                fontSize: value,
-              }));
-            }}
-          />
+          <div className="space-y-2">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={defaultTextStyle.fontSize !== undefined}
+                onChange={(e) => {
+                  setTextStyleStatus("changed");
+                  setDefaultTextStyle((prev) => {
+                    if (e.target.checked) {
+                      return { ...prev, fontSize: prev.fontSize ?? 1.0 };
+                    }
+                    // biome-ignore lint/correctness/noUnusedVariables: fontSize is intentionally destructured to remove it
+                    const { fontSize, ...rest } = prev;
+                    return rest;
+                  });
+                }}
+                className="w-4 h-4"
+              />
+              <span className="text-sm text-stone-700 dark:text-stone-300">
+                {t("options.enableFontSize")}
+              </span>
+            </label>
+            <SettingSlider
+              min={0.5}
+              max={3.0}
+              step={0.01}
+              label={t("textStyle.fontSize")}
+              value={defaultTextStyle.fontSize ?? 1.0}
+              displayValue={(value) =>
+                `${Math.round(value * 100)}${t("units.percent")}`
+              }
+              onChange={(value) => {
+                setTextStyleStatus("changed");
+                setDefaultTextStyle((prev) => ({
+                  ...prev,
+                  fontSize: value,
+                }));
+              }}
+              disabled={defaultTextStyle.fontSize === undefined}
+            />
+          </div>
 
           {/* 行の高さ */}
-          <SettingSlider
-            min={1.0}
-            max={3.0}
-            step={0.01}
-            label={t("textStyle.lineHeight")}
-            value={defaultTextStyle.lineHeight ?? 1.5}
-            displayValue={(value) =>
-              `${Math.round(value * 100)}${t("units.percent")}`
-            }
-            onChange={(value) => {
-              setTextStyleStatus("changed");
-              setDefaultTextStyle((prev) => ({
-                ...prev,
-                lineHeight: value,
-              }));
-            }}
-          />
+          <div className="space-y-2">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={defaultTextStyle.lineHeight !== undefined}
+                onChange={(e) => {
+                  setTextStyleStatus("changed");
+                  setDefaultTextStyle((prev) => {
+                    if (e.target.checked) {
+                      return { ...prev, lineHeight: prev.lineHeight ?? 1.5 };
+                    }
+                    // biome-ignore lint/correctness/noUnusedVariables: lineHeight is intentionally destructured to remove it
+                    const { lineHeight, ...rest } = prev;
+                    return rest;
+                  });
+                }}
+                className="w-4 h-4"
+              />
+              <span className="text-sm text-stone-700 dark:text-stone-300">
+                {t("options.enableLineHeight")}
+              </span>
+            </label>
+            <SettingSlider
+              min={1.0}
+              max={3.0}
+              step={0.01}
+              label={t("textStyle.lineHeight")}
+              value={defaultTextStyle.lineHeight ?? 1.5}
+              displayValue={(value) =>
+                `${Math.round(value * 100)}${t("units.percent")}`
+              }
+              onChange={(value) => {
+                setTextStyleStatus("changed");
+                setDefaultTextStyle((prev) => ({
+                  ...prev,
+                  lineHeight: value,
+                }));
+              }}
+              disabled={defaultTextStyle.lineHeight === undefined}
+            />
+          </div>
 
           {/* 段落の間隔 */}
-          <SettingSlider
-            min={1.0}
-            max={3.0}
-            step={0.1}
-            label={t("textStyle.paragraphSpacing")}
-            value={defaultTextStyle.paragraphSpacing ?? 1.0}
-            unit={t("units.em")}
-            onChange={(value) => {
-              setTextStyleStatus("changed");
-              setDefaultTextStyle((prev) => ({
-                ...prev,
-                paragraphSpacing: value,
-              }));
-            }}
-          />
+          <div className="space-y-2">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={defaultTextStyle.paragraphSpacing !== undefined}
+                onChange={(e) => {
+                  setTextStyleStatus("changed");
+                  setDefaultTextStyle((prev) => {
+                    if (e.target.checked) {
+                      return {
+                        ...prev,
+                        paragraphSpacing: prev.paragraphSpacing ?? 1.0,
+                      };
+                    }
+                    // biome-ignore lint/correctness/noUnusedVariables: paragraphSpacing is intentionally destructured to remove it
+                    const { paragraphSpacing, ...rest } = prev;
+                    return rest;
+                  });
+                }}
+                className="w-4 h-4"
+              />
+              <span className="text-sm text-stone-700 dark:text-stone-300">
+                {t("options.enableParagraphSpacing")}
+              </span>
+            </label>
+            <SettingSlider
+              min={1.0}
+              max={3.0}
+              step={0.1}
+              label={t("textStyle.paragraphSpacing")}
+              value={defaultTextStyle.paragraphSpacing ?? 1.0}
+              unit={t("units.em")}
+              onChange={(value) => {
+                setTextStyleStatus("changed");
+                setDefaultTextStyle((prev) => ({
+                  ...prev,
+                  paragraphSpacing: value,
+                }));
+              }}
+              disabled={defaultTextStyle.paragraphSpacing === undefined}
+            />
+          </div>
 
           {/* 文字の間隔 */}
-          <SettingSlider
-            min={0.0}
-            max={0.5}
-            step={0.01}
-            label={t("textStyle.letterSpacing")}
-            value={defaultTextStyle.letterSpacing ?? 0.0}
-            unit={t("units.em")}
-            onChange={(value) => {
-              setTextStyleStatus("changed");
-              setDefaultTextStyle((prev) => ({
-                ...prev,
-                letterSpacing: value,
-              }));
-            }}
-          />
+          <div className="space-y-2">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={defaultTextStyle.letterSpacing !== undefined}
+                onChange={(e) => {
+                  setTextStyleStatus("changed");
+                  setDefaultTextStyle((prev) => {
+                    if (e.target.checked) {
+                      return {
+                        ...prev,
+                        letterSpacing: prev.letterSpacing ?? 0.0,
+                      };
+                    }
+                    // biome-ignore lint/correctness/noUnusedVariables: letterSpacing is intentionally destructured to remove it
+                    const { letterSpacing, ...rest } = prev;
+                    return rest;
+                  });
+                }}
+                className="w-4 h-4"
+              />
+              <span className="text-sm text-stone-700 dark:text-stone-300">
+                {t("options.enableLetterSpacing")}
+              </span>
+            </label>
+            <SettingSlider
+              min={0.0}
+              max={0.5}
+              step={0.01}
+              label={t("textStyle.letterSpacing")}
+              value={defaultTextStyle.letterSpacing ?? 0.0}
+              unit={t("units.em")}
+              onChange={(value) => {
+                setTextStyleStatus("changed");
+                setDefaultTextStyle((prev) => ({
+                  ...prev,
+                  letterSpacing: value,
+                }));
+              }}
+              disabled={defaultTextStyle.letterSpacing === undefined}
+            />
+          </div>
 
           {/* 単語の間隔 */}
-          <SettingSlider
-            min={0.0}
-            max={0.5}
-            step={0.01}
-            label={t("textStyle.wordSpacing")}
-            value={defaultTextStyle.wordSpacing ?? 0.0}
-            unit={t("units.em")}
-            onChange={(value) => {
-              setTextStyleStatus("changed");
-              setDefaultTextStyle((prev) => ({
-                ...prev,
-                wordSpacing: value,
-              }));
-            }}
-          />
+          <div className="space-y-2">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={defaultTextStyle.wordSpacing !== undefined}
+                onChange={(e) => {
+                  setTextStyleStatus("changed");
+                  setDefaultTextStyle((prev) => {
+                    if (e.target.checked) {
+                      return {
+                        ...prev,
+                        wordSpacing: prev.wordSpacing ?? 0.0,
+                      };
+                    }
+                    // biome-ignore lint/correctness/noUnusedVariables: wordSpacing is intentionally destructured to remove it
+                    const { wordSpacing, ...rest } = prev;
+                    return rest;
+                  });
+                }}
+                className="w-4 h-4"
+              />
+              <span className="text-sm text-stone-700 dark:text-stone-300">
+                {t("options.enableWordSpacing")}
+              </span>
+            </label>
+            <SettingSlider
+              min={0.0}
+              max={0.5}
+              step={0.01}
+              label={t("textStyle.wordSpacing")}
+              value={defaultTextStyle.wordSpacing ?? 0.0}
+              unit={t("units.em")}
+              onChange={(value) => {
+                setTextStyleStatus("changed");
+                setDefaultTextStyle((prev) => ({
+                  ...prev,
+                  wordSpacing: value,
+                }));
+              }}
+              disabled={defaultTextStyle.wordSpacing === undefined}
+            />
+          </div>
 
           {/* 保存・リセットボタン */}
           <div className="flex flex-wrap items-center gap-2">
