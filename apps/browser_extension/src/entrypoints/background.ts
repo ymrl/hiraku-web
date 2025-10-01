@@ -43,36 +43,38 @@ export default defineBackground(() => {
       contexts: ["all"],
       type: "checkbox",
     });
-    browser.contextMenus.create({
-      id: "separator1",
-      parentId: "root",
-      type: "separator",
-      contexts: ["all"],
-    });
-    browser.contextMenus.create({
-      id: "openHeadingsList",
-      parentId: "root",
-      title: t("contextMenu.openHeadingsList"),
-      contexts: ["all"],
-    });
-    browser.contextMenus.create({
-      id: "openLandmarksList",
-      parentId: "root",
-      title: t("contextMenu.openLandmarksList"),
-      contexts: ["all"],
-    });
-    browser.contextMenus.create({
-      id: "openTextSettings",
-      parentId: "root",
-      title: t("contextMenu.openTextSettings"),
-      contexts: ["all"],
-    });
-    browser.contextMenus.create({
-      id: "openSpeechSettings",
-      parentId: "root",
-      title: t("contextMenu.openSpeechSettings"),
-      contexts: ["all"],
-    });
+    if (browser.action) {
+      browser.contextMenus.create({
+        id: "separator1",
+        parentId: "root",
+        type: "separator",
+        contexts: ["all"],
+      });
+      browser.contextMenus.create({
+        id: "openHeadingsList",
+        parentId: "root",
+        title: t("contextMenu.openHeadingsList"),
+        contexts: ["all"],
+      });
+      browser.contextMenus.create({
+        id: "openLandmarksList",
+        parentId: "root",
+        title: t("contextMenu.openLandmarksList"),
+        contexts: ["all"],
+      });
+      browser.contextMenus.create({
+        id: "openTextSettings",
+        parentId: "root",
+        title: t("contextMenu.openTextSettings"),
+        contexts: ["all"],
+      });
+      browser.contextMenus.create({
+        id: "openSpeechSettings",
+        parentId: "root",
+        title: t("contextMenu.openSpeechSettings"),
+        contexts: ["all"],
+      });
+    }
   });
 
   browser.contextMenus.onClicked.addListener((info) => {
