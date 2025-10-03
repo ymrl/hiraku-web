@@ -233,7 +233,7 @@ export const Speech = ({
                before:border-l-8 before:border-l-transparent
                before:border-r-8 before:border-r-transparent
                before:border-t-8 before:border-t-indigo-600
-               before:-bottom-2 before:left-1/2 before:-ml-[8px]
+               before:-bottom-[8px] before:left-1/2 before:-ml-[8px]
               "
               >
                 {t("speech.clickTo")}
@@ -283,7 +283,7 @@ export const Speech = ({
                before:border-l-8 before:border-l-transparent
                before:border-r-8 before:border-r-transparent
                before:border-t-8 before:border-t-emerald-600
-               before:-bottom-2 before:left-1/2 before:-ml-[8px]
+               before:-bottom-[8px] before:left-1/2 before:-ml-[8px]
               "
               >
                 {t("speech.clickTo")}
