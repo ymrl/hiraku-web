@@ -52,7 +52,7 @@ export const Speech = ({
     }
     const content = getSpeechContent(targetElementRef.current);
     if (!content) {
-      return
+      return;
     }
     if (isSpeaking) {
       speechSynthesis.cancel();
