@@ -50,15 +50,19 @@ export const Speech = ({
     if (!targetElementRef.current) {
       return;
     }
+    const content = getSpeechContent(targetElementRef.current);
+    if (!content) {
+      return
+    }
     if (isSpeaking) {
       speechSynthesis.cancel();
     }
+    const utter = new SpeechSynthesisUtterance();
     setIsPaused(false);
     setIsSpeaking(true);
     setSpeakingRect(targetRect);
     setTargetRect(undefined);
-    const utter = new SpeechSynthesisUtterance();
-    const content = getSpeechContent(targetElementRef.current);
+
     utter.text = content;
 
     // 設定を適用
