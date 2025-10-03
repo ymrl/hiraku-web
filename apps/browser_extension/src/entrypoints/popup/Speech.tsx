@@ -172,9 +172,9 @@ export function Speech() {
           max={3}
           step={0.1}
           onChange={(value) => handleSettingChange("rate", value)}
-          displayValue={(value) =>
-            `${Math.round(value * 100)}${t("units.percent")}`
-          }
+          unit={t("units.percent")}
+          toDisplay={(v) => Math.round(v * 100)}
+          fromDisplay={(v) => v / 100}
         />
 
         <SettingSlider
@@ -184,7 +184,6 @@ export function Speech() {
           max={2}
           step={0.1}
           onChange={(value) => handleSettingChange("pitch", value)}
-          displayValue={(value) => value.toFixed(1)}
         />
 
         <SettingSlider
@@ -194,9 +193,9 @@ export function Speech() {
           max={1}
           step={0.1}
           onChange={(value) => handleSettingChange("volume", value)}
-          displayValue={(value) =>
-            `${Math.round(value * 100)}${t("units.percent")}`
-          }
+          unit={t("units.percent")}
+          toDisplay={(v) => Math.round(v * 100)}
+          fromDisplay={(v) => v / 100}
         />
 
         <div className="flex gap-2 items-center justify-between">
