@@ -75,5 +75,8 @@
     "pauseReading": "読み上げの一時停止",
     "resumeReading": "読み上げの再開",
     "resetToDefaults": "設定をリセット"
+  },
+  "speechContent": {
+    "image": "画像"
   }
 }

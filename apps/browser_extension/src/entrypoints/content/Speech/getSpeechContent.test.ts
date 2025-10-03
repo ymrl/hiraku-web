@@ -1,5 +1,16 @@
-import { afterEach, describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import { getSpeechContent } from "./getSpeechContent";
+
+vi.mock("@wxt-dev/i18n", () => ({
+  createI18n: () => ({
+    t: (key: string) => {
+      const translations: Record<string, string> = {
+        "speechContent.image": "Image",
+      };
+      return translations[key] || key;
+    },
+  }),
+}));
 
 describe("getSpeechContent", () => {
   afterEach(() => {
@@ -286,5 +297,37 @@ describe("getSpeechContent", () => {
     expect(result).toContain("Apple");
     expect(result).toContain("Banana");
     expect(result).not.toContain("Orange");
+  });
+
+  test("画像要素でアクセシブルネームがある場合", () => {
+    const img = document.createElement("img");
+    img.setAttribute("alt", "ロゴ画像");
+    document.body.appendChild(img);
+
+    expect(getSpeechContent(img)).toBe("ロゴ画像");
+  });
+
+  test("画像要素でアクセシブルネームがない場合", () => {
+    const img = document.createElement("img");
+    document.body.appendChild(img);
+
+    expect(getSpeechContent(img)).toBe("Image");
+  });
+
+  test("画像要素でaria-labelがある場合", () => {
+    const img = document.createElement("img");
+    img.setAttribute("aria-label", "会社のロゴ");
+    document.body.appendChild(img);
+
+    expect(getSpeechContent(img)).toBe("会社のロゴ");
+  });
+
+  test("画像要素で空のaltがある場合（装飾画像）", () => {
+    const img = document.createElement("img");
+    img.setAttribute("alt", "");
+    document.body.appendChild(img);
+
+    // 空のaltは装飾画像を意味するため、読み上げない
+    expect(getSpeechContent(img)).toBe("");
   });
 });

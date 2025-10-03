@@ -1,6 +1,9 @@
+import { createI18n } from "@wxt-dev/i18n";
 import { computeAccessibleName, getRole } from "dom-accessibility-api";
 import { isAriaHidden, isInAriaHidden } from "@/utils/isAriaHidden";
 import { isHidden } from "@/utils/isHidden";
+
+const { t } = createI18n();
 
 const PRESENTATIONAL_ROLES = [
   "button",
@@ -81,7 +84,11 @@ const nodeContent = (node: Node): string => {
   }
   const role = getRole(el);
   if (role && PRESENTATIONAL_ROLES.includes(role)) {
-    return computeAccessibleName(el) || "";
+    const accessibleName = computeAccessibleName(el);
+    if (role === "img" && !accessibleName) {
+      return t("speechContent.image");
+    }
+    return accessibleName || "";
   }
   if (tagName === "input" || tagName === "textarea") {
     const inputEl = el as HTMLInputElement;
