@@ -220,7 +220,11 @@ export function Speech() {
             {t("speech.disclaimer")}
           </p>
           <div className="shrink-0">
-            <Button appearance="secondary" onClick={resetToDefaults} size="small">
+            <Button
+              appearance="secondary"
+              onClick={resetToDefaults}
+              size="small"
+            >
               {t("speech.resetToDefaults")}
             </Button>
           </div>
