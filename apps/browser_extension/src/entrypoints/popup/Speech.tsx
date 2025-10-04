@@ -215,10 +215,19 @@ export function Speech() {
           </select>
         </div>
 
-        <div className="text-right">
-          <Button appearance="secondary" onClick={resetToDefaults} size="small">
-            {t("speech.resetToDefaults")}
-          </Button>
+        <div className="flex items-center justify-between gap-1">
+          <p className="text-xs text-stone-700 dark:text-stone-300">
+            {t("speech.disclaimer")}
+          </p>
+          <div className="shrink-0">
+            <Button
+              appearance="secondary"
+              onClick={resetToDefaults}
+              size="small"
+            >
+              {t("speech.resetToDefaults")}
+            </Button>
+          </div>
         </div>
       </div>
     </section>
