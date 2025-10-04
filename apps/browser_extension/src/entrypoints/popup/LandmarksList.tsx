@@ -1,7 +1,7 @@
 import { createI18n } from "@wxt-dev/i18n";
 import { useEffect, useId, useState } from "react";
-import { browser } from "wxt/browser";
 import { getCurrentTabId } from "@/browser/getCurrentTabId";
+import { type GetLandmarks, sendMessageToTab } from "@/ExtensionMessages";
 import type { Landmark } from "../../types";
 
 const { t } = createI18n();
@@ -16,7 +16,7 @@ const getLandmarks = async (): Promise<Landmark[]> => {
     if (!tabId) {
       return [];
     }
-    const response = await browser.tabs.sendMessage(tabId, {
+    const response = await sendMessageToTab<GetLandmarks>(tabId, {
       action: "getLandmarks",
     });
     if (response?.landmarks) {

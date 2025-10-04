@@ -1,5 +1,9 @@
-import { browser } from "wxt/browser";
 import { defineContentScript } from "wxt/utils/define-content-script";
+import {
+  addListener,
+  type GetHeadings,
+  type GetLandmarks,
+} from "@/ExtensionMessages";
 import { getHeadings, getLandmarks } from "./collection";
 import { createRootElement } from "./Root";
 
@@ -14,18 +18,21 @@ export default defineContentScript({
     }
 
     // ポップアップからのメッセージをリスンし、ページ情報を返す
-    browser.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-      if (message.action === "getHeadings") {
-        const headings = getHeadings();
-        sendResponse({ headings });
-        return true;
-      }
-      if (message.action === "getLandmarks") {
-        const landmarks = getLandmarks();
-        sendResponse({ landmarks });
-        return true;
-      }
-      // これ以外のメッセージは別の場所で処理している
-    });
+    addListener<GetHeadings | GetLandmarks>(
+      (message, _sender, sendResponse) => {
+        const { action } = message;
+        if (action === "getHeadings") {
+          const headings = getHeadings();
+          sendResponse({ action, headings });
+          return true;
+        }
+        if (action === "getLandmarks") {
+          const landmarks = getLandmarks();
+          sendResponse({ action, landmarks });
+          return true;
+        }
+        // これ以外のメッセージは別の場所で処理している
+      },
+    );
   },
 });

@@ -1,7 +1,16 @@
 import { createI18n } from "@wxt-dev/i18n";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { browser } from "wxt/browser";
-import type { SpeechMessage, SpeechSettings } from "@/types";
+import {
+  addListener,
+  type DisableSpeech,
+  type EnableSpeech,
+  type MessageListener,
+  removeListener,
+  type SpeechStatus,
+  sendMessage,
+  type UpdateSpeechSettings,
+} from "@/ExtensionMessages";
+import type { SpeechSettings } from "@/types";
 import { getSpeechContent } from "./getSpeechContent";
 
 const { t } = createI18n();
@@ -122,7 +131,7 @@ export const Speech = ({
 
   const enableSpeech = useCallback(async () => {
     setIsEnabled(true);
-    await browser.runtime.sendMessage({ action: "speechEnabled" });
+    await sendMessage({ action: "speechEnabled" });
   }, []);
 
   const disableSpeech = useCallback(async () => {
@@ -132,7 +141,7 @@ export const Speech = ({
     setSpeakingRect(undefined);
     setIsSpeaking(false);
     setIsPaused(false);
-    await browser.runtime.sendMessage({ action: "speechDisabled" });
+    await sendMessage({ action: "speechDisabled" });
   }, []);
 
   useEffect(() => {
@@ -157,39 +166,33 @@ export const Speech = ({
   }, [handleMouseMove, isEnabled]);
 
   useEffect(() => {
-    const messageListener: Parameters<
-      typeof browser.runtime.onMessage.addListener
-    >[0] = (message: SpeechMessage, _sender, sendResponse) => {
-      if (message.action === "speechStatus") {
-        sendResponse({ isEnabled });
+    const messageListener: MessageListener<
+      SpeechStatus | EnableSpeech | DisableSpeech | UpdateSpeechSettings
+    > = (message, _sender, sendResponse) => {
+      const { action } = message;
+      if (action === "speechStatus") {
+        sendResponse({ action, isEnabled });
         return true;
       }
-      if (message.action === "enableSpeech") {
+      if (action === "enableSpeech") {
         enableSpeech();
         if (message.settings) {
           setSpeechSettings(message.settings);
         }
-        sendResponse({ success: true });
-        return true;
       }
       if (message.action === "disableSpeech") {
         disableSpeech();
-        sendResponse({ success: true });
-        return true;
       }
       if (message.action === "updateSpeechSettings") {
         if (message.settings) {
           setSpeechSettings(message.settings);
         }
-        sendResponse({ success: true });
-        return true;
       }
-      return false;
     };
 
-    browser.runtime.onMessage.addListener(messageListener);
+    addListener(messageListener);
     return () => {
-      browser.runtime.onMessage.removeListener(messageListener);
+      removeListener(messageListener);
     };
   }, [enableSpeech, disableSpeech, isEnabled]);
 

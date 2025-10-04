@@ -2,6 +2,7 @@ import { createI18n } from "@wxt-dev/i18n";
 import { useEffect, useId, useMemo, useState } from "react";
 import { browser } from "wxt/browser";
 import { getCurrentTabId } from "@/browser/getCurrentTabId";
+import { type GetHeadings, sendMessageToTab } from "@/ExtensionMessages";
 import type { Heading } from "../../types";
 import { HeadingLevelSlider } from "./HeadingLevelSlider";
 
@@ -40,7 +41,7 @@ const getHeadings = async (): Promise<Heading[]> => {
     if (!tabId) {
       return [];
     }
-    const response = await browser.tabs.sendMessage(tabId, {
+    const response = await sendMessageToTab<GetHeadings>(tabId, {
       action: "getHeadings",
     });
     if (response?.headings) {

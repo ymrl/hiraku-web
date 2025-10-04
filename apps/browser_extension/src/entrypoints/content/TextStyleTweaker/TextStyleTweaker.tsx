@@ -1,6 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { browser } from "wxt/browser";
 import { TextCSS } from "@/components/TextCSS";
+import {
+  addListener,
+  type GetPageTextStyle,
+  type MessageListener,
+  removeListener,
+  sendMessage,
+  type UpdateTextStyle,
+} from "@/ExtensionMessages";
 import type { TextStyleSettings } from "../../../types";
 export const TextStyleTweaker = () => {
   const defaultSettingsRef = useRef<Partial<TextStyleSettings>>({});
@@ -16,8 +23,8 @@ export const TextStyleTweaker = () => {
   const loadTextStyleSettings = async () => {
     try {
       const hostname = window.location.hostname;
-      const settings = await browser.runtime.sendMessage({
-        action: "getTextStyleSettings",
+      const { settings } = await sendMessage({
+        action: "getHostTextStyleSettings",
         hostname: hostname,
       });
       if (settings) {
@@ -52,19 +59,25 @@ export const TextStyleTweaker = () => {
   }
 
   useEffect(() => {
-    const listener: Parameters<
-      typeof browser.runtime.onMessage.addListener
-    >[0] = (message, _sender, sendResponse) => {
-      if (message.action === "updateTextStyle") {
+    const listener: MessageListener<UpdateTextStyle | GetPageTextStyle> = (
+      message,
+      _sender,
+      sendResponse,
+    ) => {
+      const { action } = message;
+      if (action === "updateTextStyle") {
         applyTextStyleSettings(message.settings);
-        sendResponse({ success: true });
-      } else if (message.action === "getPageTextStyle") {
-        sendResponse({ pageTextStyle: defaultSettingsRef.current });
+        sendResponse({ action, success: true });
+        return true;
+      }
+      if (action === "getPageTextStyle") {
+        sendResponse({ action, pageTextStyle: defaultSettingsRef.current });
+        return true;
       }
     };
-    browser.runtime.onMessage.addListener(listener);
+    addListener(listener);
     return () => {
-      browser.runtime.onMessage.removeListener(listener);
+      removeListener(listener);
     };
   }, [applyTextStyleSettings]);
 

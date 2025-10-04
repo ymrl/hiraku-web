@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { browser } from "wxt/browser";
+import { addListener, type ScrollToElement } from "@/ExtensionMessages";
 import { Highlight } from "./Highlight";
 
 const focusableSelector =
@@ -103,10 +103,12 @@ export const LandmarkNavigation = () => {
   }, []);
 
   useEffect(() => {
-    browser.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-      if (message.action === "scrollToElement") {
-        const targetElement = highlightElement(message.xpaths);
-        sendResponse({ success: !!targetElement });
+    addListener<ScrollToElement>((message, _sender, sendResponse) => {
+      const { action, xpaths } = message;
+      if (action === "scrollToElement") {
+        const targetElement = highlightElement(xpaths);
+        sendResponse({ action, success: !!targetElement });
+        return true;
       }
     });
   }, [highlightElement]);
