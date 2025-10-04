@@ -118,9 +118,6 @@ function App() {
               step={0.01}
               label={t("textStyle.fontSize")}
               value={defaultTextStyle.fontSize ?? 1.0}
-              displayValue={(value) =>
-                `${Math.round(value * 100)}${t("units.percent")}`
-              }
               onChange={(value) => {
                 setTextStyleStatus("changed");
                 setDefaultTextStyle((prev) => ({
@@ -129,6 +126,9 @@ function App() {
                 }));
               }}
               disabled={defaultTextStyle.fontSize === undefined}
+              unit={t("units.percent")}
+              toDisplay={(v) => Math.round(v * 100)}
+              fromDisplay={(v) => v / 100}
             />
           </div>
 
@@ -161,9 +161,6 @@ function App() {
               step={0.01}
               label={t("textStyle.lineHeight")}
               value={defaultTextStyle.lineHeight ?? 1.5}
-              displayValue={(value) =>
-                `${Math.round(value * 100)}${t("units.percent")}`
-              }
               onChange={(value) => {
                 setTextStyleStatus("changed");
                 setDefaultTextStyle((prev) => ({
@@ -172,6 +169,9 @@ function App() {
                 }));
               }}
               disabled={defaultTextStyle.lineHeight === undefined}
+              unit={t("units.percent")}
+              toDisplay={(v) => Math.round(v * 100)}
+              fromDisplay={(v) => v / 100}
             />
           </div>
 
@@ -207,7 +207,6 @@ function App() {
               step={0.1}
               label={t("textStyle.paragraphSpacing")}
               value={defaultTextStyle.paragraphSpacing ?? 1.0}
-              unit={t("units.em")}
               onChange={(value) => {
                 setTextStyleStatus("changed");
                 setDefaultTextStyle((prev) => ({
@@ -216,6 +215,7 @@ function App() {
                 }));
               }}
               disabled={defaultTextStyle.paragraphSpacing === undefined}
+              unit={t("units.em")}
             />
           </div>
 
@@ -251,7 +251,6 @@ function App() {
               step={0.01}
               label={t("textStyle.letterSpacing")}
               value={defaultTextStyle.letterSpacing ?? 0.0}
-              unit={t("units.em")}
               onChange={(value) => {
                 setTextStyleStatus("changed");
                 setDefaultTextStyle((prev) => ({
@@ -260,6 +259,7 @@ function App() {
                 }));
               }}
               disabled={defaultTextStyle.letterSpacing === undefined}
+              unit={t("units.em")}
             />
           </div>
 
@@ -295,7 +295,6 @@ function App() {
               step={0.01}
               label={t("textStyle.wordSpacing")}
               value={defaultTextStyle.wordSpacing ?? 0.0}
-              unit={t("units.em")}
               onChange={(value) => {
                 setTextStyleStatus("changed");
                 setDefaultTextStyle((prev) => ({
@@ -304,6 +303,7 @@ function App() {
                 }));
               }}
               disabled={defaultTextStyle.wordSpacing === undefined}
+              unit={t("units.em")}
             />
           </div>
 

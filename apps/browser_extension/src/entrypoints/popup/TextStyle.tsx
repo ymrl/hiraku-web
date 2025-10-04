@@ -127,9 +127,9 @@ export function TextStyle({ currentTabHost }: TextStyleSettingsProps) {
           max={3.0}
           step={0.01}
           onChange={(value) => handleChange("fontSize", value)}
-          displayValue={(value) =>
-            `${Math.round(value * 100)}${t("units.percent")}`
-          }
+          unit={t("units.percent")}
+          toDisplay={(v) => Math.round(v * 100)}
+          fromDisplay={(v) => v / 100}
         />
 
         <SettingSlider
@@ -139,9 +139,9 @@ export function TextStyle({ currentTabHost }: TextStyleSettingsProps) {
           max={3.0}
           step={0.01}
           onChange={(value) => handleChange("lineHeight", value)}
-          displayValue={(value) =>
-            `${Math.round(value * 100)}${t("units.percent")}`
-          }
+          unit={t("units.percent")}
+          toDisplay={(v) => Math.round(v * 100)}
+          fromDisplay={(v) => v / 100}
         />
 
         <SettingSlider
