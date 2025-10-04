@@ -8,7 +8,7 @@ import { HeadingLevelSlider } from "./HeadingLevelSlider";
 const { t } = createI18n();
 
 interface HeadingsListProps {
-  onScrollToElement: (xpath: string) => void;
+  onScrollToElement: (xpaths: string[]) => void;
 }
 
 const loadLevelFilter = async (): Promise<number> => {
@@ -104,7 +104,7 @@ export function HeadingsList({ onScrollToElement }: HeadingsListProps) {
             >
               <button
                 type="button"
-                onClick={() => onScrollToElement(heading.xpath)}
+                onClick={() => onScrollToElement(heading.xpaths)}
                 className="text-left text-sm text-stone-800 dark:text-stone-200
                     hover:text-rose-800 dark:hover:text-rose-100
                     hover:bg-rose-50

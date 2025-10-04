@@ -22,9 +22,12 @@ const landmarkSelectors = [
   '[role="region"]',
 ];
 
-export const getLandmarks = (): Landmark[] => {
-  return [
-    ...document.querySelectorAll<HTMLElement>(landmarkSelectors.join(",")),
+const getLandmarksFromDocument = (
+  doc: Document,
+  xpathPrefix: string[] = [],
+): Landmark[] => {
+  const landmarks = [
+    ...doc.querySelectorAll<HTMLElement>(landmarkSelectors.join(",")),
   ]
     .map<Landmark | undefined>((element) => {
       if (
@@ -47,8 +50,31 @@ export const getLandmarks = (): Landmark[] => {
         role,
         label,
         tag: element.tagName.toLowerCase(),
-        xpath,
+        xpaths: [...xpathPrefix, xpath],
       };
     })
     .filter((l): l is Landmark => l !== undefined);
+
+  // iframe と frame 内も探索
+  const frames = doc.querySelectorAll("iframe, frame");
+  for (const frame of frames) {
+    try {
+      const frameElement = frame as HTMLIFrameElement | HTMLFrameElement;
+      const frameDoc = frameElement.contentDocument;
+      if (!frameDoc) continue;
+
+      const frameXPath = getXPath(frame);
+      const frameLandmarks = getLandmarksFromDocument(frameDoc, [
+        ...xpathPrefix,
+        frameXPath,
+      ]);
+      landmarks.push(...frameLandmarks);
+    } catch (_e) {}
+  }
+
+  return landmarks;
+};
+
+export const getLandmarks = (): Landmark[] => {
+  return getLandmarksFromDocument(document);
 };

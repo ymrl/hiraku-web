@@ -94,7 +94,7 @@ function App() {
     }
   };
 
-  const scrollToElement = async (xpath: string) => {
+  const scrollToElement = async (xpaths: string[]) => {
     try {
       const tabId = await getCurrentTabId();
 
@@ -103,7 +103,7 @@ function App() {
       }
       const result = await browser.tabs.sendMessage(tabId, {
         action: "scrollToElement",
-        xpath: xpath,
+        xpaths: xpaths,
       });
       if (result?.success) {
         window.close();

@@ -3,11 +3,14 @@ import type { Heading } from "@/types";
 import { isAriaHidden, isInAriaHidden } from "@/utils/isAriaHidden";
 import { isHidden } from "@/utils/isHidden";
 
-export const getHeadings = (): Heading[] => {
-  const headingElements = document.querySelectorAll(
+const getHeadingsFromDocument = (
+  doc: Document,
+  xpathPrefix: string[] = [],
+): Heading[] => {
+  const headingElements = doc.querySelectorAll(
     "h1, h2, h3, h4, h5, h6, [role='heading']",
   );
-  return [...headingElements]
+  const headings = [...headingElements]
     .map<Heading | undefined>((element) => {
       if (
         isHidden(element) ||
@@ -26,8 +29,31 @@ export const getHeadings = (): Heading[] => {
       return {
         level,
         text,
-        xpath,
+        xpaths: [...xpathPrefix, xpath],
       };
     })
     .filter((h): h is Heading => h !== undefined);
+
+  // iframe と frame 内も探索
+  const frames = doc.querySelectorAll("iframe, frame");
+  for (const frame of frames) {
+    try {
+      const frameElement = frame as HTMLIFrameElement | HTMLFrameElement;
+      const frameDoc = frameElement.contentDocument;
+      if (!frameDoc) continue;
+
+      const frameXPath = getXPath(frame);
+      const frameHeadings = getHeadingsFromDocument(frameDoc, [
+        ...xpathPrefix,
+        frameXPath,
+      ]);
+      headings.push(...frameHeadings);
+    } catch (_e) {}
+  }
+
+  return headings;
+};
+
+export const getHeadings = (): Heading[] => {
+  return getHeadingsFromDocument(document);
 };

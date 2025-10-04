@@ -43,6 +43,37 @@ const focusTargetElement = (element: Element) => {
   window.addEventListener("scrollend", listener, { once: true });
 };
 
+// xpaths配列から要素を取得する関数
+const getElementByXPaths = (xpaths: string[]): Element | null => {
+  if (xpaths.length === 0) return null;
+
+  // 最初のxpathでトップレベルの要素を取得
+  let currentDoc: Document | null = document;
+  let element: Element | null = null;
+
+  for (let i = 0; i < xpaths.length; i++) {
+    const xpath = xpaths[i];
+    element = currentDoc.evaluate(
+      xpath,
+      currentDoc,
+      null,
+      XPathResult.FIRST_ORDERED_NODE_TYPE,
+      null,
+    ).singleNodeValue as Element | null;
+
+    if (!element) return null;
+
+    // 最後の要素でなければ、次のframeのcontentDocumentを取得
+    if (i < xpaths.length - 1) {
+      const frameElement = element as HTMLIFrameElement | HTMLFrameElement;
+      currentDoc = frameElement.contentDocument;
+      if (!currentDoc) return null;
+    }
+  }
+
+  return element;
+};
+
 export const LandmarkNavigation = () => {
   const [highlightRect, setHighlightRect] = useState<{
     top: number;
@@ -51,14 +82,8 @@ export const LandmarkNavigation = () => {
     height: number;
   } | null>(null);
 
-  const highlightElement = useCallback((xpath: string) => {
-    const element = document.evaluate(
-      xpath,
-      document,
-      null,
-      XPathResult.FIRST_ORDERED_NODE_TYPE,
-      null,
-    ).singleNodeValue as Element | null;
+  const highlightElement = useCallback((xpaths: string[]) => {
+    const element = getElementByXPaths(xpaths);
     if (element) {
       const rect = element.getBoundingClientRect();
       setHighlightRect({
@@ -80,7 +105,7 @@ export const LandmarkNavigation = () => {
   useEffect(() => {
     browser.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       if (message.action === "scrollToElement") {
-        const targetElement = highlightElement(message.xpath);
+        const targetElement = highlightElement(message.xpaths);
         sendResponse({ success: !!targetElement });
       }
     });

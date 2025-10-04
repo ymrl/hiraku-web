@@ -7,7 +7,7 @@ import type { Landmark } from "../../types";
 const { t } = createI18n();
 
 interface LandmarksListProps {
-  onScrollToElement: (xpath: string) => void;
+  onScrollToElement: (xpaths: string[]) => void;
 }
 
 const getLandmarks = async (): Promise<Landmark[]> => {
@@ -67,7 +67,7 @@ export function LandmarksList({
             >
               <button
                 type="button"
-                onClick={() => onScrollToElement(landmark.xpath)}
+                onClick={() => onScrollToElement(landmark.xpaths)}
                 className="text-left text-sm text-stone-800 dark:text-stone-200
                     hover:text-rose-800 dark:hover:text-rose-100
                     hover:bg-rose-50

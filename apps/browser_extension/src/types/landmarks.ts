@@ -14,11 +14,11 @@ export type Landmark = {
   role: LANDMARK_ROLE;
   label?: string;
   tag: string;
-  xpath: string;
+  xpaths: string[];
 };
 
 export type Heading = {
   level: number;
   text: string;
-  xpath: string;
+  xpaths: string[];
 };

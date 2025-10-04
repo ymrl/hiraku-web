@@ -21,12 +21,12 @@ describe("getHeadings", () => {
     `;
     const headings = getHeadings();
     expect(headings).toEqual([
-      { level: 1, text: "Heading 1", xpath: "/html/body/h1" },
-      { level: 2, text: "Heading 2", xpath: "/html/body/h2" },
-      { level: 3, text: "Heading 3", xpath: "/html/body/h3" },
-      { level: 4, text: "Heading 4", xpath: "/html/body/h4" },
-      { level: 5, text: "Heading 5", xpath: "/html/body/h5" },
-      { level: 6, text: "Heading 6", xpath: "/html/body/h6" },
+      { level: 1, text: "Heading 1", xpaths: ["/html/body/h1"] },
+      { level: 2, text: "Heading 2", xpaths: ["/html/body/h2"] },
+      { level: 3, text: "Heading 3", xpaths: ["/html/body/h3"] },
+      { level: 4, text: "Heading 4", xpaths: ["/html/body/h4"] },
+      { level: 5, text: "Heading 5", xpaths: ["/html/body/h5"] },
+      { level: 6, text: "Heading 6", xpaths: ["/html/body/h6"] },
     ]);
   });
 
@@ -39,10 +39,14 @@ describe("getHeadings", () => {
     `;
     const headings = getHeadings();
     expect(headings).toEqual([
-      { level: 1, text: "ARIA Heading 1", xpath: "/html/body/div[1]" },
-      { level: 3, text: "ARIA Heading 3", xpath: "/html/body/div[2]" },
-      { level: 2, text: "Default Level Heading", xpath: "/html/body/div[3]" },
-      { level: 5, text: "Span Heading", xpath: "/html/body/span" },
+      { level: 1, text: "ARIA Heading 1", xpaths: ["/html/body/div[1]"] },
+      { level: 3, text: "ARIA Heading 3", xpaths: ["/html/body/div[2]"] },
+      {
+        level: 2,
+        text: "Default Level Heading",
+        xpaths: ["/html/body/div[3]"],
+      },
+      { level: 5, text: "Span Heading", xpaths: ["/html/body/span"] },
     ]);
   });
 
@@ -55,8 +59,8 @@ describe("getHeadings", () => {
     `;
     const headings = getHeadings();
     expect(headings).toEqual([
-      { level: 1, text: "Visible Heading 1", xpath: "/html/body/h1" },
-      { level: 4, text: "Visible Heading 4", xpath: "/html/body/h4" },
+      { level: 1, text: "Visible Heading 1", xpaths: ["/html/body/h1"] },
+      { level: 4, text: "Visible Heading 4", xpaths: ["/html/body/h4"] },
     ]);
   });
 
@@ -73,7 +77,7 @@ describe("getHeadings", () => {
     `;
     const headings = getHeadings();
     expect(headings).toEqual([
-      { level: 1, text: "Visible Heading", xpath: "/html/body/h1" },
+      { level: 1, text: "Visible Heading", xpaths: ["/html/body/h1"] },
     ]);
   });
 
@@ -86,7 +90,7 @@ describe("getHeadings", () => {
     `;
     const headings = getHeadings();
     expect(headings).toEqual([
-      { level: 1, text: "Visible Heading", xpath: "/html/body/h1" },
+      { level: 1, text: "Visible Heading", xpaths: ["/html/body/h1"] },
     ]);
   });
 
@@ -98,7 +102,7 @@ describe("getHeadings", () => {
     `;
     const headings = getHeadings();
     expect(headings).toEqual([
-      { level: 1, text: "Visible Heading", xpath: "/html/body/h1" },
+      { level: 1, text: "Visible Heading", xpaths: ["/html/body/h1"] },
     ]);
   });
 
@@ -112,8 +116,8 @@ describe("getHeadings", () => {
     `;
     const headings = getHeadings();
     expect(headings).toEqual([
-      { level: 1, text: "Visible Heading", xpath: "/html/body/h1" },
-      { level: 5, text: "Valid Heading", xpath: "/html/body/h5" },
+      { level: 1, text: "Visible Heading", xpaths: ["/html/body/h1"] },
+      { level: 5, text: "Valid Heading", xpaths: ["/html/body/h5"] },
     ]);
   });
 
@@ -130,9 +134,13 @@ describe("getHeadings", () => {
     `;
     const headings = getHeadings();
     expect(headings).toEqual([
-      { level: 1, text: "Heading with nested content", xpath: "/html/body/h1" },
-      { level: 2, text: "Heading with image", xpath: "/html/body/h2" },
-      { level: 3, text: "Complex nested content", xpath: "/html/body/div" },
+      {
+        level: 1,
+        text: "Heading with nested content",
+        xpaths: ["/html/body/h1"],
+      },
+      { level: 2, text: "Heading with image", xpaths: ["/html/body/h2"] },
+      { level: 3, text: "Complex nested content", xpaths: ["/html/body/div"] },
     ]);
   });
 
@@ -150,9 +158,136 @@ describe("getHeadings", () => {
     `;
     const headings = getHeadings();
     expect(headings).toEqual([
-      { level: 1, text: "Visible 1", xpath: "/html/body/h1" },
-      { level: 3, text: "Visible 3", xpath: "/html/body/h3" },
-      { level: 2, text: "Visible ARIA", xpath: "/html/body/div[1]" },
+      { level: 1, text: "Visible 1", xpaths: ["/html/body/h1"] },
+      { level: 3, text: "Visible 3", xpaths: ["/html/body/h3"] },
+      { level: 2, text: "Visible ARIA", xpaths: ["/html/body/div[1]"] },
+    ]);
+  });
+
+  test("headings in iframe", () => {
+    document.body.innerHTML = `
+      <h1>Top Level Heading</h1>
+      <iframe id="test-iframe"></iframe>
+    `;
+    const iframe = document.getElementById("test-iframe") as HTMLIFrameElement;
+    const iframeDoc = iframe.contentDocument;
+    if (iframeDoc) {
+      iframeDoc.body.innerHTML = `
+        <h1>Iframe Heading 1</h1>
+        <h2>Iframe Heading 2</h2>
+      `;
+    }
+
+    const headings = getHeadings();
+    expect(headings).toEqual([
+      { level: 1, text: "Top Level Heading", xpaths: ["/html/body/h1"] },
+      {
+        level: 1,
+        text: "Iframe Heading 1",
+        xpaths: ['//*[@id="test-iframe"]', "/html/body/h1"],
+      },
+      {
+        level: 2,
+        text: "Iframe Heading 2",
+        xpaths: ['//*[@id="test-iframe"]', "/html/body/h2"],
+      },
+    ]);
+  });
+
+  test("headings in nested iframes", () => {
+    document.body.innerHTML = `
+      <h1>Top Level</h1>
+      <iframe id="outer-iframe"></iframe>
+    `;
+    const outerIframe = document.getElementById(
+      "outer-iframe",
+    ) as HTMLIFrameElement;
+    const outerDoc = outerIframe.contentDocument;
+    if (outerDoc) {
+      outerDoc.body.innerHTML = `
+        <h2>Outer Iframe Heading</h2>
+        <iframe id="inner-iframe"></iframe>
+      `;
+      const innerIframe = outerDoc.getElementById(
+        "inner-iframe",
+      ) as HTMLIFrameElement;
+      const innerDoc = innerIframe.contentDocument;
+      if (innerDoc) {
+        innerDoc.body.innerHTML = `
+          <h3>Inner Iframe Heading</h3>
+        `;
+      }
+    }
+
+    const headings = getHeadings();
+    expect(headings).toEqual([
+      { level: 1, text: "Top Level", xpaths: ["/html/body/h1"] },
+      {
+        level: 2,
+        text: "Outer Iframe Heading",
+        xpaths: ['//*[@id="outer-iframe"]', "/html/body/h2"],
+      },
+      {
+        level: 3,
+        text: "Inner Iframe Heading",
+        xpaths: [
+          '//*[@id="outer-iframe"]',
+          '//*[@id="inner-iframe"]',
+          "/html/body/h3",
+        ],
+      },
+    ]);
+  });
+
+  test("mixed top level and iframe headings", () => {
+    document.body.innerHTML = `
+      <h1>Before Iframe</h1>
+      <iframe id="test-iframe"></iframe>
+      <h2>After Iframe</h2>
+    `;
+    const iframe = document.getElementById("test-iframe") as HTMLIFrameElement;
+    const iframeDoc = iframe.contentDocument;
+    if (iframeDoc) {
+      iframeDoc.body.innerHTML = `
+        <h3>Inside Iframe</h3>
+      `;
+    }
+
+    const headings = getHeadings();
+    expect(headings).toEqual([
+      { level: 1, text: "Before Iframe", xpaths: ["/html/body/h1"] },
+      { level: 2, text: "After Iframe", xpaths: ["/html/body/h2"] },
+      {
+        level: 3,
+        text: "Inside Iframe",
+        xpaths: ['//*[@id="test-iframe"]', "/html/body/h3"],
+      },
+    ]);
+  });
+
+  test("hidden headings in iframe should be excluded", () => {
+    document.body.innerHTML = `
+      <h1>Top Level</h1>
+      <iframe id="test-iframe"></iframe>
+    `;
+    const iframe = document.getElementById("test-iframe") as HTMLIFrameElement;
+    const iframeDoc = iframe.contentDocument;
+    if (iframeDoc) {
+      iframeDoc.body.innerHTML = `
+        <h2>Visible in Iframe</h2>
+        <h3 aria-hidden="true">Hidden in Iframe</h3>
+        <h4 style="display: none">Also Hidden</h4>
+      `;
+    }
+
+    const headings = getHeadings();
+    expect(headings).toEqual([
+      { level: 1, text: "Top Level", xpaths: ["/html/body/h1"] },
+      {
+        level: 2,
+        text: "Visible in Iframe",
+        xpaths: ['//*[@id="test-iframe"]', "/html/body/h2"],
+      },
     ]);
   });
 });
