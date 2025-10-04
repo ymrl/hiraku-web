@@ -4,7 +4,7 @@ import { browser } from "wxt/browser";
 import { Button } from "@/components/Button";
 import { SettingSlider } from "@/components/SettingSlider";
 import { TextCSS } from "@/components/TextCSS";
-import { loadDefaultTextStyleSettings } from "@/TextStyle";
+import { loadDefaultTextStyleSettings, TEXT_STYLE_SETTINGS } from "@/TextStyle";
 import type { TextStyleSettings } from "../../types/text";
 
 const { t } = createI18n();
@@ -113,9 +113,7 @@ function App() {
               </span>
             </label>
             <SettingSlider
-              min={0.5}
-              max={3.0}
-              step={0.01}
+              {...TEXT_STYLE_SETTINGS.fontSize}
               label={t("textStyle.fontSize")}
               value={defaultTextStyle.fontSize ?? 1.0}
               onChange={(value) => {
@@ -156,9 +154,7 @@ function App() {
               </span>
             </label>
             <SettingSlider
-              min={1.0}
-              max={3.0}
-              step={0.01}
+              {...TEXT_STYLE_SETTINGS.lineHeight}
               label={t("textStyle.lineHeight")}
               value={defaultTextStyle.lineHeight ?? 1.5}
               onChange={(value) => {
@@ -202,9 +198,7 @@ function App() {
               </span>
             </label>
             <SettingSlider
-              min={1.0}
-              max={3.0}
-              step={0.1}
+              {...TEXT_STYLE_SETTINGS.paragraphSpacing}
               label={t("textStyle.paragraphSpacing")}
               value={defaultTextStyle.paragraphSpacing ?? 1.0}
               onChange={(value) => {
@@ -246,9 +240,7 @@ function App() {
               </span>
             </label>
             <SettingSlider
-              min={0.0}
-              max={0.5}
-              step={0.01}
+              {...TEXT_STYLE_SETTINGS.letterSpacing}
               label={t("textStyle.letterSpacing")}
               value={defaultTextStyle.letterSpacing ?? 0.0}
               onChange={(value) => {
@@ -290,9 +282,7 @@ function App() {
               </span>
             </label>
             <SettingSlider
-              min={0.0}
-              max={0.5}
-              step={0.01}
+              {...TEXT_STYLE_SETTINGS.wordSpacing}
               label={t("textStyle.wordSpacing")}
               value={defaultTextStyle.wordSpacing ?? 0.0}
               onChange={(value) => {

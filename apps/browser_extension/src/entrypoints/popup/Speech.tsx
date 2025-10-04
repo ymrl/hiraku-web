@@ -4,6 +4,7 @@ import { browser } from "wxt/browser";
 import { getCurrentTabId } from "@/browser/getCurrentTabId";
 import { Button } from "@/components/Button";
 import { SettingSlider } from "@/components/SettingSlider";
+import { SPEECH_SETTINGS } from "@/Speech";
 import type { SpeechSettings } from "@/types";
 
 const { t } = createI18n();
@@ -168,9 +169,7 @@ export function Speech() {
         <SettingSlider
           label={t("speech.speed")}
           value={speechSettings.rate || 1}
-          min={0.1}
-          max={3}
-          step={0.1}
+          {...SPEECH_SETTINGS.rate}
           onChange={(value) => handleSettingChange("rate", value)}
           unit={t("units.percent")}
           toDisplay={(v) => Math.round(v * 100)}
@@ -180,18 +179,14 @@ export function Speech() {
         <SettingSlider
           label={t("speech.pitch")}
           value={speechSettings.pitch || 1}
-          min={0}
-          max={2}
-          step={0.1}
+          {...SPEECH_SETTINGS.pitch}
           onChange={(value) => handleSettingChange("pitch", value)}
         />
 
         <SettingSlider
           label={t("speech.volume")}
           value={speechSettings.volume || 1}
-          min={0}
-          max={1}
-          step={0.1}
+          {...SPEECH_SETTINGS.volume}
           onChange={(value) => handleSettingChange("volume", value)}
           unit={t("units.percent")}
           toDisplay={(v) => Math.round(v * 100)}
