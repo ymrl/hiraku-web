@@ -4,7 +4,11 @@ import { browser } from "wxt/browser";
 import { getCurrentTabId } from "@/browser/getCurrentTabId";
 import { Button } from "@/components/Button";
 import { SettingSlider } from "@/components/SettingSlider";
-import { loadDefaultTextStyleSettings, loadHostTextStyle } from "@/TextStyle";
+import {
+  loadDefaultTextStyleSettings,
+  loadHostTextStyle,
+  TEXT_STYLE_SETTINGS,
+} from "@/TextStyle";
 import type { TextStyleSettings } from "../../types";
 
 const { t } = createI18n();
@@ -123,9 +127,7 @@ export function TextStyle({ currentTabHost }: TextStyleSettingsProps) {
         <SettingSlider
           label={t("textStyle.fontSize")}
           value={settings.fontSize ?? pageStyles.fontSize ?? 1.0}
-          min={0.5}
-          max={3.0}
-          step={0.01}
+          {...TEXT_STYLE_SETTINGS.fontSize}
           onChange={(value) => handleChange("fontSize", value)}
           unit={t("units.percent")}
           toDisplay={(v) => Math.round(v * 100)}
@@ -135,9 +137,7 @@ export function TextStyle({ currentTabHost }: TextStyleSettingsProps) {
         <SettingSlider
           label={t("textStyle.lineHeight")}
           value={settings.lineHeight ?? pageStyles.lineHeight ?? 1.2}
-          min={1.0}
-          max={3.0}
-          step={0.01}
+          {...TEXT_STYLE_SETTINGS.lineHeight}
           onChange={(value) => handleChange("lineHeight", value)}
           unit={t("units.percent")}
           toDisplay={(v) => Math.round(v * 100)}
@@ -149,9 +149,7 @@ export function TextStyle({ currentTabHost }: TextStyleSettingsProps) {
           value={
             settings.paragraphSpacing ?? pageStyles.paragraphSpacing ?? 1.0
           }
-          min={1.0}
-          max={3.0}
-          step={0.1}
+          {...TEXT_STYLE_SETTINGS.paragraphSpacing}
           onChange={(value) => handleChange("paragraphSpacing", value)}
           unit={t("units.em")}
         />
@@ -159,9 +157,7 @@ export function TextStyle({ currentTabHost }: TextStyleSettingsProps) {
         <SettingSlider
           label={t("textStyle.letterSpacing")}
           value={settings.letterSpacing ?? pageStyles.letterSpacing ?? 0.0}
-          min={0.0}
-          max={0.5}
-          step={0.01}
+          {...TEXT_STYLE_SETTINGS.letterSpacing}
           onChange={(value) => handleChange("letterSpacing", value)}
           unit={t("units.em")}
         />
@@ -169,9 +165,7 @@ export function TextStyle({ currentTabHost }: TextStyleSettingsProps) {
         <SettingSlider
           label={t("textStyle.wordSpacing")}
           value={settings.wordSpacing ?? pageStyles.wordSpacing ?? 0.0}
-          min={0.0}
-          max={0.5}
-          step={0.01}
+          {...TEXT_STYLE_SETTINGS.wordSpacing}
           onChange={(value) => handleChange("wordSpacing", value)}
           unit={t("units.em")}
         />
