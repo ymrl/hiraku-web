@@ -28,7 +28,7 @@ export const SettingSlider = ({
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-between mb-1">
         <label
           htmlFor={id}
           className={`text-sm font-medium ${
@@ -39,7 +39,7 @@ export const SettingSlider = ({
         >
           {label}
         </label>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0.5">
           <input
             type="number"
             min={toDisplay(min)}

@@ -48,7 +48,8 @@
     "lineHeight": "行の高さ",
     "paragraphSpacing": "段落の間隔",
     "letterSpacing": "文字の間隔",
-    "wordSpacing": "単語の間隔"
+    "wordSpacing": "単語の間隔",
+    "disclaimer": "この設定はWebサイトごとに保存されます。ページによっては、設定が反映されない場合があります。"
   },
   "units": {
     "percent": "％",
@@ -74,7 +75,8 @@
     "ClickTo": "クリックで",
     "pauseReading": "読み上げの一時停止",
     "resumeReading": "読み上げの再開",
-    "resetToDefaults": "設定をリセット"
+    "resetToDefaults": "設定をリセット",
+    "disclaimer": "ページによっては、読み上げが正しく動作しない場合があります。"
   },
   "speechContent": {
     "image": "画像"

@@ -48,7 +48,8 @@
     "lineHeight": "Line Height",
     "paragraphSpacing": "Paragraph Spacing",
     "letterSpacing": "Letter Spacing",
-    "wordSpacing": "Word Spacing"
+    "wordSpacing": "Word Spacing",
+    "disclaimer": "These settings are saved per website. They may not be applied on some pages."
   },
   "units": {
     "percent": "%",
@@ -74,7 +75,8 @@
     "clickTo": "Click to ",
     "pauseReading": "Pause reading",
     "resumeReading": "Resume reading",
-    "resetToDefaults": "Reset to Defaults"
+    "resetToDefaults": "Reset to Defaults",
+    "disclaimer": "Speech may not work correctly on some pages."
   },
   "speechContent": {
     "image": "Image"

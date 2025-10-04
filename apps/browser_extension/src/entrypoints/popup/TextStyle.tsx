@@ -170,6 +170,9 @@ export function TextStyle({ currentTabHost }: TextStyleSettingsProps) {
           unit={t("units.em")}
         />
       </div>
+      <p className="px-4 pb-4 text-xs text-stone-700 dark:text-stone-300">
+        {t("textStyle.disclaimer")}
+      </p>
     </section>
   );
 }
