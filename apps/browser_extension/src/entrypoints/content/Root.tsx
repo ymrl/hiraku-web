@@ -2,6 +2,7 @@ import { createElement, useRef } from "react";
 import { createRoot } from "react-dom/client";
 import shadow from "react-shadow";
 import style from "./content.css?inline";
+import { MessageResponder } from "./ExtensionContext/MessageResponder";
 import { LandmarkNavigation } from "./LandmarkNavigation";
 import { Speech } from "./Speech";
 import { TextStyleTweaker } from "./TextStyleTweaker";
@@ -26,13 +27,13 @@ export const createRootElement = () => {
 export const Root = () => {
   const shadowRootRef = useRef<HTMLDivElement>(null);
   return (
-    <>
+    <MessageResponder>
       <TextStyleTweaker />
       <shadow.div ref={shadowRootRef}>
         <style>{style}</style>
         <Speech shadowRootRef={shadowRootRef} />
         <LandmarkNavigation />
       </shadow.div>
-    </>
+    </MessageResponder>
   );
 };
