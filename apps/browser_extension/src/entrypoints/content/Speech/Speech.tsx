@@ -1,16 +1,6 @@
 import { createI18n } from "@wxt-dev/i18n";
-import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  addListener,
-  type DisableSpeech,
-  type EnableSpeech,
-  type MessageListener,
-  removeListener,
-  type SpeechStatus,
-  sendMessage,
-  type UpdateSpeechSettings,
-} from "@/ExtensionMessages";
-import type { SpeechSettings } from "@/types";
+import { use, useCallback, useEffect, useRef, useState } from "react";
+import { ExtensionContext } from "../ExtensionContext";
 import { getSpeechContent } from "./getSpeechContent";
 
 const { t } = createI18n();
@@ -33,13 +23,8 @@ export const Speech = ({
 }: {
   shadowRootRef: React.RefObject<HTMLDivElement | null>;
 }) => {
-  const [isEnabled, setIsEnabled] = useState(false);
-  const [speechSettings, setSpeechSettings] = useState<SpeechSettings>({
-    rate: 1,
-    pitch: 1,
-    volume: 1,
-    voice: "",
-  });
+  const { isSpeechEnabled, speechSettings } = use(ExtensionContext);
+
   const [targetRect, setTargetRect] = useState<Rect | undefined>(undefined);
   const [speakingRect, setSpeakingRect] = useState<Rect | undefined>(undefined);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -75,11 +60,11 @@ export const Speech = ({
     utter.text = content;
 
     // 設定を適用
-    utter.rate = speechSettings.rate || 1;
-    utter.pitch = speechSettings.pitch || 1;
-    utter.volume = speechSettings.volume || 1;
+    utter.rate = speechSettings?.rate || 1;
+    utter.pitch = speechSettings?.pitch || 1;
+    utter.volume = speechSettings?.volume || 1;
 
-    if (speechSettings.voice) {
+    if (speechSettings?.voice) {
       const voices = speechSynthesis.getVoices();
       const selectedVoice = voices.find(
         (voice) => voice.name === speechSettings.voice,
@@ -129,31 +114,8 @@ export const Speech = ({
     [shadowRootRef],
   );
 
-  const enableSpeech = useCallback(async () => {
-    setIsEnabled(true);
-    await sendMessage({ action: "speechEnabled" });
-  }, []);
-
-  const disableSpeech = useCallback(async () => {
-    setIsEnabled(false);
-    speechSynthesis.cancel();
-    setTargetRect(undefined);
-    setSpeakingRect(undefined);
-    setIsSpeaking(false);
-    setIsPaused(false);
-    await sendMessage({ action: "speechDisabled" });
-  }, []);
-
   useEffect(() => {
-    document.addEventListener("visibilitychange", disableSpeech);
-    return () =>
-      document.removeEventListener("visibilitychange", disableSpeech);
-  }, [disableSpeech]);
-
-  useEffect(() => {
-    if (!isEnabled) {
-      setTargetRect(undefined);
-      setSpeakingRect(undefined);
+    if (!isSpeechEnabled) {
       setIsSpeaking(false);
       setIsPaused(false);
       speechSynthesis.cancel();
@@ -163,41 +125,10 @@ export const Speech = ({
     }
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [handleMouseMove, isEnabled]);
-
-  useEffect(() => {
-    const messageListener: MessageListener<
-      SpeechStatus | EnableSpeech | DisableSpeech | UpdateSpeechSettings
-    > = (message, _sender, sendResponse) => {
-      const { action } = message;
-      if (action === "speechStatus") {
-        sendResponse({ action, isEnabled });
-        return true;
-      }
-      if (action === "enableSpeech") {
-        enableSpeech();
-        if (message.settings) {
-          setSpeechSettings(message.settings);
-        }
-      }
-      if (message.action === "disableSpeech") {
-        disableSpeech();
-      }
-      if (message.action === "updateSpeechSettings") {
-        if (message.settings) {
-          setSpeechSettings(message.settings);
-        }
-      }
-    };
-
-    addListener(messageListener);
-    return () => {
-      removeListener(messageListener);
-    };
-  }, [enableSpeech, disableSpeech, isEnabled]);
+  }, [handleMouseMove, isSpeechEnabled]);
 
   return (
-    isEnabled && (
+    isSpeechEnabled && (
       <div ref={ref}>
         {targetRect && (
           <button

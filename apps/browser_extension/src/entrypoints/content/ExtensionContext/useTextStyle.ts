@@ -6,7 +6,7 @@ export const useTextStyle = () => {
     TextStyleSettings | undefined
   >({});
   const pageDefaultTextStyleRef = useRef<TextStyleSettings | undefined>(
-    undefined
+    undefined,
   );
 
   const getHostTextStyle = useCallback(async (hostname: string) => {
