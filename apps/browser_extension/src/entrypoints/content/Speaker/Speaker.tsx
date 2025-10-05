@@ -1,7 +1,5 @@
 import { createI18n } from "@wxt-dev/i18n";
-import getXPath from "get-xpath";
 import { use, useCallback, useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 import type { Rect } from "@/types";
 import { ExtensionContext } from "../ExtensionContext";
 import { findBlock } from "./findBlock";
@@ -10,78 +8,8 @@ import { SpeechButton } from "./SpeechButton";
 
 const { t } = createI18n();
 
-export const Speech = () => {
-  const { isSpeechEnabled } = use(ExtensionContext);
-  if (!isSpeechEnabled) {
-    return null;
-  }
-  return (
-    <>
-      <Speaker />
-      <FrameSpeakers />
-    </>
-  );
-};
-
-export const FrameSpeakers = () => {
-  // 初回レンダリング時のみframesがセットされる
-  const [frameElements, _setFrameElements] = useState<
-    (HTMLFrameElement | HTMLIFrameElement)[]
-  >([
-    ...document.querySelectorAll<HTMLFrameElement | HTMLIFrameElement>(
-      "iframe,frame",
-    ),
-  ]);
-  const frameRootsRef = useRef<(HTMLElement | null)[]>(
-    frameElements.map(() => null),
-  );
-
-  // forEachは何度でも呼ばれて良いようにしておく
-  frameElements.forEach((frameElement, index) => {
-    if (!frameRootsRef.current[index]) {
-      try {
-        const frame = frameElement.contentWindow;
-        if (!frame) return;
-        if (!frame.document || !frame.document.body) return;
-        const root = frame.document.createElement("div");
-        root.style.cssText = `
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 0;
-          height: 0;`;
-        root.id = "hiraku-web-frame-root-speech";
-        frameRootsRef.current[index] = root;
-        frame.document.body.appendChild(root);
-      } catch {
-        /* noop */
-      }
-    }
-  });
-
-  // unmout時にrootを削除
-  useEffect(() => {
-    return () => {
-      frameRootsRef.current.forEach((root) => {
-        if (root?.parentNode) {
-          root.parentNode.removeChild(root);
-        }
-      });
-    };
-  }, []);
-  return (
-    <>
-      {frameElements.map((frameElement, index) => {
-        const root = frameRootsRef.current[index];
-        if (!root) return null;
-        return createPortal(<Speaker key={getXPath(frameElement)} />, root);
-      })}
-    </>
-  );
-};
-
 export const Speaker = () => {
-  const { speechSettings } = use(ExtensionContext);
+  const { speechSettings, isSpeechEnabled } = use(ExtensionContext);
 
   const [targetRect, setTargetRect] = useState<Rect | undefined>(undefined);
   const [speakingRect, setSpeakingRect] = useState<Rect | undefined>(undefined);
@@ -205,7 +133,7 @@ export const Speaker = () => {
 
   return (
     <div ref={ref}>
-      {targetRect && (
+      {isSpeechEnabled && targetRect && (
         <SpeechButton
           onClick={() => {
             speech();

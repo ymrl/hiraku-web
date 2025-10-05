@@ -1,9 +1,10 @@
 import { createElement, createRef, type RefObject } from "react";
 import { createRoot } from "react-dom/client";
 import { MessageResponder } from "./ExtensionContext/MessageResponder";
+import { FrameManager } from "./FrameManager";
 import { LandmarkNavigation } from "./LandmarkNavigation";
-import { Speech } from "./Speech";
-import { TextStyleTweaker } from "./TextStyleTweaker";
+import { Speaker } from "./Speaker";
+import { TextStyleTweaker, TextStyleTweakerForFrame } from "./TextStyleTweaker";
 
 export const createRootElement = () => {
   const root = document.createElement("div");
@@ -33,7 +34,12 @@ export const Root = ({
     <MessageResponder>
       <TextStyleTweaker />
       <LandmarkNavigation rootRef={rootRef} />
-      <Speech />
+      <Speaker />
+
+      <FrameManager>
+        <TextStyleTweakerForFrame />
+        <Speaker />
+      </FrameManager>
     </MessageResponder>
   );
 };
