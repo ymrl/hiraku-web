@@ -9,7 +9,6 @@ export const getFocusableElement = (element: Element): HTMLElement => {
   if (focusableChild) {
     const rect = element.getBoundingClientRect();
     const childRect = focusableChild.getBoundingClientRect();
-    console.log(rect, childRect);
     if (childRect.top - rect.top <= window.innerHeight / 2) {
       return focusableChild;
     }

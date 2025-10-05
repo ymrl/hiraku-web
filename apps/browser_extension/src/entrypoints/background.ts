@@ -21,11 +21,6 @@ export default defineBackground(() => {
         return true;
       }
       loadHostTextStyle(hostname).then((settings) => {
-        console.log("Background: Loaded host text style settings:", {
-          action,
-          settings,
-        });
-
         sendResponse({ action, settings });
       });
       return true;
