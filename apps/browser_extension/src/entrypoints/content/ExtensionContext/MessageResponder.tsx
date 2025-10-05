@@ -1,49 +1,24 @@
-import {
-  type ReactNode,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { type ReactNode, useCallback, useEffect } from "react";
 import { browser } from "wxt/browser";
-import {
-  type ExtensionMessage,
-  type MessageListener,
-  sendMessage,
-} from "@/ExtensionMessages";
-import type { TextStyleSettings } from "@/types";
+import type { ExtensionMessage, MessageListener } from "@/ExtensionMessages";
 import { getHeadings, getLandmarks } from "../collection";
 import { ExtensionContext } from "./ExtensionContext";
+import { useTextStyle } from "./useTextStyle";
 
 export const MessageResponder = ({ children }: { children?: ReactNode }) => {
-  const [currentTextStyle, setCurrentTextStyle] = useState<
-    TextStyleSettings | undefined
-  >({});
-  const pageDefaultTextStyleRef = useRef<TextStyleSettings | undefined>(
-    undefined,
-  );
-
-  const getHostTextStyle = useCallback(async (hostname: string) => {
-    const { settings } = await sendMessage({
-      action: "getHostTextStyleSettings",
-      hostname: hostname,
-    });
-    setCurrentTextStyle(settings);
-  }, []);
-
-  const applyPageDefaultTextStyle = useCallback(
-    (textStyle: TextStyleSettings) => {
-      pageDefaultTextStyleRef.current = textStyle;
-    },
-    [],
-  );
+  const {
+    currentTextStyle,
+    getHostTextStyle,
+    pageDefaultTextStyleRef,
+    updateCurrentTextStyle,
+  } = useTextStyle();
 
   const respondMessage: MessageListener<ExtensionMessage> = useCallback(
     (message, _sender, sendResponse) => {
       const { action } = message;
       if (action === "updateTextStyle") {
         const { settings } = message;
-        setCurrentTextStyle(settings);
+        updateCurrentTextStyle(settings);
         sendResponse({ action, success: true });
         return true;
       }
@@ -65,7 +40,7 @@ export const MessageResponder = ({ children }: { children?: ReactNode }) => {
         return true;
       }
     },
-    [],
+    [updateCurrentTextStyle, pageDefaultTextStyleRef]
   );
 
   useEffect(() => {
@@ -80,7 +55,6 @@ export const MessageResponder = ({ children }: { children?: ReactNode }) => {
       value={{
         currentTextStyle,
         getHostTextStyle,
-        applyPageDefaultTextStyle,
       }}
     >
       {children}
