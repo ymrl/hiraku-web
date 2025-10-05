@@ -1,7 +1,12 @@
 import { createI18n } from "@wxt-dev/i18n";
 import { use, useCallback, useEffect, useRef, useState } from "react";
+import { defaultColors } from "@/theme/defaultColors";
 import { ExtensionContext } from "../ExtensionContext";
 import { getSpeechContent } from "./getSpeechContent";
+
+const INSET = "min(-0.375rem, -6px)"; //  -6px
+const INNER_BORDER = "max(0.125rem, 2px)"; // 2px
+const OUTER_BORDER = "max(0.25rem, 4px)"; // 4px
 
 const { t } = createI18n();
 
@@ -19,9 +24,9 @@ type Rect = {
 };
 
 export const Speech = ({
-  shadowRootRef,
+  rootRef,
 }: {
-  shadowRootRef: React.RefObject<HTMLDivElement | null>;
+  rootRef: React.RefObject<HTMLElement | null>;
 }) => {
   const { isSpeechEnabled, speechSettings } = use(ExtensionContext);
 
@@ -87,8 +92,7 @@ export const Speech = ({
       const element = document
         .elementsFromPoint(event.clientX, event.clientY)
         .find(
-          (el) =>
-            !shadowRootRef.current?.contains(el) && !ref.current?.contains(el),
+          (el) => !rootRef.current?.contains(el) && !ref.current?.contains(el),
         );
       const candidate =
         targetElementRef.current === element
@@ -111,7 +115,7 @@ export const Speech = ({
         setTargetRect(undefined);
       }
     },
-    [shadowRootRef],
+    [rootRef],
   );
 
   useEffect(() => {
@@ -128,111 +132,168 @@ export const Speech = ({
   }, [handleMouseMove, isSpeechEnabled]);
 
   return (
-    isSpeechEnabled && (
-      <div ref={ref}>
-        {targetRect && (
-          <button
-            onClick={() => {
-              speech();
-            }}
-            type="button"
-            className="absolute z-10
-              before:content-['']
-              before:absolute
-              before:-inset-0.5
-              before:border-2
-              before:border-solid
-              before:border-indigo-50
-              before:rounded
-              before:z-20
-              after:content-['']
-              after:absolute
-              after:-inset-0.5
-              after:border-4
-              after:box-content
-              after:border-solid
-              after:border-indigo-600
-              after:rounded
-              after:z-10
-              "
+    <div ref={ref}>
+      {isSpeechEnabled && targetRect && (
+        <button
+          onClick={() => {
+            speech();
+          }}
+          type="button"
+          style={{
+            position: "absolute",
+            background: "transparent",
+            border: 0,
+            zIndex: 10,
+            top: `${targetRect.top}px`,
+            left: `${targetRect.left}px`,
+            width: `${targetRect.width}px`,
+            height: `${targetRect.height}px`,
+          }}
+        >
+          <span
             style={{
-              top: `${targetRect.top}px`,
-              left: `${targetRect.left}px`,
-              width: `${targetRect.width}px`,
-              height: `${targetRect.height}px`,
+              position: "absolute",
+              inset: INSET,
+              border: "0.125rem solid",
+              borderStyle: "solid",
+              borderWidth: INNER_BORDER,
+              borderColor: defaultColors.indigo[50],
+              borderRadius: "0.5rem",
+              zIndex: 20,
+            }}
+          />
+          <span
+            style={{
+              position: "absolute",
+              inset: INSET,
+              borderStyle: "solid",
+              borderWidth: OUTER_BORDER,
+              borderColor: defaultColors.indigo[600],
+              borderRadius: "0.5rem",
+              zIndex: 10,
+            }}
+          />
+          <span
+            style={{
+              position: "absolute",
+              bottom: "calc(100% + max(1rem, 16px))",
+              left: "50%",
+              transform: "translateX(-50%)",
+              display: "inline-block",
+              textAlign: "center",
+              borderStyle: "solid",
+              borderWidth: "max(0.125rem, 2px)",
+              borderColor: defaultColors.indigo[600],
+              backgroundColor: "white",
+              color: defaultColors.indigo[800],
+              fontSize: "max(0.75rem, 12px)", // text-xs
+              fontWeight: "bold",
+              padding: "max(0.25rem, 4px) max(0.5rem, 8px)", // py-1 px-2
+              borderRadius: "max(2rem, 32px)",
+              whiteSpace: "nowrap",
             }}
           >
-            <span className="flex justify-center absolute bottom-full left-0 right-0">
-              <span
-                className="z-20 py-1 px-2 block rounded-lg border-2 border-solid border-indigo-600 bg-white text-indigo-800 text-xs font-bold whitespace-nowrap
-               mb-2 relative
-               before:content-[''] before:absolute before:bg-transparent
-               before:border-solid
-               before:border-l-8 before:border-l-transparent
-               before:border-r-8 before:border-r-transparent
-               before:border-t-8 before:border-t-indigo-600
-               before:-bottom-[8px] before:left-1/2 before:-ml-[8px]
-              "
-              >
-                {t("speech.clickTo")}
-                {t("speech.readThisPartAloud")}
-              </span>
-            </span>
-          </button>
-        )}
-        {isSpeaking && speakingRect && (
-          <button
-            onClick={() => {
-              isPaused ? speechSynthesis.resume() : speechSynthesis.pause();
-              setIsPaused(!isPaused);
-            }}
-            type="button"
-            className="absolute z-30
-              before:content-['']
-              before:absolute
-              before:-inset-0.5
-              before:border-2
-              before:border-solid
-              before:border-emerald-50
-              before:rounded
-              before:z-20
-              after:content-['']
-              after:absolute
-              after:-inset-0.5
-              after:border-4
-              after:box-content
-              after:border-solid
-              after:border-emerald-600
-              after:rounded
-              after:z-10"
+            {t("speech.clickTo")}
+            {t("speech.readThisPartAloud")}
+            <span
+              style={{
+                position: "absolute",
+                bottom: "min(-0.5rem, -8px)",
+                left: "50%",
+                transform: "translateX(-50%)",
+                width: 0,
+                height: 0,
+                borderWidth: "max(0.5rem, 8px)",
+                borderStyle: "solid",
+                borderColor: "transparent",
+                borderTopColor: defaultColors.indigo[600],
+                borderBottom: "0",
+              }}
+            />
+          </span>
+        </button>
+      )}
+      {isSpeaking && speakingRect && (
+        <button
+          onClick={() => {
+            isPaused ? speechSynthesis.resume() : speechSynthesis.pause();
+            setIsPaused(!isPaused);
+          }}
+          type="button"
+          style={{
+            position: "absolute",
+            zIndex: 20,
+            background: "transparent",
+            border: 0,
+            top: `${speakingRect.top}px`,
+            left: `${speakingRect.left}px`,
+            width: `${speakingRect.width}px`,
+            height: `${speakingRect.height}px`,
+          }}
+        >
+          <span
             style={{
-              top: `${speakingRect.top}px`,
-              left: `${speakingRect.left}px`,
-              width: `${speakingRect.width}px`,
-              height: `${speakingRect.height}px`,
+              position: "absolute",
+              inset: INSET,
+              border: "0.125rem solid",
+              borderStyle: "solid",
+              borderWidth: INNER_BORDER,
+              borderColor: defaultColors.emerald[50],
+              borderRadius: "0.5rem",
+              zIndex: 20,
+            }}
+          />
+          <span
+            style={{
+              position: "absolute",
+              inset: INSET,
+              borderStyle: "solid",
+              borderWidth: OUTER_BORDER,
+              borderColor: defaultColors.emerald[600],
+              borderRadius: "0.5rem",
+              zIndex: 10,
+            }}
+          />
+          <span
+            style={{
+              position: "absolute",
+              bottom: "calc(100% + max(1rem, 16px))",
+              left: "50%",
+              transform: "translateX(-50%)",
+              display: "inline-block",
+              textAlign: "center",
+              borderStyle: "solid",
+              borderWidth: "max(0.125rem, 2px)",
+              borderColor: defaultColors.emerald[600],
+              backgroundColor: "white",
+              color: defaultColors.emerald[800],
+              fontSize: "max(0.75rem, 12px)", // text-xs
+              fontWeight: "bold",
+              padding: "max(0.25rem, 4px) max(0.5rem, 8px)", // py-1 px-2
+              borderRadius: "max(2rem, 32px)",
+              whiteSpace: "nowrap",
             }}
           >
-            <span className="flex justify-center absolute bottom-full left-0 right-0">
-              <span
-                className="z-20 py-1 px-2 block rounded-lg border-2 border-solid border-emerald-600 bg-white text-emerald-800 text-xs font-bold whitespace-nowrap
-               mb-2 relative
-               before:content-[''] before:absolute before:bg-transparent
-               before:border-solid
-               before:border-l-8 before:border-l-transparent
-               before:border-r-8 before:border-r-transparent
-               before:border-t-8 before:border-t-emerald-600
-               before:-bottom-[8px] before:left-1/2 before:-ml-[8px]
-              "
-              >
-                {t("speech.clickTo")}
-                {isPaused
-                  ? t("speech.resumeReading")
-                  : t("speech.pauseReading")}
-              </span>
-            </span>
-          </button>
-        )}
-      </div>
-    )
+            {t("speech.clickTo")}
+            {isPaused ? t("speech.resumeReading") : t("speech.pauseReading")}
+            <span
+              style={{
+                position: "absolute",
+                bottom: "min(-0.5rem, -8px)",
+                left: "50%",
+                transform: "translateX(-50%)",
+                width: 0,
+                height: 0,
+                borderWidth: "max(0.5rem, 8px)",
+                borderStyle: "solid",
+                borderColor: "transparent",
+                borderTopColor: defaultColors.emerald[600],
+                borderBottom: "0",
+              }}
+            />
+          </span>
+        </button>
+      )}
+    </div>
   );
 };

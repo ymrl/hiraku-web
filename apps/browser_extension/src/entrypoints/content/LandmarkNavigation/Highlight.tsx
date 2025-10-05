@@ -9,9 +9,9 @@ import { defaultColors } from "@/theme/defaultColors";
 import { focusTargetElement } from "./focusTargetElement";
 import { getElementRect, type Rect } from "./getElementRect";
 
-const INSET = "-0.375rem";
-const INNER_BORDER = "0.125rem";
-const OUTER_BORDER = "0.25rem";
+const INSET = "min(-0.375rem, -6px)";
+const INNER_BORDER = "max(0.125rem, 2px)";
+const OUTER_BORDER = "max(0.25rem, 4px)";
 
 export const Highlight = ({
   elementRef,
@@ -75,7 +75,7 @@ export const Highlight = ({
             borderStyle: "solid",
             borderWidth: INNER_BORDER,
             borderColor: defaultColors.rose[50],
-            borderRadius: "0.5rem",
+            borderRadius: "max(0.5rem, 8px)",
             zIndex: 20,
           }}
         />
@@ -86,7 +86,7 @@ export const Highlight = ({
             borderStyle: "solid",
             borderWidth: OUTER_BORDER,
             borderColor: defaultColors.rose[400],
-            borderRadius: "0.5rem",
+            borderRadius: "max(0.5rem, 8px)",
             zIndex: 10,
           }}
         />

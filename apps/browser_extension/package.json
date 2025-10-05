@@ -26,7 +26,6 @@
     "get-xpath": "^3.3.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "react-shadow": "^20.6.0",
     "tailwindcss": "^4.1.13"
   },
   "devDependencies": {
