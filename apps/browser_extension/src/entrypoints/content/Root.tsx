@@ -1,7 +1,6 @@
-import { createElement, useRef } from "react";
+import { createElement, createRef, type RefObject } from "react";
 import { createRoot } from "react-dom/client";
-import shadow from "react-shadow";
-import style from "./content.css?inline";
+import { MessageResponder } from "./ExtensionContext/MessageResponder";
 import { LandmarkNavigation } from "./LandmarkNavigation";
 import { Speech } from "./Speech";
 import { TextStyleTweaker } from "./TextStyleTweaker";
@@ -19,20 +18,22 @@ export const createRootElement = () => {
   `;
   document.body.appendChild(root);
   const reactRoot = createRoot(root);
-  reactRoot.render(createElement(Root, {}));
+  const rootRef = createRef<HTMLDivElement | null>();
+  rootRef.current = root;
+  reactRoot.render(createElement(Root, { rootRef }));
   return root;
 };
 
-export const Root = () => {
-  const shadowRootRef = useRef<HTMLDivElement>(null);
+export const Root = ({
+  rootRef,
+}: {
+  rootRef: RefObject<HTMLElement | null>;
+}) => {
   return (
-    <>
+    <MessageResponder>
       <TextStyleTweaker />
-      <shadow.div ref={shadowRootRef}>
-        <style>{style}</style>
-        <Speech shadowRootRef={shadowRootRef} />
-        <LandmarkNavigation />
-      </shadow.div>
-    </>
+      <LandmarkNavigation rootRef={rootRef} />
+      <Speech />
+    </MessageResponder>
   );
 };

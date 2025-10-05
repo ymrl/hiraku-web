@@ -1,96 +1,57 @@
-import { useCallback, useEffect, useState } from "react";
-import { browser } from "wxt/browser";
+import { type RefObject, use, useRef } from "react";
+import { createPortal } from "react-dom";
+import { ExtensionContext } from "../ExtensionContext";
+import { getElementByXpaths } from "./getElementByXpaths";
 import { Highlight } from "./Highlight";
 
-const focusableSelector =
-  "a,button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex],[contenteditable=true]";
-
-const getFocusableElement = (element: Element): HTMLElement => {
-  if (element.matches(focusableSelector)) {
-    return element as HTMLElement;
-  }
-  const focusableChild = element.querySelector<HTMLElement>(focusableSelector);
-  if (focusableChild) {
-    const rect = element.getBoundingClientRect();
-    const childRect = focusableChild.getBoundingClientRect();
-    console.log(rect, childRect);
-    if (childRect.top - rect.top <= window.innerHeight / 2) {
-      return focusableChild;
-    }
-  }
-  const emptySpan = document.createElement("span");
-  emptySpan.setAttribute("tabindex", "-1");
-  element.prepend(emptySpan);
-  emptySpan.focus();
-  emptySpan.onblur = () => {
-    emptySpan.remove();
-  };
-  return emptySpan;
+const cleanUp = (frameRootRef: RefObject<Element | null>) => {
+  if (!frameRootRef.current) return;
+  frameRootRef.current.parentElement?.removeChild?.(frameRootRef.current);
 };
 
-const focusTargetElement = (element: Element) => {
-  const rect = element.getBoundingClientRect();
-  const block = rect.height > window.innerHeight ? "start" : "center";
-  element.scrollIntoView({ behavior: "smooth", block });
-  const timeout = setTimeout(() => {
-    listener();
-  }, 1000);
-  const listener = () => {
-    getFocusableElement(element).focus();
-    window.removeEventListener("scrollend", listener);
-    clearTimeout(timeout);
-  };
-  window.addEventListener("scrollend", listener, { once: true });
-};
-
-export const LandmarkNavigation = () => {
-  const [highlightRect, setHighlightRect] = useState<{
-    top: number;
-    left: number;
-    width: number;
-    height: number;
-  } | null>(null);
-
-  const highlightElement = useCallback((xpath: string) => {
-    const element = document.evaluate(
-      xpath,
-      document,
-      null,
-      XPathResult.FIRST_ORDERED_NODE_TYPE,
-      null,
-    ).singleNodeValue as Element | null;
-    if (element) {
-      const rect = element.getBoundingClientRect();
-      setHighlightRect({
-        top: rect.top + window.scrollY,
-        left: rect.left + window.scrollX,
-        width: rect.width,
-        height: rect.height,
-      });
-      focusTargetElement(element);
-      return element;
+export const LandmarkNavigation = ({
+  rootRef,
+}: {
+  rootRef: RefObject<Element | null>;
+}) => {
+  const { xpaths, navigationTimestamp } = use(ExtensionContext);
+  const elementRef = useRef<Element | null>(null);
+  const element = getElementByXpaths(xpaths);
+  const frameRootRef = useRef<Element | null>(null);
+  elementRef.current = element;
+  if (!element) {
+    return;
+  }
+  if (element.ownerDocument !== rootRef.current?.ownerDocument) {
+    // フレームの中
+    if (frameRootRef.current?.ownerDocument !== element.ownerDocument) {
+      cleanUp(frameRootRef);
+      const d = element.ownerDocument;
+      const root = d.createElement("div");
+      root.style.cssText = `
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 0;
+        height: 0;
+        z-index: 2147483647;`;
+      root.id = "hiraku-web-frame-root-landmark-navigation";
+      frameRootRef.current = root;
+      d.body.appendChild(root);
     }
-    return undefined;
-  }, []);
-
-  const clearHighlight = useCallback(() => {
-    setHighlightRect(null);
-  }, []);
-
-  useEffect(() => {
-    browser.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-      if (message.action === "scrollToElement") {
-        const targetElement = highlightElement(message.xpath);
-        sendResponse({ success: !!targetElement });
-      }
-    });
-  }, [highlightElement]);
+    return createPortal(
+      <Highlight
+        elementRef={elementRef}
+        key={`${navigationTimestamp}-${xpaths.join(",")}`}
+      />,
+      frameRootRef.current,
+    );
+  }
 
   return (
-    <>
-      {highlightRect && (
-        <Highlight {...highlightRect} onClose={clearHighlight} />
-      )}
-    </>
+    <Highlight
+      elementRef={elementRef}
+      key={`${navigationTimestamp}-${xpaths.join(",")}`}
+    />
   );
 };

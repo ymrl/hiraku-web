@@ -2,32 +2,40 @@ import { createI18n } from "@wxt-dev/i18n";
 import { browser } from "wxt/browser";
 import { defineBackground } from "wxt/utils/define-background";
 import { getCurrentTabId } from "@/browser/getCurrentTabId";
+import {
+  addListener,
+  sendMessage,
+  sendMessageToTab,
+} from "@/ExtensionMessages";
 import { loadHostTextStyle } from "@/TextStyle";
 
 const { t } = createI18n();
 
 export default defineBackground(() => {
-  browser.runtime.onMessage.addListener((request, _sender, sendResponse) => {
-    if (request.action === "getTextStyleSettings") {
+  addListener((request, _sender, sendResponse) => {
+    const { action } = request;
+    if (action === "getHostTextStyleSettings") {
       const hostname = request.hostname;
       if (!hostname) {
-        sendResponse(undefined);
+        sendResponse({ action, settings: undefined });
         return true;
       }
-      loadHostTextStyle(hostname).then((result) => {
-        sendResponse(result);
+      loadHostTextStyle(hostname).then((settings) => {
+        console.log("Background: Loaded host text style settings:", {
+          action,
+          settings,
+        });
+
+        sendResponse({ action, settings });
       });
-      return true; // 非同期レスポンスを示す
+      return true;
     }
     if (request.action === "speechEnabled") {
       browser.contextMenus.update("speech", { checked: true });
-      return true;
     }
     if (request.action === "speechDisabled") {
       browser.contextMenus.update("speech", { checked: false });
-      return true;
     }
-    return false;
   });
 
   browser.runtime.onInstalled.addListener(() => {
@@ -109,7 +117,7 @@ const openHeadingsList = async () => {
     console.error("Failed to open popup:", err);
   }
   try {
-    browser.runtime.sendMessage({ action: "selectHeadingsTab" });
+    sendMessage({ action: "selectHeadingsTab" });
   } catch (err) {
     console.error("Failed to send message to popup:", err);
   }
@@ -123,7 +131,7 @@ const openLandmarksList = async () => {
     console.error("Failed to open popup:", err);
   }
   try {
-    browser.runtime.sendMessage({ action: "selectLandmarksTab" });
+    sendMessage({ action: "selectLandmarksTab" });
   } catch (err) {
     console.error("Failed to send message to popup:", err);
   }
@@ -137,7 +145,7 @@ const openTextSettings = async () => {
     console.error("Failed to open popup:", err);
   }
   try {
-    browser.runtime.sendMessage({ action: "selectTextTab" });
+    sendMessage({ action: "selectTextTab" });
   } catch (err) {
     console.error("Failed to send message to popup:", err);
   }
@@ -151,7 +159,7 @@ const openSpeechSettings = async () => {
     console.error("Failed to open popup:", err);
   }
   try {
-    browser.runtime.sendMessage({ action: "selectSpeechTab" });
+    sendMessage({ action: "selectSpeechTab" });
   } catch (err) {
     console.error("Failed to send message to popup:", err);
   }
@@ -165,10 +173,11 @@ const toggleSpeech = async (enabled: boolean | undefined) => {
       ? await browser.storage.local.get("speechSettings")
       : undefined;
 
-    await browser.tabs.sendMessage(tabId, {
-      action: enabled ? "enableSpeech" : "disableSpeech",
-      settings,
-    });
+    if (enabled) {
+      await sendMessageToTab(tabId, { action: "enableSpeech", settings });
+    } else {
+      await sendMessageToTab(tabId, { action: "disableSpeech" });
+    }
   } catch (err) {
     console.error("Failed to send speech message:", err);
   }

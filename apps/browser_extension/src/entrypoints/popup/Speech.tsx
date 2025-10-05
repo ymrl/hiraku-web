@@ -4,6 +4,7 @@ import { browser } from "wxt/browser";
 import { getCurrentTabId } from "@/browser/getCurrentTabId";
 import { Button } from "@/components/Button";
 import { SettingSlider } from "@/components/SettingSlider";
+import { sendMessage, sendMessageToTab } from "@/ExtensionMessages";
 import { SPEECH_SETTINGS } from "@/Speech";
 import type { SpeechSettings } from "@/types";
 
@@ -16,26 +17,6 @@ export function Speech() {
   >([]);
   const [isEnabled, setIsEnabled] = useState(false);
   const voiceSelectId = useId();
-
-  const sendSpeechMessage = useCallback(
-    async (
-      action: "enableSpeech" | "disableSpeech" | "updateSpeechSettings",
-      settings?: SpeechSettings,
-    ) => {
-      try {
-        const tabId = await getCurrentTabId();
-        if (!tabId) return;
-
-        await browser.tabs.sendMessage(tabId, {
-          action,
-          settings,
-        });
-      } catch (err) {
-        console.error("Failed to send speech message:", err);
-      }
-    },
-    [],
-  );
 
   const loadSpeechSettings = useCallback(async () => {
     try {
@@ -53,12 +34,17 @@ export function Speech() {
         await browser.storage.local.set({
           speechSettings: newSettings,
         });
-        await sendSpeechMessage("updateSpeechSettings", newSettings);
+        const tabId = await getCurrentTabId();
+        if (!tabId) throw new Error("No active tab found");
+        await sendMessageToTab(tabId, {
+          action: "updateSpeechSettings",
+          settings: newSettings,
+        });
       } catch (err) {
         console.error("Failed to save speech settings:", err);
       }
     },
-    [sendSpeechMessage],
+    [],
   );
 
   const handleSettingChange = useCallback(
@@ -75,13 +61,10 @@ export function Speech() {
     try {
       const tabId = await getCurrentTabId();
       if (!tabId) throw new Error("No active tab found");
-
-      const result = await browser.tabs.sendMessage(tabId, {
+      const { isEnabled } = await sendMessageToTab(tabId, {
         action: "speechStatus",
       });
-      if (result && result.isEnabled !== undefined) {
-        setIsEnabled(result.isEnabled);
-      }
+      setIsEnabled(isEnabled);
     } catch (err) {
       console.error("Failed to send speech status message:", err);
     }
@@ -108,25 +91,37 @@ export function Speech() {
 
   const enableSpeech = useCallback(async () => {
     setIsEnabled(true);
-    await sendSpeechMessage("enableSpeech", speechSettings);
-    await browser.runtime.sendMessage({ action: "speechEnabled" });
-  }, [speechSettings, sendSpeechMessage]);
+    const tabId = await getCurrentTabId();
+    if (!tabId) throw new Error("No active tab found");
+    await sendMessageToTab(tabId, {
+      action: "enableSpeech",
+      settings: speechSettings,
+    });
+    await sendMessage({ action: "speechEnabled" });
+  }, [speechSettings]);
 
   const disableSpeech = useCallback(async () => {
     setIsEnabled(false);
-    await sendSpeechMessage("disableSpeech");
-    await browser.runtime.sendMessage({ action: "speechDisabled" });
-  }, [sendSpeechMessage]);
+    const tabId = await getCurrentTabId();
+    if (!tabId) throw new Error("No active tab found");
+    await sendMessageToTab(tabId, { action: "disableSpeech" });
+    await sendMessage({ action: "speechDisabled" });
+  }, []);
 
   const resetToDefaults = useCallback(async () => {
     try {
       await browser.storage.local.remove("speechSettings");
       setSpeechSettings({});
-      await sendSpeechMessage("updateSpeechSettings", {});
+      const tabId = await getCurrentTabId();
+      if (!tabId) throw new Error("No active tab found");
+      await sendMessageToTab(tabId, {
+        action: "updateSpeechSettings",
+        settings: {},
+      });
     } catch (err) {
       console.error("Failed to reset speech settings:", err);
     }
-  }, [sendSpeechMessage]);
+  }, []);
   const id = useId();
 
   return (

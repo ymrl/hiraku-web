@@ -2,13 +2,14 @@ import { createI18n } from "@wxt-dev/i18n";
 import { useEffect, useId, useMemo, useState } from "react";
 import { browser } from "wxt/browser";
 import { getCurrentTabId } from "@/browser/getCurrentTabId";
+import { type GetHeadings, sendMessageToTab } from "@/ExtensionMessages";
 import type { Heading } from "../../types";
 import { HeadingLevelSlider } from "./HeadingLevelSlider";
 
 const { t } = createI18n();
 
 interface HeadingsListProps {
-  onScrollToElement: (xpath: string) => void;
+  onScrollToElement: (xpaths: string[]) => void;
 }
 
 const loadLevelFilter = async (): Promise<number> => {
@@ -40,7 +41,7 @@ const getHeadings = async (): Promise<Heading[]> => {
     if (!tabId) {
       return [];
     }
-    const response = await browser.tabs.sendMessage(tabId, {
+    const response = await sendMessageToTab<GetHeadings>(tabId, {
       action: "getHeadings",
     });
     if (response?.headings) {
@@ -104,7 +105,7 @@ export function HeadingsList({ onScrollToElement }: HeadingsListProps) {
             >
               <button
                 type="button"
-                onClick={() => onScrollToElement(heading.xpath)}
+                onClick={() => onScrollToElement(heading.xpaths)}
                 className="text-left text-sm text-stone-800 dark:text-stone-200
                     hover:text-rose-800 dark:hover:text-rose-100
                     hover:bg-rose-50

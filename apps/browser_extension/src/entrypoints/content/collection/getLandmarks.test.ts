@@ -20,20 +20,25 @@ describe("getLandmarks", () => {
     `;
     const landmarks = getLandmarks();
     expect(landmarks).toEqual([
-      { role: "banner", label: "", tag: "header", xpath: "/html/body/header" },
-      { role: "navigation", label: "", tag: "nav", xpath: "/html/body/nav" },
-      { role: "main", label: "", tag: "main", xpath: "/html/body/main" },
+      {
+        role: "banner",
+        label: "",
+        tag: "header",
+        xpaths: ["/html/body/header"],
+      },
+      { role: "navigation", label: "", tag: "nav", xpaths: ["/html/body/nav"] },
+      { role: "main", label: "", tag: "main", xpaths: ["/html/body/main"] },
       {
         role: "complementary",
         label: "",
         tag: "aside",
-        xpath: "/html/body/aside",
+        xpaths: ["/html/body/aside"],
       },
       {
         role: "contentinfo",
         label: "",
         tag: "footer",
-        xpath: "/html/body/footer",
+        xpaths: ["/html/body/footer"],
       },
     ]);
   });
@@ -50,23 +55,28 @@ describe("getLandmarks", () => {
     `;
     const landmarks = getLandmarks();
     expect(landmarks).toEqual([
-      { role: "banner", label: "", tag: "div", xpath: "/html/body/div[1]" },
-      { role: "navigation", label: "", tag: "div", xpath: "/html/body/div[2]" },
-      { role: "main", label: "", tag: "div", xpath: "/html/body/div[3]" },
+      { role: "banner", label: "", tag: "div", xpaths: ["/html/body/div[1]"] },
+      {
+        role: "navigation",
+        label: "",
+        tag: "div",
+        xpaths: ["/html/body/div[2]"],
+      },
+      { role: "main", label: "", tag: "div", xpaths: ["/html/body/div[3]"] },
       {
         role: "complementary",
         label: "",
         tag: "div",
-        xpath: "/html/body/div[4]",
+        xpaths: ["/html/body/div[4]"],
       },
       {
         role: "contentinfo",
         label: "",
         tag: "div",
-        xpath: "/html/body/div[5]",
+        xpaths: ["/html/body/div[5]"],
       },
-      { role: "search", label: "", tag: "div", xpath: "/html/body/div[6]" },
-      { role: "form", label: "", tag: "div", xpath: "/html/body/div[7]" },
+      { role: "search", label: "", tag: "div", xpaths: ["/html/body/div[6]"] },
+      { role: "form", label: "", tag: "div", xpaths: ["/html/body/div[7]"] },
     ]);
   });
 
@@ -85,19 +95,19 @@ describe("getLandmarks", () => {
         role: "region",
         label: "User Profile",
         tag: "section",
-        xpath: "/html/body/section[1]",
+        xpaths: ["/html/body/section[1]"],
       },
       {
         role: "region",
         label: "Article Section",
         tag: "section",
-        xpath: "/html/body/section[2]",
+        xpaths: ["/html/body/section[2]"],
       },
       {
         role: "region",
         label: "Related Articles",
         tag: "div",
-        xpath: "/html/body/div",
+        xpaths: ["/html/body/div"],
       },
     ]);
   });
@@ -114,7 +124,7 @@ describe("getLandmarks", () => {
         role: "region",
         label: "Labeled Section",
         tag: "section",
-        xpath: "/html/body/section[2]",
+        xpaths: ["/html/body/section[2]"],
       },
     ]);
   });
@@ -128,8 +138,13 @@ describe("getLandmarks", () => {
     `;
     const landmarks = getLandmarks();
     expect(landmarks).toEqual([
-      { role: "banner", label: "", tag: "header", xpath: "/html/body/header" },
-      { role: "main", label: "", tag: "main", xpath: "/html/body/main" },
+      {
+        role: "banner",
+        label: "",
+        tag: "header",
+        xpaths: ["/html/body/header"],
+      },
+      { role: "main", label: "", tag: "main", xpaths: ["/html/body/main"] },
     ]);
   });
 
@@ -144,12 +159,17 @@ describe("getLandmarks", () => {
     `;
     const landmarks = getLandmarks();
     expect(landmarks).toEqual([
-      { role: "banner", label: "", tag: "header", xpath: "/html/body/header" },
+      {
+        role: "banner",
+        label: "",
+        tag: "header",
+        xpaths: ["/html/body/header"],
+      },
       {
         role: "contentinfo",
         label: "",
         tag: "footer",
-        xpath: "/html/body/footer",
+        xpaths: ["/html/body/footer"],
       },
     ]);
   });
@@ -163,12 +183,17 @@ describe("getLandmarks", () => {
     `;
     const landmarks = getLandmarks();
     expect(landmarks).toEqual([
-      { role: "banner", label: "", tag: "header", xpath: "/html/body/header" },
+      {
+        role: "banner",
+        label: "",
+        tag: "header",
+        xpaths: ["/html/body/header"],
+      },
       {
         role: "contentinfo",
         label: "",
         tag: "footer",
-        xpath: "/html/body/footer",
+        xpaths: ["/html/body/footer"],
       },
     ]);
   });
@@ -182,12 +207,17 @@ describe("getLandmarks", () => {
     `;
     const landmarks = getLandmarks();
     expect(landmarks).toEqual([
-      { role: "banner", label: "", tag: "header", xpath: "/html/body/header" },
+      {
+        role: "banner",
+        label: "",
+        tag: "header",
+        xpaths: ["/html/body/header"],
+      },
       {
         role: "contentinfo",
         label: "",
         tag: "footer",
-        xpath: "/html/body/footer",
+        xpaths: ["/html/body/footer"],
       },
     ]);
   });
@@ -209,13 +239,13 @@ describe("getLandmarks", () => {
     `;
     const landmarks = getLandmarks();
     expect(landmarks).toEqual([
-      { role: "navigation", label: "", tag: "nav", xpath: "/html/body/nav" },
-      { role: "main", label: "", tag: "main", xpath: "/html/body/main" },
+      { role: "navigation", label: "", tag: "nav", xpaths: ["/html/body/nav"] },
+      { role: "main", label: "", tag: "main", xpaths: ["/html/body/main"] },
       {
         role: "complementary",
         label: "",
         tag: "aside",
-        xpath: "/html/body/aside",
+        xpaths: ["/html/body/aside"],
       },
     ]);
   });
@@ -232,19 +262,19 @@ describe("getLandmarks", () => {
         role: "navigation",
         label: "Primary Navigation",
         tag: "nav",
-        xpath: "/html/body/nav",
+        xpaths: ["/html/body/nav"],
       },
       {
         role: "main",
         label: "Main Content Area",
         tag: "main",
-        xpath: "/html/body/main",
+        xpaths: ["/html/body/main"],
       },
       {
         role: "complementary",
         label: "Sidebar",
         tag: "aside",
-        xpath: "/html/body/aside",
+        xpaths: ["/html/body/aside"],
       },
     ]);
   });
@@ -266,13 +296,13 @@ describe("getLandmarks", () => {
         role: "navigation",
         label: "Site Navigation",
         tag: "nav",
-        xpath: "/html/body/nav",
+        xpaths: ["/html/body/nav"],
       },
       {
         role: "main",
         label: "Article Title",
         tag: "main",
-        xpath: "/html/body/main",
+        xpaths: ["/html/body/main"],
       },
     ]);
   });
@@ -291,13 +321,18 @@ describe("getLandmarks", () => {
     `;
     const landmarks = getLandmarks();
     expect(landmarks).toEqual([
-      { role: "banner", label: "", tag: "header", xpath: "/html/body/header" },
-      { role: "main", label: "", tag: "main", xpath: "/html/body/main" },
+      {
+        role: "banner",
+        label: "",
+        tag: "header",
+        xpaths: ["/html/body/header"],
+      },
+      { role: "main", label: "", tag: "main", xpaths: ["/html/body/main"] },
       {
         role: "search",
         label: "Site Search",
         tag: "div",
-        xpath: "/html/body/div[2]",
+        xpaths: ["/html/body/div[2]"],
       },
     ]);
   });
@@ -313,7 +348,12 @@ describe("getLandmarks", () => {
     `;
     const landmarks = getLandmarks();
     expect(landmarks).toEqual([
-      { role: "banner", label: "", tag: "header", xpath: "/html/body/header" },
+      {
+        role: "banner",
+        label: "",
+        tag: "header",
+        xpaths: ["/html/body/header"],
+      },
     ]);
   });
 
@@ -330,26 +370,226 @@ describe("getLandmarks", () => {
     `;
     const landmarks = getLandmarks();
     expect(landmarks).toEqual([
-      { role: "banner", label: "", tag: "header", xpath: "/html/body/header" },
-      { role: "navigation", label: "", tag: "nav", xpath: "/html/body/nav" },
-      { role: "main", label: "", tag: "main", xpath: "/html/body/main" },
+      {
+        role: "banner",
+        label: "",
+        tag: "header",
+        xpaths: ["/html/body/header"],
+      },
+      { role: "navigation", label: "", tag: "nav", xpaths: ["/html/body/nav"] },
+      { role: "main", label: "", tag: "main", xpaths: ["/html/body/main"] },
       {
         role: "complementary",
         label: "",
         tag: "aside",
-        xpath: "/html/body/aside",
+        xpaths: ["/html/body/aside"],
       },
       {
         role: "contentinfo",
         label: "",
         tag: "footer",
-        xpath: "/html/body/footer",
+        xpaths: ["/html/body/footer"],
       },
       {
         role: "region",
         label: "Valid Section",
         tag: "section",
-        xpath: "/html/body/section[3]",
+        xpaths: ["/html/body/section[3]"],
+      },
+    ]);
+  });
+
+  test("landmarks in iframe", () => {
+    document.body.innerHTML = `
+      <header>Top Level Header</header>
+      <iframe id="test-iframe"></iframe>
+    `;
+    const iframe = document.getElementById("test-iframe") as HTMLIFrameElement;
+    const iframeDoc = iframe.contentDocument;
+    if (iframeDoc) {
+      iframeDoc.body.innerHTML = `
+        <nav>Iframe Navigation</nav>
+        <main>Iframe Main</main>
+      `;
+    }
+
+    const landmarks = getLandmarks();
+    expect(landmarks).toEqual([
+      {
+        role: "banner",
+        label: "",
+        tag: "header",
+        xpaths: ["/html/body/header"],
+      },
+      {
+        role: "navigation",
+        label: "",
+        tag: "nav",
+        xpaths: ['//*[@id="test-iframe"]', "/html/body/nav"],
+      },
+      {
+        role: "main",
+        label: "",
+        tag: "main",
+        xpaths: ['//*[@id="test-iframe"]', "/html/body/main"],
+      },
+    ]);
+  });
+
+  test("landmarks in nested iframes", () => {
+    document.body.innerHTML = `
+      <header>Top Level</header>
+      <iframe id="outer-iframe"></iframe>
+    `;
+    const outerIframe = document.getElementById(
+      "outer-iframe",
+    ) as HTMLIFrameElement;
+    const outerDoc = outerIframe.contentDocument;
+    if (outerDoc) {
+      outerDoc.body.innerHTML = `
+        <nav>Outer Navigation</nav>
+        <iframe id="inner-iframe"></iframe>
+      `;
+      const innerIframe = outerDoc.getElementById(
+        "inner-iframe",
+      ) as HTMLIFrameElement;
+      const innerDoc = innerIframe.contentDocument;
+      if (innerDoc) {
+        innerDoc.body.innerHTML = `
+          <main>Inner Main</main>
+        `;
+      }
+    }
+
+    const landmarks = getLandmarks();
+    expect(landmarks).toEqual([
+      {
+        role: "banner",
+        label: "",
+        tag: "header",
+        xpaths: ["/html/body/header"],
+      },
+      {
+        role: "navigation",
+        label: "",
+        tag: "nav",
+        xpaths: ['//*[@id="outer-iframe"]', "/html/body/nav"],
+      },
+      {
+        role: "main",
+        label: "",
+        tag: "main",
+        xpaths: [
+          '//*[@id="outer-iframe"]',
+          '//*[@id="inner-iframe"]',
+          "/html/body/main",
+        ],
+      },
+    ]);
+  });
+
+  test("mixed top level and iframe landmarks", () => {
+    document.body.innerHTML = `
+      <header>Before Iframe</header>
+      <iframe id="test-iframe"></iframe>
+      <footer>After Iframe</footer>
+    `;
+    const iframe = document.getElementById("test-iframe") as HTMLIFrameElement;
+    const iframeDoc = iframe.contentDocument;
+    if (iframeDoc) {
+      iframeDoc.body.innerHTML = `
+        <main>Inside Iframe</main>
+      `;
+    }
+
+    const landmarks = getLandmarks();
+    expect(landmarks).toEqual([
+      {
+        role: "banner",
+        label: "",
+        tag: "header",
+        xpaths: ["/html/body/header"],
+      },
+      {
+        role: "contentinfo",
+        label: "",
+        tag: "footer",
+        xpaths: ["/html/body/footer"],
+      },
+      {
+        role: "main",
+        label: "",
+        tag: "main",
+        xpaths: ['//*[@id="test-iframe"]', "/html/body/main"],
+      },
+    ]);
+  });
+
+  test("hidden landmarks in iframe should be excluded", () => {
+    document.body.innerHTML = `
+      <header>Top Level</header>
+      <iframe id="test-iframe"></iframe>
+    `;
+    const iframe = document.getElementById("test-iframe") as HTMLIFrameElement;
+    const iframeDoc = iframe.contentDocument;
+    if (iframeDoc) {
+      iframeDoc.body.innerHTML = `
+        <nav>Visible Navigation</nav>
+        <main aria-hidden="true">Hidden Main</main>
+        <aside style="display: none">Hidden Aside</aside>
+      `;
+    }
+
+    const landmarks = getLandmarks();
+    expect(landmarks).toEqual([
+      {
+        role: "banner",
+        label: "",
+        tag: "header",
+        xpaths: ["/html/body/header"],
+      },
+      {
+        role: "navigation",
+        label: "",
+        tag: "nav",
+        xpaths: ['//*[@id="test-iframe"]', "/html/body/nav"],
+      },
+    ]);
+  });
+
+  test("landmarks with labels in iframe", () => {
+    document.body.innerHTML = `
+      <header>Top Level</header>
+      <iframe id="test-iframe"></iframe>
+    `;
+    const iframe = document.getElementById("test-iframe") as HTMLIFrameElement;
+    const iframeDoc = iframe.contentDocument;
+    if (iframeDoc) {
+      iframeDoc.body.innerHTML = `
+        <nav aria-label="Primary Navigation">Nav Content</nav>
+        <section aria-label="Featured Content">Section Content</section>
+      `;
+    }
+
+    const landmarks = getLandmarks();
+    expect(landmarks).toEqual([
+      {
+        role: "banner",
+        label: "",
+        tag: "header",
+        xpaths: ["/html/body/header"],
+      },
+      {
+        role: "navigation",
+        label: "Primary Navigation",
+        tag: "nav",
+        xpaths: ['//*[@id="test-iframe"]', "/html/body/nav"],
+      },
+      {
+        role: "region",
+        label: "Featured Content",
+        tag: "section",
+        xpaths: ['//*[@id="test-iframe"]', "/html/body/section"],
       },
     ]);
   });

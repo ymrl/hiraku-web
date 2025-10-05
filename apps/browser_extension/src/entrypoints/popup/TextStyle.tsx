@@ -4,6 +4,7 @@ import { browser } from "wxt/browser";
 import { getCurrentTabId } from "@/browser/getCurrentTabId";
 import { Button } from "@/components/Button";
 import { SettingSlider } from "@/components/SettingSlider";
+import { sendMessageToTab } from "@/ExtensionMessages";
 import {
   loadDefaultTextStyleSettings,
   loadHostTextStyle,
@@ -36,7 +37,7 @@ export function TextStyle({ currentTabHost }: TextStyleSettingsProps) {
   const sendSettingsToContentScript = async (settings: TextStyleSettings) => {
     const tabId = await getCurrentTabId();
     if (tabId) {
-      await browser.tabs.sendMessage(tabId, {
+      sendMessageToTab(tabId, {
         action: "updateTextStyle",
         settings: settings,
       });
@@ -61,11 +62,10 @@ export function TextStyle({ currentTabHost }: TextStyleSettingsProps) {
   const loadPageDefaultSettings = useCallback(async () => {
     try {
       const tabId = await getCurrentTabId();
-      const { pageTextStyle } =
-        tabId &&
-        (await browser.tabs.sendMessage(tabId, {
-          action: "getPageTextStyle",
-        }));
+      if (!tabId) return;
+      const { pageTextStyle } = await sendMessageToTab(tabId, {
+        action: "getPageTextStyle",
+      });
       if (pageTextStyle) {
         setPageStyles(pageTextStyle);
       }

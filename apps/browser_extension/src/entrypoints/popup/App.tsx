@@ -3,6 +3,18 @@ import { useEffect, useState } from "react";
 import { browser } from "wxt/browser";
 import { getCurrentTabId } from "@/browser/getCurrentTabId";
 import { TextCSS } from "@/components/TextCSS";
+import {
+  addListener,
+  type MessageListener,
+  removeListener,
+  sendMessageToTab,
+} from "@/ExtensionMessages";
+import type {
+  SelectHeadingsTab,
+  SelectLandmarksTab,
+  SelectSpeechTab,
+  SelectTextTab,
+} from "@/ExtensionMessages/Popup";
 import type { TextStyleSettings } from "../../types";
 import { HeadingsList } from "./HeadingsList";
 import { LandmarksList } from "./LandmarksList";
@@ -22,29 +34,34 @@ function App() {
   );
 
   useEffect(() => {
-    const listener: Parameters<
-      typeof browser.runtime.onMessage.addListener
-    >[0] = (message, _sender, sendResponse) => {
-      if (message.action === "selectHeadingsTab") {
+    const listener: MessageListener<
+      SelectHeadingsTab | SelectLandmarksTab | SelectTextTab | SelectSpeechTab
+    > = (message, _sender, sendResponse) => {
+      const { action } = message;
+      if (action === "selectHeadingsTab") {
         setActiveTab("headings");
-        sendResponse({ success: true });
+        sendResponse({ action, success: true });
+        return true;
       }
-      if (message.action === "selectLandmarksTab") {
+      if (action === "selectLandmarksTab") {
         setActiveTab("landmarks");
-        sendResponse({ success: true });
+        sendResponse({ action, success: true });
+        return true;
       }
-      if (message.action === "selectTextTab") {
+      if (action === "selectTextTab") {
         setActiveTab("text");
-        sendResponse({ success: true });
+        sendResponse({ action, success: true });
+        return true;
       }
-      if (message.action === "selectSpeechTab") {
+      if (action === "selectSpeechTab") {
         setActiveTab("speech");
-        sendResponse({ success: true });
+        sendResponse({ action, success: true });
+        return true;
       }
     };
-    browser.runtime.onMessage.addListener(listener);
+    addListener(listener);
     return () => {
-      browser.runtime.onMessage.removeListener(listener);
+      removeListener(listener);
     };
   }, []);
 
@@ -94,16 +111,16 @@ function App() {
     }
   };
 
-  const scrollToElement = async (xpath: string) => {
+  const scrollToElement = async (xpaths: string[]) => {
     try {
       const tabId = await getCurrentTabId();
 
       if (!tabId) {
         throw new Error("No active tab found");
       }
-      const result = await browser.tabs.sendMessage(tabId, {
+      const result = await sendMessageToTab(tabId, {
         action: "scrollToElement",
-        xpath: xpath,
+        xpaths: xpaths,
       });
       if (result?.success) {
         window.close();

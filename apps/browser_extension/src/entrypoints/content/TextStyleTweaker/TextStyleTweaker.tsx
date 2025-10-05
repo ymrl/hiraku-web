@@ -1,72 +1,69 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { browser } from "wxt/browser";
+import getXPath from "get-xpath";
+import { use, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { TextCSS } from "@/components/TextCSS";
-import type { TextStyleSettings } from "../../../types";
-export const TextStyleTweaker = () => {
-  const defaultSettingsRef = useRef<Partial<TextStyleSettings>>({});
-  const [settings, setSettings] = useState<TextStyleSettings>({});
+import { ExtensionContext } from "../ExtensionContext";
 
-  const applyTextStyleSettings = useCallback(
-    (newSettings: TextStyleSettings) => {
-      setSettings(newSettings);
-    },
-    [],
-  );
+export const TextStyleTweaker = () => {
+  const { currentTextStyle, getHostTextStyle } = use(ExtensionContext);
 
   const loadTextStyleSettings = async () => {
-    try {
-      const hostname = window.location.hostname;
-      const settings = await browser.runtime.sendMessage({
-        action: "getTextStyleSettings",
-        hostname: hostname,
-      });
-      if (settings) {
-        applyTextStyleSettings(settings);
-      }
-    } catch (error) {
-      console.error("Failed to load text style settings:", error);
-    }
-  };
-
-  const setPageDefaultSettings = () => {
-    renderedOnceRef.current = true;
-    const defaults = getComputedStyle(document.documentElement);
-    const fontSizePx = parseFloat(defaults.fontSize);
-    const lineHeightPx =
-      defaults.lineHeight === "normal"
-        ? 1.2 * fontSizePx
-        : parseFloat(defaults.lineHeight);
-    defaultSettingsRef.current = {
-      fontSize: Number.isNaN(fontSizePx) ? 1.0 : fontSizePx / 16,
-      lineHeight:
-        Number.isNaN(lineHeightPx) || fontSizePx === 0
-          ? 1.2
-          : lineHeightPx / fontSizePx,
-    };
+    const hostname = window.location.hostname;
+    getHostTextStyle(hostname);
   };
 
   const renderedOnceRef = useRef(false);
   if (!renderedOnceRef.current) {
-    setPageDefaultSettings();
     loadTextStyleSettings();
+    renderedOnceRef.current = true;
   }
+  const [frames, _setFrames] = useState<Window[]>(Array.from(window.frames));
+  const frameRootsRef = useRef<(HTMLElement | null)[]>(frames.map(() => null));
 
+  // forEachは何度でも呼ばれて良いようにしておく
+  frames.forEach((frame, index) => {
+    if (!frameRootsRef.current[index]) {
+      const root = frame.document.createElement("div");
+      root.style.cssText = `
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 0;`;
+      root.id = "hiraku-web-frame-root-text-style-tweaker";
+      frameRootsRef.current[index] = root;
+      frame.document.body.appendChild(root);
+    }
+  });
+
+  // unmout時にrootを削除
   useEffect(() => {
-    const listener: Parameters<
-      typeof browser.runtime.onMessage.addListener
-    >[0] = (message, _sender, sendResponse) => {
-      if (message.action === "updateTextStyle") {
-        applyTextStyleSettings(message.settings);
-        sendResponse({ success: true });
-      } else if (message.action === "getPageTextStyle") {
-        sendResponse({ pageTextStyle: defaultSettingsRef.current });
-      }
-    };
-    browser.runtime.onMessage.addListener(listener);
     return () => {
-      browser.runtime.onMessage.removeListener(listener);
+      frameRootsRef.current.forEach((root) => {
+        if (root?.parentNode) {
+          root.parentNode.removeChild(root);
+        }
+      });
     };
-  }, [applyTextStyleSettings]);
+  }, []);
 
-  return <TextCSS settings={settings} />;
+  if (!currentTextStyle) {
+    return null;
+  }
+  return (
+    <>
+      <TextCSS settings={currentTextStyle} />
+      {frames.map((frame, index) => {
+        const root = frameRootsRef.current[index];
+        if (!root) return null;
+        return createPortal(
+          <TextCSS
+            settings={currentTextStyle}
+            key={getXPath(frame.frameElement)}
+          />,
+          root,
+        );
+      })}
+    </>
+  );
 };
