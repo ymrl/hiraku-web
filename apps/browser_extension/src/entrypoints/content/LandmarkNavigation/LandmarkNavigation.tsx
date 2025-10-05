@@ -25,20 +25,25 @@ export const LandmarkNavigation = ({
   if (element.ownerDocument !== rootRef.current?.ownerDocument) {
     // フレームの中
     if (frameRootRef.current?.ownerDocument !== element.ownerDocument) {
-      cleanUp(frameRootRef);
-      const d = element.ownerDocument;
-      const root = d.createElement("div");
-      root.style.cssText = `
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 0;
-        height: 0;
-        z-index: 2147483647;`;
-      root.id = "hiraku-web-frame-root-landmark-navigation";
-      frameRootRef.current = root;
-      d.body.appendChild(root);
+      try {
+        cleanUp(frameRootRef);
+        const d = element.ownerDocument;
+        const root = d.createElement("div");
+        root.style.cssText = `
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 0;
+          height: 0;
+          z-index: 2147483647;`;
+        root.id = "hiraku-web-frame-root-landmark-navigation";
+        frameRootRef.current = root;
+        d.body.appendChild(root);
+      } catch {
+        /* noop */
+      }
     }
+    if (!frameRootRef.current) return; // frame内にdivを作れなかった場合
     return createPortal(
       <Highlight
         elementRef={elementRef}
