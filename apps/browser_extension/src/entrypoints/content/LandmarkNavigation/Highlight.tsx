@@ -38,18 +38,20 @@ export const Highlight = ({
   }
 
   useEffect(() => {
-    window.addEventListener("keydown", close);
-    window.addEventListener("mousedown", close);
-    window.addEventListener("touchstart", close);
+    const w = elementRef.current?.ownerDocument?.defaultView;
+    if (!w) return;
+    w.addEventListener("keydown", close);
+    w.addEventListener("mousedown", close);
+    w.addEventListener("touchstart", close);
     return () => {
-      window.removeEventListener("keydown", close);
-      window.removeEventListener("mousedown", close);
-      window.removeEventListener("touchstart", close);
+      w.removeEventListener("keydown", close);
+      w.removeEventListener("mousedown", close);
+      w.removeEventListener("touchstart", close);
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [close]);
+  }, [close, elementRef]);
 
   const { top, left, width, height } = highlightRect || {};
 

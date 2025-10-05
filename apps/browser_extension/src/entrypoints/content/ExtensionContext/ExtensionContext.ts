@@ -7,10 +7,12 @@ export const ExtensionContext = createContext<{
   isSpeechEnabled: boolean;
   speechSettings: SpeechSettings | undefined;
   xpaths: string[];
+  navigationTimestamp: number;
 }>({
   currentTextStyle: undefined,
   getHostTextStyle: () => Promise.resolve(void 0),
   isSpeechEnabled: false,
   speechSettings: undefined,
   xpaths: [],
+  navigationTimestamp: 0,
 });

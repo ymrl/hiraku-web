@@ -23,7 +23,7 @@ export const MessageResponder = ({ children }: { children?: ReactNode }) => {
     updateSpeechSettings,
   } = useSpeech();
 
-  const { xpaths, updateXpaths } = useNavigation();
+  const { xpaths, updateXpaths, navigationTimestamp } = useNavigation();
 
   const respondMessage: MessageListener<ExtensionMessage> = useCallback(
     (message, _sender, sendResponse) => {
@@ -102,6 +102,7 @@ export const MessageResponder = ({ children }: { children?: ReactNode }) => {
         isSpeechEnabled,
         speechSettings,
         xpaths,
+        navigationTimestamp,
       }}
     >
       {children}

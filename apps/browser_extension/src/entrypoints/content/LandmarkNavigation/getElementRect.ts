@@ -8,9 +8,11 @@ export type Rect = {
 export const getElementRect = (element: Element | null): Rect | null => {
   if (!element) return null;
   const rect = element.getBoundingClientRect();
+  const w = element.ownerDocument?.defaultView || window;
+
   return {
-    top: rect.top + window.scrollY,
-    left: rect.left + window.scrollX,
+    top: rect.top + w.scrollY,
+    left: rect.left + w.scrollX,
     width: rect.width,
     height: rect.height,
   };
