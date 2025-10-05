@@ -6,8 +6,9 @@ import {
   useState,
 } from "react";
 import { defaultColors } from "@/theme/defaultColors";
+import type { Rect } from "@/types";
 import { focusTargetElement } from "./focusTargetElement";
-import { getElementRect, type Rect } from "./getElementRect";
+import { getElementRect } from "./getElementRect";
 
 const INSET = "min(-0.375rem, -6px)";
 const INNER_BORDER = "max(0.125rem, 2px)";

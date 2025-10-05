@@ -33,7 +33,7 @@ export const Root = ({
     <MessageResponder>
       <TextStyleTweaker />
       <LandmarkNavigation rootRef={rootRef} />
-      <Speech rootRef={rootRef} />
+      <Speech />
     </MessageResponder>
   );
 };

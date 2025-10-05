@@ -1,9 +1,4 @@
-export type Rect = {
-  top: number;
-  left: number;
-  width: number;
-  height: number;
-};
+import type { Rect } from "@/types";
 
 export const getElementRect = (element: Element | null): Rect | null => {
   if (!element) return null;

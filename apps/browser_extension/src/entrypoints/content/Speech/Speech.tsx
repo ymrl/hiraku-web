@@ -1,38 +1,79 @@
 import { createI18n } from "@wxt-dev/i18n";
+import getXPath from "get-xpath";
 import { use, useCallback, useEffect, useRef, useState } from "react";
-import { defaultColors } from "@/theme/defaultColors";
+import { createPortal } from "react-dom";
+import type { Rect } from "@/types";
 import { ExtensionContext } from "../ExtensionContext";
+import { findBlock } from "./findBlock";
 import { getSpeechContent } from "./getSpeechContent";
-
-const INSET = "min(-0.375rem, -6px)"; //  -6px
-const INNER_BORDER = "max(0.125rem, 2px)"; // 2px
-const OUTER_BORDER = "max(0.25rem, 4px)"; // 4px
+import { SpeechButton } from "./SpeechButton";
 
 const { t } = createI18n();
 
-const findBlock = (element: Element): Element | null => {
-  return element.closest(
-    "div, p, article, section, main, header, footer, aside, nav, ul, ol, dl, li, dt, dd, blockquote, h1, h2, h3, h4, h5, h6, table, pre",
+export const Speech = () => {
+  const { isSpeechEnabled } = use(ExtensionContext);
+  if (!isSpeechEnabled) {
+    return null;
+  }
+  return (
+    <>
+      <Speaker />
+      <FrameSpeakers />
+    </>
   );
 };
 
-type Rect = {
-  top: number;
-  left: number;
-  width: number;
-  height: number;
+export const FrameSpeakers = () => {
+  // 初回レンダリング時のみframesがセットされる
+  const [frames, _setFrames] = useState<Window[]>(Array.from(window.frames));
+  const frameRootsRef = useRef<(HTMLElement | null)[]>(frames.map(() => null));
+
+  // forEachは何度でも呼ばれて良いようにしておく
+  frames.forEach((frame, index) => {
+    if (!frameRootsRef.current[index]) {
+      const root = frame.document.createElement("div");
+      root.style.cssText = `
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+      z-index: 2147483647;`;
+      root.id = "hiraku-web-frame-root";
+      frameRootsRef.current[index] = root;
+      frame.document.body.appendChild(root);
+    }
+  });
+
+  // unmout時にrootを削除
+  useEffect(() => {
+    return () => {
+      frameRootsRef.current.forEach((root) => {
+        if (root?.parentNode) {
+          root.parentNode.removeChild(root);
+        }
+      });
+    };
+  }, []);
+  return (
+    <>
+      {frames.map((frame, index) => {
+        const root = frameRootsRef.current[index];
+        if (!root) return null;
+        return createPortal(
+          <Speaker key={getXPath(frame.frameElement)} />,
+          root,
+        );
+      })}
+    </>
+  );
 };
 
-export const Speech = ({
-  rootRef,
-}: {
-  rootRef: React.RefObject<HTMLElement | null>;
-}) => {
-  const { isSpeechEnabled, speechSettings } = use(ExtensionContext);
+export const Speaker = () => {
+  const { speechSettings } = use(ExtensionContext);
 
   const [targetRect, setTargetRect] = useState<Rect | undefined>(undefined);
   const [speakingRect, setSpeakingRect] = useState<Rect | undefined>(undefined);
-  const [isSpeaking, setIsSpeaking] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
 
   const ref = useRef<HTMLDivElement>(null);
@@ -40,7 +81,6 @@ export const Speech = ({
   const speakingElementRef = useRef<Element | null>(null);
 
   const handleSpeechEnd = useCallback(() => {
-    setIsSpeaking(false);
     setSpeakingRect(undefined);
     speakingElementRef.current = null;
   }, []);
@@ -53,12 +93,11 @@ export const Speech = ({
     if (!content) {
       return;
     }
-    if (isSpeaking) {
+    if (speechSynthesis.speaking) {
       speechSynthesis.cancel();
     }
     const utter = new SpeechSynthesisUtterance();
     setIsPaused(false);
-    setIsSpeaking(true);
     setSpeakingRect(targetRect);
     setTargetRect(undefined);
 
@@ -82,18 +121,33 @@ export const Speech = ({
     speechSynthesis.speak(utter);
     speakingElementRef.current = targetElementRef.current;
     utter.onend = handleSpeechEnd;
-  }, [isSpeaking, targetRect, handleSpeechEnd, speechSettings]);
+  }, [targetRect, handleSpeechEnd, speechSettings]);
 
-  const handleMouseMove = useCallback(
-    (event: MouseEvent) => {
+  useEffect(() => {
+    const w = ref.current?.ownerDocument.defaultView || window;
+
+    const handleMouseMove = (event: MouseEvent) => {
       if (!ref.current) {
         return;
       }
-      const element = document
+      if (!speechSynthesis.speaking) {
+        setSpeakingRect(undefined);
+      }
+      const d = ref.current.ownerDocument;
+      const elements = d
         .elementsFromPoint(event.clientX, event.clientY)
-        .find(
-          (el) => !rootRef.current?.contains(el) && !ref.current?.contains(el),
-        );
+        .filter((el) => !ref.current?.contains(el));
+      if (
+        elements.some((el) =>
+          ["iframe", "frameset", "frame"].includes(el.tagName.toLowerCase()),
+        )
+      ) {
+        targetElementRef.current = null;
+        setTargetRect(undefined);
+        return;
+      }
+
+      const element = elements[0];
       const candidate =
         targetElementRef.current === element
           ? targetElementRef.current
@@ -105,194 +159,66 @@ export const Speech = ({
       if (blockElement) {
         targetElementRef.current = blockElement;
         const rect = blockElement.getBoundingClientRect();
+        const w = blockElement.ownerDocument.defaultView || window;
         setTargetRect({
-          top: rect.top + window.scrollY,
-          left: rect.left + window.scrollX,
+          top: rect.top + w.scrollY,
+          left: rect.left + w.scrollX,
           width: rect.width,
           height: rect.height,
         });
       } else {
         setTargetRect(undefined);
       }
-    },
-    [rootRef],
-  );
-
-  useEffect(() => {
-    if (!isSpeechEnabled) {
-      setIsSpeaking(false);
-      setIsPaused(false);
-      speechSynthesis.cancel();
+    };
+    const handleMouseOut = (e: MouseEvent) => {
+      if (
+        !e.relatedTarget ||
+        (e.relatedTarget as HTMLElement).nodeName === "HTML"
+      ) {
+        setTargetRect(undefined);
+        targetElementRef.current = null;
+      }
+    };
+    w.addEventListener("mousemove", handleMouseMove);
+    w.addEventListener("mouseout", handleMouseOut);
+    return () => {
+      if (speechSynthesis.speaking) {
+        speechSynthesis.cancel();
+      }
       speakingElementRef.current = null;
       targetElementRef.current = null;
-      return;
-    }
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [handleMouseMove, isSpeechEnabled]);
+      w.removeEventListener("mousemove", handleMouseMove);
+      w.removeEventListener("mouseout", handleMouseOut);
+    };
+  }, []);
 
   return (
     <div ref={ref}>
-      {isSpeechEnabled && targetRect && (
-        <button
+      {targetRect && (
+        <SpeechButton
           onClick={() => {
             speech();
           }}
-          type="button"
-          style={{
-            position: "absolute",
-            background: "transparent",
-            border: 0,
-            zIndex: 10,
-            top: `${targetRect.top}px`,
-            left: `${targetRect.left}px`,
-            width: `${targetRect.width}px`,
-            height: `${targetRect.height}px`,
-          }}
+          rect={targetRect}
+          zIndex={10}
         >
-          <span
-            style={{
-              position: "absolute",
-              inset: INSET,
-              border: "0.125rem solid",
-              borderStyle: "solid",
-              borderWidth: INNER_BORDER,
-              borderColor: defaultColors.indigo[50],
-              borderRadius: "0.5rem",
-              zIndex: 20,
-            }}
-          />
-          <span
-            style={{
-              position: "absolute",
-              inset: INSET,
-              borderStyle: "solid",
-              borderWidth: OUTER_BORDER,
-              borderColor: defaultColors.indigo[600],
-              borderRadius: "0.5rem",
-              zIndex: 10,
-            }}
-          />
-          <span
-            style={{
-              position: "absolute",
-              bottom: "calc(100% + max(1rem, 16px))",
-              left: "50%",
-              transform: "translateX(-50%)",
-              display: "inline-block",
-              textAlign: "center",
-              borderStyle: "solid",
-              borderWidth: "max(0.125rem, 2px)",
-              borderColor: defaultColors.indigo[600],
-              backgroundColor: "white",
-              color: defaultColors.indigo[800],
-              fontSize: "max(0.75rem, 12px)", // text-xs
-              fontWeight: "bold",
-              padding: "max(0.25rem, 4px) max(0.5rem, 8px)", // py-1 px-2
-              borderRadius: "max(2rem, 32px)",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {t("speech.clickTo")}
-            {t("speech.readThisPartAloud")}
-            <span
-              style={{
-                position: "absolute",
-                bottom: "min(-0.5rem, -8px)",
-                left: "50%",
-                transform: "translateX(-50%)",
-                width: 0,
-                height: 0,
-                borderWidth: "max(0.5rem, 8px)",
-                borderStyle: "solid",
-                borderColor: "transparent",
-                borderTopColor: defaultColors.indigo[600],
-                borderBottom: "0",
-              }}
-            />
-          </span>
-        </button>
+          {t("speech.clickTo")}
+          {t("speech.readThisPartAloud")}
+        </SpeechButton>
       )}
-      {isSpeaking && speakingRect && (
-        <button
+      {speakingRect && (
+        <SpeechButton
           onClick={() => {
             isPaused ? speechSynthesis.resume() : speechSynthesis.pause();
             setIsPaused(!isPaused);
           }}
-          type="button"
-          style={{
-            position: "absolute",
-            zIndex: 20,
-            background: "transparent",
-            border: 0,
-            top: `${speakingRect.top}px`,
-            left: `${speakingRect.left}px`,
-            width: `${speakingRect.width}px`,
-            height: `${speakingRect.height}px`,
-          }}
+          rect={speakingRect}
+          zIndex={20}
+          speaking
         >
-          <span
-            style={{
-              position: "absolute",
-              inset: INSET,
-              border: "0.125rem solid",
-              borderStyle: "solid",
-              borderWidth: INNER_BORDER,
-              borderColor: defaultColors.emerald[50],
-              borderRadius: "0.5rem",
-              zIndex: 20,
-            }}
-          />
-          <span
-            style={{
-              position: "absolute",
-              inset: INSET,
-              borderStyle: "solid",
-              borderWidth: OUTER_BORDER,
-              borderColor: defaultColors.emerald[600],
-              borderRadius: "0.5rem",
-              zIndex: 10,
-            }}
-          />
-          <span
-            style={{
-              position: "absolute",
-              bottom: "calc(100% + max(1rem, 16px))",
-              left: "50%",
-              transform: "translateX(-50%)",
-              display: "inline-block",
-              textAlign: "center",
-              borderStyle: "solid",
-              borderWidth: "max(0.125rem, 2px)",
-              borderColor: defaultColors.emerald[600],
-              backgroundColor: "white",
-              color: defaultColors.emerald[800],
-              fontSize: "max(0.75rem, 12px)", // text-xs
-              fontWeight: "bold",
-              padding: "max(0.25rem, 4px) max(0.5rem, 8px)", // py-1 px-2
-              borderRadius: "max(2rem, 32px)",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {t("speech.clickTo")}
-            {isPaused ? t("speech.resumeReading") : t("speech.pauseReading")}
-            <span
-              style={{
-                position: "absolute",
-                bottom: "min(-0.5rem, -8px)",
-                left: "50%",
-                transform: "translateX(-50%)",
-                width: 0,
-                height: 0,
-                borderWidth: "max(0.5rem, 8px)",
-                borderStyle: "solid",
-                borderColor: "transparent",
-                borderTopColor: defaultColors.emerald[600],
-                borderBottom: "0",
-              }}
-            />
-          </span>
-        </button>
+          {t("speech.clickTo")}
+          {isPaused ? t("speech.resumeReading") : t("speech.pauseReading")}
+        </SpeechButton>
       )}
     </div>
   );
