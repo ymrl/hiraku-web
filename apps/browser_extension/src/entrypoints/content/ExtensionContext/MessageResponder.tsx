@@ -3,6 +3,7 @@ import { browser } from "wxt/browser";
 import type { ExtensionMessage, MessageListener } from "@/ExtensionMessages";
 import { getHeadings, getLandmarks } from "../collection";
 import { ExtensionContext } from "./ExtensionContext";
+import { useNavigation } from "./useNavigation";
 import { useSpeech } from "./useSpeech";
 import { useTextStyle } from "./useTextStyle";
 
@@ -21,6 +22,8 @@ export const MessageResponder = ({ children }: { children?: ReactNode }) => {
     speechSettings,
     updateSpeechSettings,
   } = useSpeech();
+
+  const { xpaths, updateXpaths } = useNavigation();
 
   const respondMessage: MessageListener<ExtensionMessage> = useCallback(
     (message, _sender, sendResponse) => {
@@ -66,6 +69,12 @@ export const MessageResponder = ({ children }: { children?: ReactNode }) => {
           updateSpeechSettings(message.settings);
         }
       }
+      if (action === "scrollToElement") {
+        const { xpaths } = message;
+        updateXpaths(xpaths);
+        sendResponse({ action, success: true });
+        return true;
+      }
     },
     [
       updateCurrentTextStyle,
@@ -74,6 +83,7 @@ export const MessageResponder = ({ children }: { children?: ReactNode }) => {
       isSpeechEnabled,
       disableSpeech,
       updateSpeechSettings,
+      updateXpaths,
     ],
   );
 
@@ -91,6 +101,7 @@ export const MessageResponder = ({ children }: { children?: ReactNode }) => {
         getHostTextStyle,
         isSpeechEnabled,
         speechSettings,
+        xpaths,
       }}
     >
       {children}

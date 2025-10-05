@@ -1,22 +1,32 @@
-import { useCallback, useEffect, useRef } from "react";
+import {
+  type RefObject,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { focusTargetElement } from "./focusTargetElement";
+import { getElementRect, type Rect } from "./getElementRect";
 
 export const Highlight = ({
-  top,
-  left,
-  width,
-  height,
-  onClose,
+  elementRef,
 }: {
-  top: number;
-  left: number;
-  width: number;
-  height: number;
-  onClose?: () => void;
+  elementRef: RefObject<Element | null>;
 }) => {
+  const [highlightRect, setHighlightRect] = useState<Rect | null>(
+    getElementRect(elementRef.current)
+  );
+
+  const focusedRef = useRef(false);
+  if (!focusedRef.current && elementRef.current) {
+    focusedRef.current = true;
+    focusTargetElement(elementRef.current);
+  }
+
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const close = useCallback(() => {
-    onClose?.();
-  }, [onClose]);
+    setHighlightRect(null);
+  }, []);
 
   if (!timeoutRef.current) {
     timeoutRef.current = setTimeout(close, 10000);
@@ -35,6 +45,8 @@ export const Highlight = ({
       }
     };
   }, [close]);
+
+  const { top, left, width, height } = highlightRect || {};
 
   return (
     <div

@@ -6,9 +6,11 @@ export const ExtensionContext = createContext<{
   getHostTextStyle: (hostname: string) => Promise<void>;
   isSpeechEnabled: boolean;
   speechSettings: SpeechSettings | undefined;
+  xpaths: string[];
 }>({
   currentTextStyle: undefined,
   getHostTextStyle: () => Promise.resolve(void 0),
   isSpeechEnabled: false,
   speechSettings: undefined,
+  xpaths: [],
 });
