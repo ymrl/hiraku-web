@@ -5,8 +5,13 @@ import {
   useRef,
   useState,
 } from "react";
+import { defaultColors } from "@/theme/defaultColors";
 import { focusTargetElement } from "./focusTargetElement";
 import { getElementRect, type Rect } from "./getElementRect";
+
+const INSET = "-0.375rem";
+const INNER_BORDER = "0.125rem";
+const OUTER_BORDER = "0.25rem";
 
 export const Highlight = ({
   elementRef,
@@ -14,7 +19,7 @@ export const Highlight = ({
   elementRef: RefObject<Element | null>;
 }) => {
   const [highlightRect, setHighlightRect] = useState<Rect | null>(
-    getElementRect(elementRef.current)
+    getElementRect(elementRef.current),
   );
 
   const focusedRef = useRef(false);
@@ -49,32 +54,43 @@ export const Highlight = ({
   const { top, left, width, height } = highlightRect || {};
 
   return (
-    <div
-      className="absolute pointer-events-none rounded opacity-80
-      before:content-['']
-      before:absolute
-      before:-inset-0.5
-      before:border-2
-      before:border-solid
-      before:border-rose-50
-      before:rounded
-      before:z-20
-      after:content-['']
-      after:absolute
-      after:-inset-0.5
-      after:border-4
-      after:box-content
-      after:border-solid
-      after:border-rose-400
-      after:rounded
-      after:z-10
-    "
-      style={{
-        top: `${top}px`,
-        left: `${left}px`,
-        width: `${width}px`,
-        height: `${height}px`,
-      }}
-    />
+    highlightRect && (
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          pointerEvents: "none",
+          zIndex: 2147483647,
+          top: `${top}px`,
+          left: `${left}px`,
+          width: `${width}px`,
+          height: `${height}px`,
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            inset: INSET,
+            border: "0.125rem solid",
+            borderStyle: "solid",
+            borderWidth: INNER_BORDER,
+            borderColor: defaultColors.rose[50],
+            borderRadius: "0.5rem",
+            zIndex: 20,
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            inset: INSET,
+            borderStyle: "solid",
+            borderWidth: OUTER_BORDER,
+            borderColor: defaultColors.rose[400],
+            borderRadius: "0.5rem",
+            zIndex: 10,
+          }}
+        />
+      </div>
+    )
   );
 };

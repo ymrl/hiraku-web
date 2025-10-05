@@ -29,10 +29,10 @@ export const Root = () => {
   return (
     <MessageResponder>
       <TextStyleTweaker />
+      <LandmarkNavigation />
       <shadow.div ref={shadowRootRef}>
         <style>{style}</style>
         <Speech shadowRootRef={shadowRootRef} />
-        <LandmarkNavigation />
       </shadow.div>
     </MessageResponder>
   );

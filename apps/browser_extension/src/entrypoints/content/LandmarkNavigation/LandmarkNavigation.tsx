@@ -1,7 +1,7 @@
 import { use, useRef } from "react";
 import { ExtensionContext } from "../ExtensionContext";
-import { Highlight } from "./Highlight";
 import { getElementByXpaths } from "./getElementByXpaths";
+import { Highlight } from "./Highlight";
 
 export const LandmarkNavigation = () => {
   const { xpaths } = use(ExtensionContext);
