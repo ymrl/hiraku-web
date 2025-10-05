@@ -35,7 +35,7 @@ export const LandmarkNavigation = ({
         width: 0;
         height: 0;
         z-index: 2147483647;`;
-      root.id = "hiraku-web-frame-root";
+      root.id = "hiraku-web-frame-root-landmark-navigation";
       frameRootRef.current = root;
       d.body.appendChild(root);
     }

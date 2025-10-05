@@ -39,7 +39,7 @@ export const FrameSpeakers = () => {
       width: 0;
       height: 0;
       z-index: 2147483647;`;
-      root.id = "hiraku-web-frame-root";
+      root.id = "hiraku-web-frame-root-speech";
       frameRootsRef.current[index] = root;
       frame.document.body.appendChild(root);
     }
