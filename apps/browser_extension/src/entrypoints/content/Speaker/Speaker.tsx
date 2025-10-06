@@ -118,16 +118,24 @@ export const Speaker = () => {
         targetElementRef.current = null;
       }
     };
-    w.addEventListener("mousemove", handleMouseMove);
-    w.addEventListener("mouseout", handleMouseOut);
+    try {
+      w.addEventListener("mousemove", handleMouseMove);
+      w.addEventListener("mouseout", handleMouseOut);
+    } catch {
+      /* noop */
+    }
     return () => {
       if (speechSynthesis.speaking) {
         speechSynthesis.cancel();
       }
       speakingElementRef.current = null;
       targetElementRef.current = null;
-      w.removeEventListener("mousemove", handleMouseMove);
-      w.removeEventListener("mouseout", handleMouseOut);
+      try {
+        w.removeEventListener("mousemove", handleMouseMove);
+        w.removeEventListener("mouseout", handleMouseOut);
+      } catch {
+        /* noop */
+      }
     };
   }, []);
 

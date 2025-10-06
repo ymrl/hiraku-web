@@ -123,8 +123,12 @@ export const FrameManager = ({ children }: { children?: ReactNode }) => {
         // iframe内でページ遷移が発生したので、rootを再作成
         createFrameRoot(frameElement, xpath);
       };
-      frameElement.addEventListener("load", loadListener);
-      frameLoadListenersRef.current.set(xpath, loadListener);
+      try {
+        frameElement.addEventListener("load", loadListener);
+        frameLoadListenersRef.current.set(xpath, loadListener);
+      } catch {
+        /* noop */
+      }
     }
   });
 
@@ -154,7 +158,11 @@ export const FrameManager = ({ children }: { children?: ReactNode }) => {
           null,
         ).singleNodeValue as HTMLFrameElement | HTMLIFrameElement | null;
         if (frameElement) {
-          frameElement.removeEventListener("load", listener);
+          try {
+            frameElement.removeEventListener("load", listener);
+          } catch {
+            /* noop */
+          }
         }
         listenersToDelete.push(xpath);
       }
@@ -190,7 +198,11 @@ export const FrameManager = ({ children }: { children?: ReactNode }) => {
           null,
         ).singleNodeValue as HTMLFrameElement | HTMLIFrameElement | null;
         if (frameElement) {
-          frameElement.removeEventListener("load", listener);
+          try {
+            frameElement.removeEventListener("load", listener);
+          } catch {
+            /* noop */
+          }
         }
       }
       frameLoadListenersRef.current.clear();
