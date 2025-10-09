@@ -24,67 +24,68 @@ export function JapanesePage() {
           </section>
 
           {/* Features Section */}
-          <section className="bg-white rounded-3xl shadow-xl p-8 md:p-12 mb-12">
-            <h3 className="text-3xl font-bold text-rose-600 mb-8 text-center">
+          <section className="bg-white rounded-3xl shadow p-8 md:p-12 mb-12">
+            <h2 className="text-3xl font-bold text-rose-600 mb-8 text-center">
               主な機能
-            </h3>
+            </h2>
 
             <div className="space-y-8">
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-12 h-12 bg-rose-500 text-white rounded-full flex items-center justify-center text-2xl font-bold">
-                  1
-                </div>
-                <div>
-                  <h4 className="text-xl font-bold text-stone-800 mb-2">
-                    目次を作る
-                  </h4>
-                  <p className="text-stone-600 leading-relaxed">
-                    長いページでも、目次が自動で表示されます。読みたいところにすぐジャンプできるので、必要な情報を素早く見つけられます。
-                  </p>
-                </div>
+              <div>
+                <h3 className="text-xl font-bold text-stone-800 mb-2">
+                  目次を作る
+                </h3>
+                <p className="text-stone-600 leading-relaxed">
+                  長いページでも、目次が自動で表示されます。読みたいところにすぐジャンプできるので、必要な情報を素早く見つけられます。
+                </p>
               </div>
 
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-12 h-12 bg-rose-500 text-white rounded-full flex items-center justify-center text-2xl font-bold">
-                  2
-                </div>
-                <div>
-                  <h4 className="text-xl font-bold text-stone-800 mb-2">
-                    文字を読みやすく調節
-                  </h4>
-                  <p className="text-stone-600 leading-relaxed">
-                    文字の大きさ、行の間隔、段落の間隔、文字の間隔、単語の間隔を自由に調節できます。あなたにぴったりの読みやすさを見つけてください。
-                  </p>
-                </div>
+              <div>
+                <h3 className="text-xl font-bold text-stone-800 mb-2">
+                  文字を読みやすく調節
+                </h3>
+                <p className="text-stone-600 leading-relaxed">
+                  文字の大きさ、行の間隔、段落の間隔、文字の間隔、単語の間隔を自由に調節できます。あなたにぴったりの読みやすさを見つけてください。
+                </p>
               </div>
 
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-12 h-12 bg-rose-500 text-white rounded-full flex items-center justify-center text-2xl font-bold">
-                  3
-                </div>
-                <div>
-                  <h4 className="text-xl font-bold text-stone-800 mb-2">
-                    音声読み上げ
-                  </h4>
-                  <p className="text-stone-600 leading-relaxed">
-                    ページの内容を音声で読み上げます。目を休めたいときや、手が離せないときに便利です。
-                  </p>
-                </div>
+              <div>
+                <h3 className="text-xl font-bold text-stone-800 mb-2">
+                  音声読み上げ
+                </h3>
+                <p className="text-stone-600 leading-relaxed">
+                  ページの内容を音声で読み上げます。目を休めたいときや、手が離せないときに便利です。
+                </p>
               </div>
             </div>
           </section>
 
           {/* Download Section */}
-          <section className="text-center">
-            <h3 className="text-3xl font-bold text-rose-600 mb-6">
+          <section className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-rose-600 mb-6">
               今すぐダウンロード
-            </h3>
+            </h2>
             <p className="text-stone-700 mb-8">
               Chrome、Firefoxに対応しています。
               <br />
               無料でご利用いただけます。
             </p>
             <StoreButtons lang="ja" />
+          </section>
+          <section className="text-center">
+            <h2 className="text-3xl font-bold text-rose-600 mb-6">
+              ソースコード
+            </h2>
+            <p className="text-stone-700 mb-8">
+              このブラウザ拡張機能のソースコードをGitHubで公開しています。
+            </p>
+            <a
+              href="https://github.com/ymrl/hiraku-web"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-stone-600 hover:bg-stone-700 text-white font-semibold py-4 px-8 rounded-full shadow-lg transition-all hover:shadow-xl"
+            >
+              GitHub
+            </a>
           </section>
         </div>
       </main>
