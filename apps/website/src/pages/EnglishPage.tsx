@@ -67,10 +67,10 @@ export function EnglishPage() {
           {/* Download Section */}
           <section className="text-center mb-12">
             <h2 className="text-3xl font-bold text-rose-600 mb-6 font-en">
-              Download Now
+              Download and Install
             </h2>
             <p className="text-stone-700 mb-8 font-en">
-              Available for Chrome and Firefox.
+              Available for Google Chrome, Mozilla Firefox, and Microsoft Edge.
               <br />
               Free to use.
             </p>

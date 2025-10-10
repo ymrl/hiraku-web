@@ -62,10 +62,10 @@ export function JapanesePage() {
           {/* Download Section */}
           <section className="text-center mb-12">
             <h2 className="text-3xl font-bold text-rose-600 mb-6">
-              今すぐダウンロード
+              ダウンロードとインストール
             </h2>
             <p className="text-stone-700 mb-8">
-              Chrome、Firefoxに対応しています。
+              Google Chrome、Mozilla Firefox、Microsoft Edgeに対応しています。
               <br />
               無料でご利用いただけます。
             </p>
