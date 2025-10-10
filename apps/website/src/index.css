@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@theme {
+  /* Font families */
+  --font-family-sans: "Readex Pro", "Kosugi Maru", system-ui, sans-serif;
+  --font-family-ja: "Readex Pro", "Kosugi Maru", system-ui, sans-serif;
+  --font-family-en: "Readex Pro", system-ui, sans-serif;
+}
+
+body {
+  font-family: var(--font-family-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* English text styling */
+.font-en {
+  font-family: var(--font-family-en);
+}
+
+/* Japanese text styling */
+.font-ja {
+  font-family: var(--font-family-ja);
+}

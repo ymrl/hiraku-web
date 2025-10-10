@@ -7,8 +7,10 @@
   "scripts": {
     "dev": "pnpm --filter=@hiraku-web/browser-extension dev",
     "dev:firefox": "pnpm --filter=@hiraku-web/browser-extension dev:firefox",
+    "dev:website": "pnpm --filter=@hiraku-web/website dev",
     "build": "pnpm --filter=@hiraku-web/browser-extension build",
     "build:firefox": "pnpm --filter=@hiraku-web/browser-extension build",
+    "build:website": "pnpm --filter=@hiraku-web/website build",
     "zip": "pnpm --filter=@hiraku-web/browser-extension zip",
     "zip:firefox": "pnpm --filter=@hiraku-web/browser-extension zip:firefox",
     "typecheck": "pnpm --filter=@hiraku-web/browser-extension compile",
