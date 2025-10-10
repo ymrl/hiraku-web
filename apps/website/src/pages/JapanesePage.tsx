@@ -21,6 +21,13 @@ export function JapanesePage() {
               <br />
               あなたの読みやすさに合わせて、ウェブを「ひらく」拡張機能です。
             </p>
+            <img
+              src="/hiraku-web/screenshot.png"
+              alt="Chromeで英語版Wikipediaの「World Wide Web」ページを開き、ひらくウェブのポップアップで文字の表示をカスタマイズしているスクリーンショット"
+              className="w-max"
+              width="2624"
+              height="1924"
+            />
           </section>
 
           {/* Features Section */}

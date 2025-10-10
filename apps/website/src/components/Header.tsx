@@ -9,12 +9,7 @@ export function Header({ lang }: HeaderProps) {
     <header className="bg-rose-200 text-rose-600 py-2 shadow">
       <div className="container mx-auto px-6 flex justify-between items-center">
         <div className="flex items-center gap-3">
-          <img
-            src="/hiraku-web/icon.svg"
-            alt=""
-            className="w-10 h-10"
-            aria-hidden="true"
-          />
+          <img src="/hiraku-web/icon.svg" alt="" className="w-10 h-10" />
           <hgroup className="flex-col gap-0">
             <h1 className="text-2xl font-light tracking-wider">
               {isJapanese ? "ひらくウェブ" : "Hiraku Web"}
