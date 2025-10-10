@@ -21,6 +21,13 @@ export function EnglishPage() {
               <br />A browser extension that opens the web to your reading
               preferences.
             </p>
+            <img
+              src="/hiraku-web/screenshot.png"
+              alt="Screenshot showing the English Wikipedia 'World Wide Web' page opened in Chrome, with the Hiraku Web popup customizing text display"
+              className="w-max"
+              width="2624"
+              height="1924"
+            />
           </section>
 
           {/* Features Section */}

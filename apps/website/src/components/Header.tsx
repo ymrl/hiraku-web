@@ -13,7 +13,6 @@ export function Header({ lang }: HeaderProps) {
             src="/hiraku-web/icon.svg"
             alt=""
             className="w-10 h-10"
-            aria-hidden="true"
           />
           <hgroup className="flex-col gap-0">
             <h1 className="text-2xl font-light tracking-wider">
