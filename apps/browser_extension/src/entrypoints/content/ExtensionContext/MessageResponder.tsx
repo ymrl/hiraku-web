@@ -8,12 +8,8 @@ import { useSpeech } from "./useSpeech";
 import { useTextStyle } from "./useTextStyle";
 
 export const MessageResponder = ({ children }: { children?: ReactNode }) => {
-  const {
-    currentTextStyle,
-    getHostTextStyle,
-    pageDefaultTextStyleRef,
-    updateCurrentTextStyle,
-  } = useTextStyle();
+  const { currentTextStyle, pageDefaultTextStyle, updateCurrentTextStyle } =
+    useTextStyle();
 
   const {
     isSpeechEnabled,
@@ -37,7 +33,7 @@ export const MessageResponder = ({ children }: { children?: ReactNode }) => {
       if (action === "getPageTextStyle") {
         sendResponse({
           action,
-          pageTextStyle: pageDefaultTextStyleRef.current || {},
+          pageTextStyle: pageDefaultTextStyle || {},
         });
         return true;
       }
@@ -78,7 +74,7 @@ export const MessageResponder = ({ children }: { children?: ReactNode }) => {
     },
     [
       updateCurrentTextStyle,
-      pageDefaultTextStyleRef,
+      pageDefaultTextStyle,
       enableSpeech,
       isSpeechEnabled,
       disableSpeech,
@@ -98,11 +94,16 @@ export const MessageResponder = ({ children }: { children?: ReactNode }) => {
     <ExtensionContext
       value={{
         currentTextStyle,
-        getHostTextStyle,
+        updateCurrentTextStyle,
+        pageDefaultTextStyle,
         isSpeechEnabled,
         speechSettings,
+        updateSpeechSettings,
+        enableSpeech,
+        disableSpeech,
         xpaths,
         navigationTimestamp,
+        updateXpaths,
       }}
     >
       {children}

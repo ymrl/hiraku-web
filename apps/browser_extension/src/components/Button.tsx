@@ -7,7 +7,7 @@ export const Button = ({
   disabled = false,
   size = "medium",
 }: {
-  onClick: MouseEventHandler<HTMLButtonElement>;
+  onClick?: MouseEventHandler<HTMLButtonElement>;
   children: React.ReactNode;
   disabled?: boolean;
   appearance?: "primary" | "secondary";

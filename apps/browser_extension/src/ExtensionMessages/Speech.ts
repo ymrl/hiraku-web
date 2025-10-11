@@ -35,3 +35,22 @@ export type SpeechDisabled = {
   action: "speechDisabled";
 };
 export type SpeechDisabledResponse = undefined;
+
+export type GetSpeechSettings = {
+  action: "getSpeechSettings";
+};
+export type GetSpeechSettingsResponse = {
+  action: "getSpeechSettings";
+  settings: SpeechSettings;
+};
+
+export type SaveSpeechSettings = {
+  action: "saveSpeechSettings";
+  settings: SpeechSettings;
+};
+export type SaveSpeechSettingsResponse = undefined;
+
+export type RemoveSpeechSettings = {
+  action: "removeSpeechSettings";
+};
+export type RemoveSpeechSettingsResponse = undefined;

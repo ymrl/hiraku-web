@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { sendMessage } from "@/ExtensionMessages";
 import type { SpeechSettings } from "@/types";
 
@@ -25,6 +25,22 @@ export const useSpeech = () => {
   const updateSpeechSettings = useCallback((settings: SpeechSettings) => {
     setSpeechSettings(settings);
   }, []);
+
+  const isLoadedRef = useRef(false);
+  if (!isLoadedRef.current) {
+    isLoadedRef.current = true;
+    (async () => {
+      try {
+        const result = await sendMessage({
+          action: "getSpeechSettings",
+        });
+        const { settings } = result;
+        setSpeechSettings(settings || {});
+      } catch (err) {
+        console.error("Failed to load speech settings:", err);
+      }
+    })();
+  }
 
   useEffect(() => {
     document.addEventListener("visibilitychange", disableSpeech);

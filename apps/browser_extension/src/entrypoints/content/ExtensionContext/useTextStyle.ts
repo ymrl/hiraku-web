@@ -9,13 +9,13 @@ export const useTextStyle = () => {
     undefined,
   );
 
-  const getHostTextStyle = useCallback(async (hostname: string) => {
+  const getHostTextStyle = async (hostname: string) => {
     const { settings } = await sendMessage({
       action: "getHostTextStyleSettings",
       hostname: hostname,
     });
     setCurrentTextStyle(settings);
-  }, []);
+  };
 
   const renderedOnceRef = useRef(false);
   if (!renderedOnceRef.current) {
@@ -33,17 +33,20 @@ export const useTextStyle = () => {
           : lineHeightPx / fontSizePx,
     };
     pageDefaultTextStyleRef.current = textStyle;
+    getHostTextStyle(window.location.hostname);
     renderedOnceRef.current = true;
   }
 
-  const updateCurrentTextStyle = useCallback((newStyle: TextStyleSettings) => {
-    setCurrentTextStyle(newStyle);
-  }, []);
+  const updateCurrentTextStyle = useCallback(
+    (newStyle: TextStyleSettings | undefined) => {
+      setCurrentTextStyle(newStyle);
+    },
+    [],
+  );
 
   return {
     currentTextStyle,
-    getHostTextStyle,
-    pageDefaultTextStyleRef,
+    pageDefaultTextStyle: pageDefaultTextStyleRef.current,
     updateCurrentTextStyle,
   };
 };

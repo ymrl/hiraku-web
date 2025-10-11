@@ -28,3 +28,21 @@ export type GetPageTextStyleResponse = {
   action: "getPageTextStyle";
   pageTextStyle: TextStyleSettings;
 };
+
+export type SaveHostTextStyle = {
+  action: "saveHostTextStyle";
+  hostname: string;
+  settings: TextStyleSettings;
+};
+
+export type SaveHostTextStyleResponse = undefined;
+
+export type RemoveHostTextStyle = {
+  action: "removeHostTextStyle";
+  hostname: string;
+};
+
+export type RemoveHostTextStyleResponse = {
+  action: "removeHostTextStyle";
+  success: boolean;
+};

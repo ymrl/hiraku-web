@@ -2,6 +2,7 @@ import { createI18n } from "@wxt-dev/i18n";
 import { useEffect, useState } from "react";
 import { browser } from "wxt/browser";
 import { getCurrentTabId } from "@/browser/getCurrentTabId";
+import { TabNavigation } from "@/components/TabNavigation";
 import { TextCSS } from "@/components/TextCSS";
 import {
   addListener,
@@ -16,11 +17,10 @@ import type {
   SelectTextTab,
 } from "@/ExtensionMessages/Popup";
 import type { TextStyleSettings } from "../../types";
-import { HeadingsList } from "./HeadingsList";
-import { LandmarksList } from "./LandmarksList";
-import { Speech } from "./Speech";
-import { TabNavigation } from "./TabNavigation";
-import { TextStyle } from "./TextStyle";
+import { HeadingsPanel } from "./HeadingsPanel";
+import { LandmarksPanel } from "./LandmarksPanel";
+import { SpeechPanel } from "./SpeechPanel";
+import { TextStylePanel } from "./TextStylePanel";
 
 const { t } = createI18n();
 
@@ -28,7 +28,6 @@ function App() {
   const [activeTab, setActiveTab] = useState<
     "headings" | "landmarks" | "text" | "speech"
   >("headings");
-  const [currentTabHost, setCurrentTabHost] = useState<string>("");
   const [textStyleSettings, setTextStyleSettings] = useState<TextStyleSettings>(
     {},
   );
@@ -68,30 +67,18 @@ function App() {
   useEffect(() => {
     const loadSavedSettings = async () => {
       try {
-        // アクティブタブの取得
-        const [tab] = await browser.tabs.query({
-          active: true,
-          currentWindow: true,
-        });
+        // 設定の読み込み
+        const result = await browser.storage.local.get([
+          "defaultTextStyle",
+          "activeTab",
+        ]);
 
-        if (tab?.url) {
-          const url = new URL(tab.url);
-          const host = url.hostname;
-          setCurrentTabHost(host);
+        if (result.activeTab) {
+          setActiveTab(result.activeTab);
+        }
 
-          // 設定の読み込み
-          const result = await browser.storage.local.get([
-            "defaultTextStyle",
-            "activeTab",
-          ]);
-
-          if (result.activeTab) {
-            setActiveTab(result.activeTab);
-          }
-
-          if (result.defaultTextStyle) {
-            setTextStyleSettings(result.defaultTextStyle);
-          }
+        if (result.defaultTextStyle) {
+          setTextStyleSettings(result.defaultTextStyle);
         }
       } catch (err) {
         console.error("Failed to load saved settings:", err);
@@ -139,16 +126,16 @@ function App() {
       </header>
 
       {activeTab === "headings" && (
-        <HeadingsList onScrollToElement={scrollToElement} />
+        <HeadingsPanel onScrollToElement={scrollToElement} />
       )}
 
       {activeTab === "landmarks" && (
-        <LandmarksList onScrollToElement={scrollToElement} />
+        <LandmarksPanel onScrollToElement={scrollToElement} />
       )}
 
-      {activeTab === "text" && <TextStyle currentTabHost={currentTabHost} />}
+      {activeTab === "text" && <TextStylePanel />}
 
-      {activeTab === "speech" && <Speech />}
+      {activeTab === "speech" && <SpeechPanel />}
     </div>
   );
 }

@@ -2,14 +2,26 @@ import getXPath from "get-xpath";
 import { Fragment, type ReactNode, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
+const FLOATING_UI_ID = "hiraku-web-floating-ui";
+
+const isFloatingUIFrame = (element: HTMLFrameElement | HTMLIFrameElement) => {
+  // FloatingUIのiframeかチェック
+  return (
+    element.id === FLOATING_UI_ID ||
+    element.getAttribute("data-hiraku-web-floating-ui") === "true"
+  );
+};
+
 export const FrameManager = ({ children }: { children?: ReactNode }) => {
-  // iframe. frame要素を取得
+  // iframe. frame要素を取得（FloatingUIのものは除外）
   const [frameElements, setFrameElements] = useState<
     (HTMLFrameElement | HTMLIFrameElement)[]
   >([
-    ...document.querySelectorAll<HTMLFrameElement | HTMLIFrameElement>(
-      "iframe,frame",
-    ),
+    ...[
+      ...document.querySelectorAll<HTMLFrameElement | HTMLIFrameElement>(
+        "iframe,frame",
+      ),
+    ].filter((el) => !isFloatingUIFrame(el)),
   ]);
 
   const frameRootsRef = useRef<Map<string, HTMLElement>>(new Map());
@@ -90,12 +102,14 @@ export const FrameManager = ({ children }: { children?: ReactNode }) => {
         }
       }
 
-      // 新しいframeが見つかったら状態を更新
+      // 新しいframeが見つかったら状態を更新（FloatingUIのものは除外）
       if (hasNewFrames) {
         setFrameElements([
-          ...document.querySelectorAll<HTMLFrameElement | HTMLIFrameElement>(
-            "iframe,frame",
-          ),
+          ...[
+            ...document.querySelectorAll<HTMLFrameElement | HTMLIFrameElement>(
+              "iframe,frame",
+            ),
+          ].filter((el) => !isFloatingUIFrame(el)),
         ]);
       }
     });

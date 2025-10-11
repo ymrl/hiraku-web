@@ -19,6 +19,12 @@ import type {
   DisableSpeechResponse,
   EnableSpeech,
   EnableSpeechResponse,
+  GetSpeechSettings,
+  GetSpeechSettingsResponse,
+  RemoveSpeechSettings,
+  RemoveSpeechSettingsResponse,
+  SaveSpeechSettings,
+  SaveSpeechSettingsResponse,
   SpeechDisabled,
   SpeechDisabledResponse,
   SpeechEnabled,
@@ -33,6 +39,10 @@ import type {
   GetHostTextStyleSettingsResponse,
   GetPageTextStyle,
   GetPageTextStyleResponse,
+  RemoveHostTextStyle,
+  RemoveHostTextStyleResponse,
+  SaveHostTextStyle,
+  SaveHostTextStyleResponse,
   UpdateTextStyle,
   UpdateTextStyleResponse,
 } from "./TextStyleSettings";
@@ -53,7 +63,12 @@ export type ExtensionMessage =
   | SelectHeadingsTab
   | SelectLandmarksTab
   | SelectTextTab
-  | SelectSpeechTab;
+  | SelectSpeechTab
+  | SaveHostTextStyle
+  | RemoveHostTextStyle
+  | SaveSpeechSettings
+  | RemoveSpeechSettings
+  | GetSpeechSettings;
 export type ExtensionMessageResponse =
   | GetHeadingsResponse
   | GetHostTextStyleSettingsResponse
@@ -70,7 +85,12 @@ export type ExtensionMessageResponse =
   | SelectHeadingsTabResponse
   | SelectLandmarksTabResponse
   | SelectTextTabResponse
-  | SelectSpeechTabResponse;
+  | SelectSpeechTabResponse
+  | SaveHostTextStyleResponse
+  | RemoveHostTextStyleResponse
+  | SaveSpeechSettingsResponse
+  | RemoveSpeechSettingsResponse
+  | GetSpeechSettingsResponse;
 
 type ExtractResponse<M extends ExtensionMessage> = M extends {
   action: infer A;
