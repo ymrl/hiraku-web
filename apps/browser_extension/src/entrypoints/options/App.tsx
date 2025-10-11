@@ -34,10 +34,24 @@ function App() {
     }
   }, []);
 
+  const [userInterfaceSettings, setUserInterfaceSettings] = useState<{
+    showButtonOnPage: boolean;
+  }>({
+    showButtonOnPage: false,
+  });
+  const loadUserInterfaceSettings = useCallback(async () => {
+    const result = await browser.storage.sync.get("userInterfaceSettings");
+    setUserInterfaceSettings({
+      showButtonOnPage: false,
+      ...result.userInterfaceSettings,
+    });
+  }, []);
+
   useEffect(() => {
     loadSavedKeys();
     loadDefaultSettings();
-  }, [loadSavedKeys, loadDefaultSettings]);
+    loadUserInterfaceSettings();
+  }, [loadSavedKeys, loadDefaultSettings, loadUserInterfaceSettings]);
 
   const saveDefaultSettings = useCallback(async () => {
     try {
@@ -80,6 +94,30 @@ function App() {
 
   return (
     <div className="bg-white dark:bg-stone-900 px-4 space-y-4">
+      <section className="mb-6">
+        <h2 className="text-lg font-bold text-stone-800 dark:text-stone-200 mb-2">
+          {t("options.userInterface")}
+        </h2>
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={userInterfaceSettings.showButtonOnPage}
+            onChange={(e) => {
+              const newSettings = {
+                ...userInterfaceSettings,
+                showButtonOnPage: e.target.checked,
+              };
+              console.log(userInterfaceSettings, newSettings);
+              setUserInterfaceSettings(newSettings);
+              browser.storage.sync.set({ userInterfaceSettings: newSettings });
+            }}
+            className="w-4 h-4"
+          />
+          <span className="text-sm text-stone-700 dark:text-stone-300">
+            {t("options.showButtonOnPage")}
+          </span>
+        </label>
+      </section>
       {/* テキストスタイルのデフォルト値設定 */}
       <section className="mb-6">
         <h2 className="text-lg font-bold text-stone-800 dark:text-stone-200 mb-2">

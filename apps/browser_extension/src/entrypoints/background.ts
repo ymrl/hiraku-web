@@ -89,6 +89,23 @@ export default defineBackground(() => {
         sendResponse({ action, settings: {} });
       }
     }
+    if (action === "getUserInterfaceSettings") {
+      try {
+        browser.storage.sync.get("userInterfaceSettings").then((result) => {
+          sendResponse({
+            action,
+            settings: {
+              showButtonOnPage: false,
+              ...result.userInterfaceSettings,
+            },
+          });
+        });
+        return true;
+      } catch (err) {
+        console.error("Failed to get UI settings:", err);
+        sendResponse({ action, settings: { showButtonOnPage: false } });
+      }
+    }
   });
 
   browser.runtime.onInstalled.addListener(() => {

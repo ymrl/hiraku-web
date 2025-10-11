@@ -30,7 +30,9 @@
     "enableLineHeight": "行の高さを変更する",
     "enableParagraphSpacing": "段落の間隔を変更する",
     "enableLetterSpacing": "文字の間隔を変更する",
-    "enableWordSpacing": "単語の間隔を変更する"
+    "enableWordSpacing": "単語の間隔を変更する",
+    "userInterface": "ユーザーインターフェース",
+    "showButtonOnPage": "ページ右下に「ひらくウェブ」ボタンを表示する"
   },
   "landmarkRoles": {
     "banner": "バナー",

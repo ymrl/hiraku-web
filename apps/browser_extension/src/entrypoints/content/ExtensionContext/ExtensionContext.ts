@@ -1,5 +1,9 @@
 import { createContext } from "react";
-import type { SpeechSettings, TextStyleSettings } from "@/types";
+import type {
+  SpeechSettings,
+  TextStyleSettings,
+  UserInterfaceSettings,
+} from "@/types";
 
 export const ExtensionContext = createContext<{
   currentTextStyle: TextStyleSettings | undefined;
@@ -13,6 +17,7 @@ export const ExtensionContext = createContext<{
   xpaths: string[];
   navigationTimestamp: number;
   updateXpaths: (xpaths: string[]) => void;
+  userInterfaceSettings: UserInterfaceSettings;
 }>({
   currentTextStyle: undefined,
   pageDefaultTextStyle: undefined,
@@ -25,4 +30,5 @@ export const ExtensionContext = createContext<{
   xpaths: [],
   navigationTimestamp: 0,
   updateXpaths: () => {},
+  userInterfaceSettings: { showButtonOnPage: false },
 });

@@ -46,6 +46,10 @@ import type {
   UpdateTextStyle,
   UpdateTextStyleResponse,
 } from "./TextStyleSettings";
+import type {
+  GetUserInterfaceSettings,
+  GetUserInterfaceSettingsResponse,
+} from "./UserInterface";
 
 export type ExtensionMessage =
   | GetHeadings
@@ -68,7 +72,8 @@ export type ExtensionMessage =
   | RemoveHostTextStyle
   | SaveSpeechSettings
   | RemoveSpeechSettings
-  | GetSpeechSettings;
+  | GetSpeechSettings
+  | GetUserInterfaceSettings;
 export type ExtensionMessageResponse =
   | GetHeadingsResponse
   | GetHostTextStyleSettingsResponse
@@ -90,7 +95,8 @@ export type ExtensionMessageResponse =
   | RemoveHostTextStyleResponse
   | SaveSpeechSettingsResponse
   | RemoveSpeechSettingsResponse
-  | GetSpeechSettingsResponse;
+  | GetSpeechSettingsResponse
+  | GetUserInterfaceSettingsResponse;
 
 type ExtractResponse<M extends ExtensionMessage> = M extends {
   action: infer A;

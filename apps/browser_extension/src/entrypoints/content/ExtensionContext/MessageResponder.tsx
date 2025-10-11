@@ -6,6 +6,7 @@ import { ExtensionContext } from "./ExtensionContext";
 import { useNavigation } from "./useNavigation";
 import { useSpeech } from "./useSpeech";
 import { useTextStyle } from "./useTextStyle";
+import { useUserInterfaceSettings } from "./useUserInterfaceSettings";
 
 export const MessageResponder = ({ children }: { children?: ReactNode }) => {
   const { currentTextStyle, pageDefaultTextStyle, updateCurrentTextStyle } =
@@ -20,6 +21,7 @@ export const MessageResponder = ({ children }: { children?: ReactNode }) => {
   } = useSpeech();
 
   const { xpaths, updateXpaths, navigationTimestamp } = useNavigation();
+  const useUserInterfaceSettingsReturn = useUserInterfaceSettings();
 
   const respondMessage: MessageListener<ExtensionMessage> = useCallback(
     (message, _sender, sendResponse) => {
@@ -104,6 +106,7 @@ export const MessageResponder = ({ children }: { children?: ReactNode }) => {
         xpaths,
         navigationTimestamp,
         updateXpaths,
+        ...useUserInterfaceSettingsReturn,
       }}
     >
       {children}

@@ -30,7 +30,9 @@
     "enableLineHeight": "Enable Line Height",
     "enableParagraphSpacing": "Enable Paragraph Spacing",
     "enableLetterSpacing": "Enable Letter Spacing",
-    "enableWordSpacing": "Enable Word Spacing"
+    "enableWordSpacing": "Enable Word Spacing",
+    "userInterface": "User Interface",
+    "showButtonOnPage": "Show 'Hiraku Web' button at the bottom right of the page"
   },
   "landmarkRoles": {
     "banner": "Banner",

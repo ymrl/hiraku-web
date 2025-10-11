@@ -1,5 +1,12 @@
-import { StrictMode, useCallback, useImperativeHandle, useState } from "react";
+import {
+  StrictMode,
+  use,
+  useCallback,
+  useImperativeHandle,
+  useState,
+} from "react";
 import style from "../content.css?inline";
+import { ExtensionContext } from "../ExtensionContext";
 import { FloatingButton } from "./FloatingButton";
 import { FloatingWindow } from "./FloatingWindow";
 
@@ -15,6 +22,7 @@ export function FloatingUIRoot({
   windowHeight?: number;
 }) {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const { userInterfaceSettings } = use(ExtensionContext);
 
   const handleClosePanel = useCallback(() => {
     setIsPanelOpen(false);
@@ -35,13 +43,15 @@ export function FloatingUIRoot({
     <StrictMode>
       <style>{style}</style>
       <div className="flex flex-col-reverse items-stretch">
-        <FloatingButton
-          onToggle={() => {
-            setIsPanelOpen((p) => !p);
-          }}
-          onClose={handleClosePanel}
-          isOpen={isPanelOpen}
-        />
+        {userInterfaceSettings.showButtonOnPage && (
+          <FloatingButton
+            onToggle={() => {
+              setIsPanelOpen((p) => !p);
+            }}
+            onClose={handleClosePanel}
+            isOpen={isPanelOpen}
+          />
+        )}
         {isPanelOpen && (
           <div
             className="px-2 pl-4 shrink grow flex justify-stretch"
