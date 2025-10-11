@@ -6,7 +6,11 @@ const { t } = createI18n();
 export const ButtonIcon = () => {
   const id = useId();
   return (
-    <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+    <svg
+      viewBox="0 0 44 44"
+      fill="none"
+      className="w-11 h-11 shadow-lg rounded-full"
+    >
       <title>{t("extensionName")}</title>
       <circle cx="22" cy="22" r="22" fill={`url(#gradient-${id})`} />
       <path

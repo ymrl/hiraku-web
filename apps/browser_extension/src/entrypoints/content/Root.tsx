@@ -18,6 +18,7 @@ import { FrameManager } from "./FrameManager";
 import { LandmarkNavigation } from "./LandmarkNavigation";
 import { Speaker } from "./Speaker";
 import { TextStyleTweaker } from "./TextStyleTweaker";
+import { useWindowHeight } from "./useWindowHeight";
 
 export const createRootElement = () => {
   const parent = document.createElement("div");
@@ -55,6 +56,8 @@ export const Root = ({
     };
   }, [windowClicked]);
 
+  const { windowHeight } = useWindowHeight();
+
   return (
     <MessageResponder>
       <TextStyleTweaker />
@@ -63,7 +66,7 @@ export const Root = ({
 
       {iframeRootRef.current &&
         createPortal(
-          <FloatingUIRoot handleRef={handleRef} />,
+          <FloatingUIRoot handleRef={handleRef} windowHeight={windowHeight} />,
           iframeRootRef.current,
         )}
 

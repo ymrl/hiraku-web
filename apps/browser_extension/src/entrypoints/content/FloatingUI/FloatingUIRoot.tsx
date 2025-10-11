@@ -9,8 +9,10 @@ export type FloatingUIHandle = {
 
 export function FloatingUIRoot({
   handleRef,
+  windowHeight,
 }: {
   handleRef?: React.RefObject<FloatingUIHandle | null>;
+  windowHeight?: number;
 }) {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
 
@@ -29,7 +31,7 @@ export function FloatingUIRoot({
   return (
     <StrictMode>
       <style>{style}</style>
-      <div className="flex flex-col-reverse items-stretch justify-end">
+      <div className="flex flex-col-reverse items-stretch">
         <FloatingButton
           onToggle={() => {
             setIsPanelOpen((p) => !p);
@@ -38,7 +40,14 @@ export function FloatingUIRoot({
           isOpen={isPanelOpen}
         />
         {isPanelOpen && (
-          <div className="shrink overflow-auto">
+          <div
+            className="px-2 pl-4 shrink grow flex justify-stretch"
+            style={{
+              height: windowHeight
+                ? `min(calc(${windowHeight}px - 5rem), 40rem)`
+                : undefined,
+            }}
+          >
             <FloatingWindow onClose={handleClosePanel} />
           </div>
         )}

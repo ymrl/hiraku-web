@@ -26,23 +26,20 @@ export function FloatingWindow({
   };
 
   return (
-    <div className="px-2 pl-4">
-      <div className="w-96 bg-white dark:bg-stone-900 flex flex-col shadow-lg rounded-lg overflow-hidden">
-        <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+    <div className="w-96 bg-white dark:bg-stone-900 flex flex-col shadow-lg rounded-lg overflow-hidden">
+      <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+      <div className="flex-1 overflow-y-auto">
+        {activeTab === "headings" && (
+          <HeadingsPanel onScrollToElement={scrollToElement} />
+        )}
 
-        <div className="flex-1 overflow-y-auto">
-          {activeTab === "headings" && (
-            <HeadingsPanel onScrollToElement={scrollToElement} />
-          )}
+        {activeTab === "landmarks" && (
+          <LandmarksPanel onScrollToElement={scrollToElement} />
+        )}
 
-          {activeTab === "landmarks" && (
-            <LandmarksPanel onScrollToElement={scrollToElement} />
-          )}
+        {activeTab === "text" && <TextStylePanel />}
 
-          {activeTab === "text" && <TextStylePanel />}
-
-          {activeTab === "speech" && <SpeechPanel />}
-        </div>
+        {activeTab === "speech" && <SpeechPanel />}
       </div>
     </div>
   );

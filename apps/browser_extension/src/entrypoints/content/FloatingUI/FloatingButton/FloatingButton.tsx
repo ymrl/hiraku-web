@@ -16,19 +16,21 @@ export function FloatingButton({
   isOpen,
 }: FloatingButtonProps) {
   return (
-    <div className="p-2 -mt-1 flex items-stretch">
+    <div className="flex items-stretch">
       <button
         type="button"
-        className="bg-transparent border-0 grow shrink"
+        className="bg-transparent border-0 grow shrink basis-0"
         onClick={onClose}
         tabIndex={-1}
+        aria-hidden="true"
       >
         <span className="sr-only">{t("close")}</span>
       </button>
       <button
         type="button"
         onClick={onToggle}
-        className={`p-0 rounded-full shadow-lg grow-0 shrink-0
+        aria-pressed={isOpen}
+        className={`p-2 rounded-full grow-0 shrink-0
           flex items-center justify-center transition-all duration-200 hover:scale-110 hover:opacity-100 ${
             isOpen ? "opacity-100" : "opacity-50"
           }`}

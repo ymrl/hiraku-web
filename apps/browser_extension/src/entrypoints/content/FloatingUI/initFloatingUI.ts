@@ -43,7 +43,7 @@ export const initFloatingUI = ({
     if (!iframeRoot) return;
     const rect = iframeRoot.getBoundingClientRect();
     iframe.style.width = `${rect.width}px`;
-    iframe.style.height = `min(calc(100vh - 16px), ${rect.height}px)`;
+    iframe.style.height = `min(100vh, ${rect.height}px)`;
   });
 
   resizeObserver.observe(iframeRoot);
