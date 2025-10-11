@@ -27,6 +27,9 @@ export function FloatingUIRoot({
     }),
     [handleClosePanel],
   );
+  const [activeTab, setActiveTab] = useState<
+    "headings" | "landmarks" | "text" | "speech"
+  >("headings");
 
   return (
     <StrictMode>
@@ -48,7 +51,11 @@ export function FloatingUIRoot({
                 : undefined,
             }}
           >
-            <FloatingWindow onClose={handleClosePanel} />
+            <FloatingWindow
+              onClose={handleClosePanel}
+              activeTab={activeTab}
+              onTabChange={(tab) => setActiveTab(tab)}
+            />
           </div>
         )}
       </div>

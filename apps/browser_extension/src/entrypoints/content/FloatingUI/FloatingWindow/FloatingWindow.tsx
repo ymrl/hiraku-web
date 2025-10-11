@@ -1,4 +1,4 @@
-import { use, useState } from "react";
+import { use } from "react";
 import { TabNavigation } from "@/components/TabNavigation";
 import { ExtensionContext } from "../../ExtensionContext";
 import { HeadingsPanel } from "./HeadingsPanel";
@@ -6,18 +6,15 @@ import { LandmarksPanel } from "./LandmarksPanel";
 import { SpeechPanel } from "./SpeechPanel";
 import { TextStylePanel } from "./TextStylePanel";
 
-interface FloatingPanelProps {
-  initialTab?: "headings" | "landmarks" | "text" | "speech";
-  onClose: () => void;
-}
-
 export function FloatingWindow({
-  initialTab = "headings",
+  activeTab,
+  onTabChange,
   onClose,
-}: FloatingPanelProps) {
-  const [activeTab, setActiveTab] = useState<
-    "headings" | "landmarks" | "text" | "speech"
-  >(initialTab);
+}: {
+  activeTab: "headings" | "landmarks" | "text" | "speech";
+  onTabChange: (tab: "headings" | "landmarks" | "text" | "speech") => void;
+  onClose: () => void;
+}) {
   const { updateXpaths } = use(ExtensionContext);
 
   const scrollToElement = async (xpaths: string[]) => {
@@ -27,7 +24,7 @@ export function FloatingWindow({
 
   return (
     <div className="w-96 bg-white dark:bg-stone-900 flex flex-col shadow-lg rounded-lg overflow-hidden">
-      <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+      <TabNavigation activeTab={activeTab} onTabChange={onTabChange} />
       <div className="flex-1 overflow-y-auto">
         {activeTab === "headings" && (
           <HeadingsPanel onScrollToElement={scrollToElement} />
