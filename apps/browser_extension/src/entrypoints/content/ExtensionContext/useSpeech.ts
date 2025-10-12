@@ -1,5 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { sendMessage } from "@/ExtensionMessages";
+import {
+  addListener,
+  type DisableSpeech,
+  type EnableSpeech,
+  type MessageListener,
+  removeListener,
+  type SpeechStatus,
+  sendMessage,
+  type UpdateSpeechSettings,
+} from "@/ExtensionMessages";
 import type { SpeechSettings } from "@/types";
 
 export const useSpeech = () => {
@@ -47,6 +56,36 @@ export const useSpeech = () => {
     return () =>
       document.removeEventListener("visibilitychange", disableSpeech);
   }, [disableSpeech]);
+
+  useEffect(() => {
+    const listener: MessageListener<
+      SpeechStatus | EnableSpeech | DisableSpeech | UpdateSpeechSettings
+    > = (message, _sender, sendResponse) => {
+      const { action } = message;
+      if (action === "speechStatus") {
+        sendResponse({ action, isEnabled });
+        return true;
+      }
+      if (action === "enableSpeech") {
+        enableSpeech();
+        if (message.settings) {
+          updateSpeechSettings(message.settings);
+        }
+      }
+      if (message.action === "disableSpeech") {
+        disableSpeech();
+      }
+      if (message.action === "updateSpeechSettings") {
+        if (message.settings) {
+          updateSpeechSettings(message.settings);
+        }
+      }
+    };
+    addListener(listener);
+    return () => {
+      removeListener(listener);
+    };
+  }, [disableSpeech, enableSpeech, updateSpeechSettings, isEnabled]);
 
   return {
     isSpeechEnabled: isEnabled,
