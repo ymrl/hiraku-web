@@ -27,17 +27,21 @@ export const MessageResponder = ({ children }: { children?: ReactNode }) => {
     (message, _sender, sendResponse) => {
       const { action } = message;
       if (action === "getHeadings") {
-        const headings = getHeadings();
+        const headings = getHeadings({
+          exclude: "[data-hiraku-web-iframe-root]",
+        });
         sendResponse({ action, headings });
         return true;
       }
       if (action === "getLandmarks") {
-        const landmarks = getLandmarks();
+        const landmarks = getLandmarks({
+          exclude: "[data-hiraku-web-iframe-root]",
+        });
         sendResponse({ action, landmarks });
         return true;
       }
     },
-    []
+    [],
   );
 
   useEffect(() => {

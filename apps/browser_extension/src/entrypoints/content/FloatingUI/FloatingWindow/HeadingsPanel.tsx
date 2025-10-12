@@ -13,7 +13,7 @@ export const HeadingsPanel = ({
   const [loading, setLoading] = useState(true);
 
   const load = async () => {
-    setHeadings(getHeadings());
+    setHeadings(getHeadings({ exclude: "[data-hiraku-web-iframe-root]" }));
     setLoading(false);
   };
 

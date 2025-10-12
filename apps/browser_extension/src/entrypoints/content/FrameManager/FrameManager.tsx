@@ -1,18 +1,18 @@
 import getXPath from "get-xpath";
-import { Fragment, type ReactNode, useEffect, useRef, useState } from "react";
+import {
+  Fragment,
+  type ReactNode,
+  use,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { createPortal } from "react-dom";
-
-const FLOATING_UI_ID = "hiraku-web-floating-ui";
-
-const isFloatingUIFrame = (element: HTMLFrameElement | HTMLIFrameElement) => {
-  // FloatingUIのiframeかチェック
-  return (
-    element.id === FLOATING_UI_ID ||
-    element.getAttribute("data-hiraku-web-floating-ui") === "true"
-  );
-};
+import { RootContext } from "../Root/RootContext";
+import { FrameContext } from "./FrameContext";
 
 export const FrameManager = ({ children }: { children?: ReactNode }) => {
+  const { rootRef } = use(RootContext);
   // iframe. frame要素を取得（FloatingUIのものは除外）
   const [frameElements, setFrameElements] = useState<
     (HTMLFrameElement | HTMLIFrameElement)[]
@@ -21,7 +21,7 @@ export const FrameManager = ({ children }: { children?: ReactNode }) => {
       ...document.querySelectorAll<HTMLFrameElement | HTMLIFrameElement>(
         "iframe,frame",
       ),
-    ].filter((el) => !isFloatingUIFrame(el)),
+    ].filter((el) => !rootRef.current?.contains(el)),
   ]);
 
   const frameRootsRef = useRef<Map<string, HTMLElement>>(new Map());
@@ -109,7 +109,7 @@ export const FrameManager = ({ children }: { children?: ReactNode }) => {
             ...document.querySelectorAll<HTMLFrameElement | HTMLIFrameElement>(
               "iframe,frame",
             ),
-          ].filter((el) => !isFloatingUIFrame(el)),
+          ].filter((el) => !rootRef.current?.contains(el)),
         ]);
       }
     });
@@ -120,7 +120,7 @@ export const FrameManager = ({ children }: { children?: ReactNode }) => {
     });
 
     return () => observer.disconnect();
-  }, []);
+  }, [rootRef]);
 
   // frame要素ごとにrootを作成し、loadイベントを監視
   frameElements.forEach((frameElement) => {
@@ -229,7 +229,19 @@ export const FrameManager = ({ children }: { children?: ReactNode }) => {
         const xpath = getXPath(frameElement);
         const root = frameRootsRef.current.get(xpath);
         if (!root) return null;
-        return createPortal(<Fragment key={xpath}>{children}</Fragment>, root);
+        const tagName = frameElement.tagName.toLowerCase();
+        const frameType =
+          tagName === "iframe"
+            ? "iframe"
+            : tagName === "frame"
+              ? "frame"
+              : null;
+        return createPortal(
+          <Fragment key={xpath}>
+            <FrameContext value={{ frameType }}>{children}</FrameContext>
+          </Fragment>,
+          root,
+        );
       })}
     </>
   );

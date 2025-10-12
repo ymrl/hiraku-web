@@ -23,7 +23,7 @@ export function FloatingWindow({
   };
 
   return (
-    <div className="w-96 bg-white dark:bg-stone-900 flex flex-col shadow-lg rounded-lg overflow-hidden">
+    <div className="w-96 border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 flex flex-col shadow-md shadow-black/10 dark:shadow-white/10 rounded-lg overflow-hidden">
       <TabNavigation activeTab={activeTab} onTabChange={onTabChange} />
       <div className="flex-1 overflow-y-auto">
         {activeTab === "headings" && (

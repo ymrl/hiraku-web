@@ -28,6 +28,7 @@ export const Iframe = ({ children }: { children?: React.ReactNode }) => {
       iframeDoc.getElementById(`iframe-${id}-root`) ||
       iframeDoc.createElement("div");
     iframeRoot.id = `iframe-${id}-root`;
+    iframeRoot.setAttribute("data-hiraku-web-iframe-root", "true");
     iframeDoc.body.appendChild(iframeRoot);
     rootRef.current = iframeRoot;
 

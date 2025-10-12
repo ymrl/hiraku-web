@@ -12,7 +12,9 @@ export const LandmarksPanel = ({
   const [landmarks, setLandmarks] = useState<Landmark[]>([]);
 
   const load = async () => {
-    const landmarks = await getLandmarks();
+    const landmarks = await getLandmarks({
+      exclude: "[data-hiraku-web-iframe-root]",
+    });
     setLoading(false);
     setLandmarks(landmarks);
   };

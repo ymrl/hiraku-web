@@ -6,6 +6,7 @@ import { isHidden } from "@/utils/isHidden";
 const getHeadingsFromDocument = (
   doc: Document,
   xpathPrefix: string[] = [],
+  exclude?: string,
 ): Heading[] => {
   const headingElements = doc.querySelectorAll(
     "h1, h2, h3, h4, h5, h6, [role='heading']",
@@ -17,6 +18,9 @@ const getHeadingsFromDocument = (
         isAriaHidden(element) ||
         isInAriaHidden(element)
       ) {
+        return undefined;
+      }
+      if (exclude && element.closest(exclude)) {
         return undefined;
       }
       const text = element.textContent?.trim() || "";
@@ -43,10 +47,11 @@ const getHeadingsFromDocument = (
       if (!frameDoc) continue;
 
       const frameXPath = getXPath(frame);
-      const frameHeadings = getHeadingsFromDocument(frameDoc, [
-        ...xpathPrefix,
-        frameXPath,
-      ]);
+      const frameHeadings = getHeadingsFromDocument(
+        frameDoc,
+        [...xpathPrefix, frameXPath],
+        exclude,
+      );
       headings.push(...frameHeadings);
     } catch (_e) {}
   }
@@ -54,6 +59,6 @@ const getHeadingsFromDocument = (
   return headings;
 };
 
-export const getHeadings = (): Heading[] => {
-  return getHeadingsFromDocument(document);
+export const getHeadings = (options?: { exclude?: string }): Heading[] => {
+  return getHeadingsFromDocument(document, [], options?.exclude);
 };

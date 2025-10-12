@@ -593,4 +593,283 @@ describe("getLandmarks", () => {
       },
     ]);
   });
+
+  test("exclude option - exclude landmarks by selector", () => {
+    document.body.innerHTML = `
+      <header>Visible Header</header>
+      <div class="excluded">
+        <nav>Excluded Navigation</nav>
+        <main>Excluded Main</main>
+      </div>
+      <footer>Visible Footer</footer>
+      <div id="sidebar">
+        <aside>Excluded Aside</aside>
+      </div>
+    `;
+    const landmarks = getLandmarks({ exclude: ".excluded" });
+    expect(landmarks).toEqual([
+      {
+        role: "banner",
+        label: "",
+        tag: "header",
+        xpaths: ["/html/body/header"],
+      },
+      {
+        role: "contentinfo",
+        label: "",
+        tag: "footer",
+        xpaths: ["/html/body/footer"],
+      },
+      {
+        role: "complementary",
+        label: "",
+        tag: "aside",
+        xpaths: ["/html/body/div[2]/aside"],
+      },
+    ]);
+  });
+
+  test("exclude option - exclude by ID selector", () => {
+    document.body.innerHTML = `
+      <header>Visible Header</header>
+      <div id="excluded-section">
+        <nav>Excluded Navigation</nav>
+        <main>Excluded Main</main>
+      </div>
+      <footer>Visible Footer</footer>
+    `;
+    const landmarks = getLandmarks({ exclude: "#excluded-section" });
+    expect(landmarks).toEqual([
+      {
+        role: "banner",
+        label: "",
+        tag: "header",
+        xpaths: ["/html/body/header"],
+      },
+      {
+        role: "contentinfo",
+        label: "",
+        tag: "footer",
+        xpaths: ["/html/body/footer"],
+      },
+    ]);
+  });
+
+  test("exclude option - exclude landmark itself", () => {
+    document.body.innerHTML = `
+      <header>Visible Header</header>
+      <nav class="exclude-me">Excluded Navigation</nav>
+      <main>Visible Main</main>
+      <aside class="exclude-me">Excluded Aside</aside>
+      <footer>Visible Footer</footer>
+    `;
+    const landmarks = getLandmarks({ exclude: ".exclude-me" });
+    expect(landmarks).toEqual([
+      {
+        role: "banner",
+        label: "",
+        tag: "header",
+        xpaths: ["/html/body/header"],
+      },
+      { role: "main", label: "", tag: "main", xpaths: ["/html/body/main"] },
+      {
+        role: "contentinfo",
+        label: "",
+        tag: "footer",
+        xpaths: ["/html/body/footer"],
+      },
+    ]);
+  });
+
+  test("exclude option - nested excluded containers", () => {
+    document.body.innerHTML = `
+      <header>Visible Header</header>
+      <div class="outer">
+        <nav>Outer Navigation</nav>
+        <div class="excluded">
+          <main>Excluded Main</main>
+        </div>
+      </div>
+      <footer>Visible Footer</footer>
+    `;
+    const landmarks = getLandmarks({ exclude: ".excluded" });
+    expect(landmarks).toEqual([
+      {
+        role: "banner",
+        label: "",
+        tag: "header",
+        xpaths: ["/html/body/header"],
+      },
+      {
+        role: "navigation",
+        label: "",
+        tag: "nav",
+        xpaths: ["/html/body/div/nav"],
+      },
+      {
+        role: "contentinfo",
+        label: "",
+        tag: "footer",
+        xpaths: ["/html/body/footer"],
+      },
+    ]);
+  });
+
+  test("exclude option - exclude ARIA landmarks", () => {
+    document.body.innerHTML = `
+      <header>Visible Header</header>
+      <div class="excluded">
+        <div role="navigation">Excluded Navigation</div>
+      </div>
+      <div role="main">Visible Main</div>
+    `;
+    const landmarks = getLandmarks({ exclude: ".excluded" });
+    expect(landmarks).toEqual([
+      {
+        role: "banner",
+        label: "",
+        tag: "header",
+        xpaths: ["/html/body/header"],
+      },
+      { role: "main", label: "", tag: "div", xpaths: ["/html/body/div[2]"] },
+    ]);
+  });
+
+  test("exclude option - exclude section landmarks", () => {
+    document.body.innerHTML = `
+      <header>Visible Header</header>
+      <div class="excluded">
+        <section aria-label="Excluded Section">Section Content</section>
+      </div>
+      <section aria-label="Visible Section">Section Content</section>
+    `;
+    const landmarks = getLandmarks({ exclude: ".excluded" });
+    expect(landmarks).toEqual([
+      {
+        role: "banner",
+        label: "",
+        tag: "header",
+        xpaths: ["/html/body/header"],
+      },
+      {
+        role: "region",
+        label: "Visible Section",
+        tag: "section",
+        xpaths: ["/html/body/section"],
+      },
+    ]);
+  });
+
+  test("exclude option - exclude landmarks in iframe", () => {
+    document.body.innerHTML = `
+      <header>Top Level Header</header>
+      <iframe id="test-iframe"></iframe>
+    `;
+    const iframe = document.getElementById("test-iframe") as HTMLIFrameElement;
+    const iframeDoc = iframe.contentDocument;
+    if (iframeDoc) {
+      iframeDoc.body.innerHTML = `
+        <nav>Iframe Navigation</nav>
+        <div class="excluded">
+          <main>Excluded Main</main>
+        </div>
+        <footer>Iframe Footer</footer>
+      `;
+    }
+
+    const landmarks = getLandmarks({ exclude: ".excluded" });
+    expect(landmarks).toEqual([
+      {
+        role: "banner",
+        label: "",
+        tag: "header",
+        xpaths: ["/html/body/header"],
+      },
+      {
+        role: "navigation",
+        label: "",
+        tag: "nav",
+        xpaths: ['//*[@id="test-iframe"]', "/html/body/nav"],
+      },
+      {
+        role: "contentinfo",
+        label: "",
+        tag: "footer",
+        xpaths: ['//*[@id="test-iframe"]', "/html/body/footer"],
+      },
+    ]);
+  });
+
+  test("exclude option - no match returns all landmarks", () => {
+    document.body.innerHTML = `
+      <header>Header</header>
+      <nav>Navigation</nav>
+      <main>Main</main>
+    `;
+    const landmarks = getLandmarks({ exclude: ".nonexistent" });
+    expect(landmarks).toEqual([
+      {
+        role: "banner",
+        label: "",
+        tag: "header",
+        xpaths: ["/html/body/header"],
+      },
+      { role: "navigation", label: "", tag: "nav", xpaths: ["/html/body/nav"] },
+      { role: "main", label: "", tag: "main", xpaths: ["/html/body/main"] },
+    ]);
+  });
+
+  test("exclude option - complex selector", () => {
+    document.body.innerHTML = `
+      <header>Visible Header</header>
+      <div class="sidebar" data-test="ignore">
+        <nav>Excluded Navigation</nav>
+      </div>
+      <div class="sidebar">
+        <aside>Visible Aside</aside>
+      </div>
+      <main>Visible Main</main>
+    `;
+    const landmarks = getLandmarks({ exclude: '.sidebar[data-test="ignore"]' });
+    expect(landmarks).toEqual([
+      {
+        role: "banner",
+        label: "",
+        tag: "header",
+        xpaths: ["/html/body/header"],
+      },
+      {
+        role: "complementary",
+        label: "",
+        tag: "aside",
+        xpaths: ["/html/body/div[2]/aside"],
+      },
+      { role: "main", label: "", tag: "main", xpaths: ["/html/body/main"] },
+    ]);
+  });
+
+  test("exclude option - exclude landmarks with labels", () => {
+    document.body.innerHTML = `
+      <nav aria-label="Primary Navigation">Navigation</nav>
+      <div class="excluded">
+        <nav aria-label="Excluded Navigation">Navigation</nav>
+      </div>
+      <main aria-label="Main Content">Main</main>
+    `;
+    const landmarks = getLandmarks({ exclude: ".excluded" });
+    expect(landmarks).toEqual([
+      {
+        role: "navigation",
+        label: "Primary Navigation",
+        tag: "nav",
+        xpaths: ["/html/body/nav"],
+      },
+      {
+        role: "main",
+        label: "Main Content",
+        tag: "main",
+        xpaths: ["/html/body/main"],
+      },
+    ]);
+  });
 });

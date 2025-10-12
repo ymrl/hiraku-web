@@ -13,7 +13,7 @@ export const useTextStyle = () => {
     TextStyleSettings | undefined
   >({});
   const pageDefaultTextStyleRef = useRef<TextStyleSettings | undefined>(
-    undefined
+    undefined,
   );
 
   const getHostTextStyle = async (hostname: string) => {
@@ -48,14 +48,14 @@ export const useTextStyle = () => {
     (newStyle: TextStyleSettings | undefined) => {
       setCurrentTextStyle(newStyle);
     },
-    []
+    [],
   );
 
   useEffect(() => {
     const listener: MessageListener<UpdateTextStyle | GetPageTextStyle> = (
       message,
       _sender,
-      sendResponse
+      sendResponse,
     ) => {
       const { action } = message;
       if (action === "updateTextStyle") {
