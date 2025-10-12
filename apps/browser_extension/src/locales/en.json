@@ -17,7 +17,8 @@
   "tag": "Tag",
   "Levels": "Levels",
   "All": "All",
-  "Close": "閉じる",
+  "Close": "Close",
+  "IframeTitle": "Hiraku Web Frame",
   "options": {
     "clearSettings": "Clear per-website settings",
     "clearingDescription": "Remove settings saved per website. This action cannot be undone.",

@@ -18,6 +18,7 @@
   "Levels": "レベル",
   "All": "すべて",
   "Close": "閉じる",
+  "IframeTitle": "ひらくウェブ フレーム",
   "options": {
     "clearSettings": "Webサイトごとの設定をクリア",
     "clearingDescription": "Webサイトごとに調整した文字の設定などを削除します。この操作は元に戻せません。",
