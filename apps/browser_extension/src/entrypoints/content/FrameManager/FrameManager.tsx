@@ -1,16 +1,15 @@
+import getXPath from "get-xpath";
 import {
   Fragment,
   type ReactNode,
   use,
   useCallback,
   useEffect,
-  useRef,
   useState,
 } from "react";
 import { createPortal } from "react-dom";
-import { FrameContext } from "./FrameContext";
 import { RootContext } from "../Root/RootContext";
-import getXPath from "get-xpath";
+import { FrameContext } from "./FrameContext";
 
 const isExcludeFrame = (el: HTMLFrameElement | HTMLIFrameElement) =>
   el.matches("[data-hiraku-web-iframe='true']");
@@ -18,13 +17,13 @@ const isExcludeFrame = (el: HTMLFrameElement | HTMLIFrameElement) =>
 const getFrames = () =>
   [
     ...document.querySelectorAll<HTMLFrameElement | HTMLIFrameElement>(
-      "iframe,frame"
+      "iframe,frame",
     ),
   ].filter((el) => !isExcludeFrame(el));
 
 const getElementByIdFromFrame = (
   frame: HTMLFrameElement | HTMLIFrameElement,
-  id: string
+  id: string,
 ) => {
   try {
     const d = frame.contentDocument;
@@ -49,38 +48,39 @@ export const FrameManager = ({ children }: { children?: ReactNode }) => {
   const [, forceUpdate] = useState({});
 
   // frame要素のrootを作成する関数
-  const createFrameRoot = useCallback((
-    frameElement: HTMLFrameElement | HTMLIFrameElement
-  ) => {
-    try {
-      if (isExcludeFrame(frameElement)) return;
-      const frame = frameElement.contentWindow;
-      if (!frame) return;
-      if (!frame.document || !frame.document.body) return;
+  const createFrameRoot = useCallback(
+    (frameElement: HTMLFrameElement | HTMLIFrameElement) => {
+      try {
+        if (isExcludeFrame(frameElement)) return;
+        const frame = frameElement.contentWindow;
+        if (!frame) return;
+        if (!frame.document || !frame.document.body) return;
 
-      // 既存のrootを削除
-      const existingRoot = frame.document.getElementById(frameRootId);
-      if (existingRoot?.parentNode) {
-        existingRoot.parentNode.removeChild(existingRoot);
-      }
+        // 既存のrootを削除
+        const existingRoot = frame.document.getElementById(frameRootId);
+        if (existingRoot?.parentNode) {
+          existingRoot.parentNode.removeChild(existingRoot);
+        }
 
-      const root = frame.document.createElement("div");
-      root.style.cssText = `
+        const root = frame.document.createElement("div");
+        root.style.cssText = `
         position: absolute;
         top: 0;
         left: 0;
         width: 0;
         height: 0;
         z-index: 2147483647;`;
-      root.id = frameRootId;
-      frame.document.body.appendChild(root);
+        root.id = frameRootId;
+        frame.document.body.appendChild(root);
 
-      // 強制的に再レンダリング
-      forceUpdate({});
-    } catch {
-      /* noop */
-    }
-  }, [frameRootId]);
+        // 強制的に再レンダリング
+        forceUpdate({});
+      } catch {
+        /* noop */
+      }
+    },
+    [frameRootId],
+  );
 
   // MutationObserverで動的に追加されるframe要素を監視
   useEffect(() => {
@@ -147,20 +147,22 @@ export const FrameManager = ({ children }: { children?: ReactNode }) => {
           createFrameRoot(frameElement);
           // frameElementsに追加されていない場合は追加
           setFrameElements((frames) =>
-            frames.includes(frameElement) ? frames : [...frames, frameElement]
+            frames.includes(frameElement) ? frames : [...frames, frameElement],
           );
         };
         frameElement.addEventListener("load", loadListener);
 
         // pagehideイベント時にframeElementsから削除した状態をrender (再render時のエラー抑止)
         const prehideListener = () => {
-          console.log("pagehide detected");
           // frameElementがpagehideされた場合はframeElementsから削除
           setFrameElements((frames) =>
-            frames.filter((f) => f !== frameElement)
+            frames.filter((f) => f !== frameElement),
           );
         };
-        frameElement.contentWindow?.addEventListener("pagehide", prehideListener);
+        frameElement.contentWindow?.addEventListener(
+          "pagehide",
+          prehideListener,
+        );
       }
     } catch {
       /* noop */
@@ -181,8 +183,8 @@ export const FrameManager = ({ children }: { children?: ReactNode }) => {
             tagName === "iframe"
               ? "iframe"
               : tagName === "frame"
-              ? "frame"
-              : null;
+                ? "frame"
+                : null;
           const xpath = getXPath(root);
           return createPortal(
             <Fragment key={xpath}>
@@ -190,7 +192,7 @@ export const FrameManager = ({ children }: { children?: ReactNode }) => {
                 {children}
               </FrameContext>
             </Fragment>,
-            root
+            root,
           );
         } catch {
           return null;
