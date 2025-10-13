@@ -11,7 +11,7 @@ import { FrameContext } from "../FrameManager";
 import { FloatingButton } from "./FloatingButton";
 import { FloatingWindow } from "./FloatingWindow";
 
-export function FloatingUIRoot({ windowHeight }: { windowHeight?: number }) {
+export function ContentUI({ windowHeight }: { windowHeight?: number }) {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const { userInterfaceSettings } = use(ExtensionContext);
   const { frameWindow } = use(FrameContext);

@@ -7,8 +7,8 @@ import {
   useId,
 } from "react";
 import { createRoot } from "react-dom/client";
+import { ContentUI } from "../ContentUI";
 import { Provider } from "../ExtensionContext";
-import { FloatingUIRoot } from "../FloatingUI";
 import { FrameContext, FrameManager } from "../FrameManager";
 import { Iframe } from "../Iframe";
 import { LandmarkNavigation } from "../LandmarkNavigation";
@@ -53,9 +53,8 @@ export const Root = ({
         <LandmarkNavigation />
         <Speaker />
         <Iframe>
-          <FloatingUIRoot windowHeight={windowHeight} />
+          <ContentUI windowHeight={windowHeight} />
         </Iframe>
-
         <FrameManager>
           <TextStyleTweaker />
           <Speaker />
@@ -74,7 +73,7 @@ const UIFrame = ({ windowHeight }: { windowHeight: number }) => {
 
   return (
     <Iframe>
-      <FloatingUIRoot windowHeight={windowHeight} />
+      <ContentUI windowHeight={windowHeight} />
     </Iframe>
   );
 };
