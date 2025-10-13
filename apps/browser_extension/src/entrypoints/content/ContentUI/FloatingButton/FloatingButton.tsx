@@ -1,5 +1,6 @@
 import { createI18n } from "@wxt-dev/i18n";
 import type { MouseEventHandler } from "react";
+import { Button } from "@/components/Button";
 import { ButtonIcon } from "./ButtonIcon";
 
 const { t } = createI18n();
@@ -7,25 +8,36 @@ const { t } = createI18n();
 interface FloatingButtonProps {
   onToggle: MouseEventHandler<HTMLButtonElement>;
   onClose: MouseEventHandler<HTMLButtonElement>;
+  onHide: MouseEventHandler<HTMLButtonElement>;
   isOpen?: boolean;
 }
 
 export function FloatingButton({
   onToggle,
   onClose,
+  onHide,
   isOpen,
 }: FloatingButtonProps) {
   return (
     <div className="flex items-stretch">
-      <button
-        type="button"
-        className="bg-transparent border-0 grow shrink basis-0"
-        onClick={onClose}
-        tabIndex={-1}
-        aria-hidden="true"
-      >
-        <span className="sr-only">{t("close")}</span>
-      </button>
+      {isOpen && (
+        <button
+          type="button"
+          className="bg-transparent border-0 grow shrink basis-0"
+          onClick={onClose}
+          tabIndex={-1}
+          aria-hidden="true"
+        >
+          <span className="sr-only">{t("close")}</span>
+        </button>
+      )}
+      {isOpen && (
+        <div className="grow-0 shrink-0 mr-1 flex items-center">
+          <Button appearance="secondary" onClick={onHide} size="small">
+            {t("HideTemporarily")}
+          </Button>
+        </div>
+      )}
       <button
         type="button"
         onClick={onToggle}

@@ -24,7 +24,9 @@ export function HeadingLevelSlider({
         {t("Levels")}:
       </label>
       <div className="flex items-center grow">
-        <span className="text-xs text-stone-500 dark:text-stone-400 w-4 text-center">1</span>
+        <span className="text-xs text-stone-500 dark:text-stone-400 w-4 text-center">
+          1
+        </span>
         <Slider
           id={id}
           min={1}
@@ -34,7 +36,9 @@ export function HeadingLevelSlider({
           onChange={(e) => onChange(Number(e.target.value))}
           width="w-24 grow"
         />
-        <span className="text-xs text-stone-500 dark:text-stone-400 w-4 text-center">7</span>
+        <span className="text-xs text-stone-500 dark:text-stone-400 w-4 text-center">
+          7
+        </span>
       </div>
       <span className="text-sm font-medium text-rose-600 dark:text-rose-400 shrink-0 w-12">
         {value === 7 ? t("All") : `H${value}`}

@@ -54,17 +54,22 @@ export function ContentUI({ windowHeight }: { windowHeight?: number }) {
       (frameWindow || window).removeEventListener("click", handleClosePanel);
     };
   });
+  const [temporarilyHidden, setTemporarilyHidden] = useState(false);
 
   return (
     <StrictMode>
       <style>{style}</style>
       <div className="flex flex-col-reverse items-stretch">
-        {userInterfaceSettings.showButtonOnPage && (
+        {userInterfaceSettings.showButtonOnPage && !temporarilyHidden && (
           <FloatingButton
             onToggle={() => {
               setIsPanelOpen((p) => !p);
             }}
             onClose={handleClosePanel}
+            onHide={() => {
+              setTemporarilyHidden(true);
+              handleClosePanel();
+            }}
             isOpen={isPanelOpen}
           />
         )}
