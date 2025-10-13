@@ -1,45 +1,65 @@
-import getXPath from "get-xpath";
 import {
   Fragment,
   type ReactNode,
   use,
+  useCallback,
   useEffect,
   useRef,
   useState,
 } from "react";
 import { createPortal } from "react-dom";
-import { RootContext } from "../Root/RootContext";
 import { FrameContext } from "./FrameContext";
+import { RootContext } from "../Root/RootContext";
+import getXPath from "get-xpath";
+
+const isExcludeFrame = (el: HTMLFrameElement | HTMLIFrameElement) =>
+  el.matches("[data-hiraku-web-iframe='true']");
+
+const getFrames = () =>
+  [
+    ...document.querySelectorAll<HTMLFrameElement | HTMLIFrameElement>(
+      "iframe,frame"
+    ),
+  ].filter((el) => !isExcludeFrame(el));
+
+const getElementByIdFromFrame = (
+  frame: HTMLFrameElement | HTMLIFrameElement,
+  id: string
+) => {
+  try {
+    const d = frame.contentDocument;
+    if (!d) return null;
+    return d.getElementById(id);
+  } catch {
+    return null;
+  }
+};
 
 export const FrameManager = ({ children }: { children?: ReactNode }) => {
-  const { rootRef } = use(RootContext);
+  const { id } = use(RootContext);
+  const frameRootId = `hiraku-web-frame-root-${id}`;
   // iframe. frame要素を取得（FloatingUIのものは除外）
   const [frameElements, setFrameElements] = useState<
     (HTMLFrameElement | HTMLIFrameElement)[]
-  >([
-    ...[
-      ...document.querySelectorAll<HTMLFrameElement | HTMLIFrameElement>(
-        "iframe,frame",
-      ),
-    ].filter((el) => !rootRef.current?.contains(el)),
-  ]);
+  >(() => {
+    const frameElements = getFrames();
+    return frameElements;
+  });
 
-  const frameRootsRef = useRef<Map<string, HTMLElement>>(new Map());
-  const frameLoadListenersRef = useRef<Map<string, () => void>>(new Map());
   const [, forceUpdate] = useState({});
 
   // frame要素のrootを作成する関数
-  const createFrameRoot = (
-    frameElement: HTMLFrameElement | HTMLIFrameElement,
-    xpath: string,
+  const createFrameRoot = useCallback((
+    frameElement: HTMLFrameElement | HTMLIFrameElement
   ) => {
     try {
+      if (isExcludeFrame(frameElement)) return;
       const frame = frameElement.contentWindow;
       if (!frame) return;
       if (!frame.document || !frame.document.body) return;
 
       // 既存のrootを削除
-      const existingRoot = frameRootsRef.current.get(xpath);
+      const existingRoot = frame.document.getElementById(frameRootId);
       if (existingRoot?.parentNode) {
         existingRoot.parentNode.removeChild(existingRoot);
       }
@@ -52,8 +72,7 @@ export const FrameManager = ({ children }: { children?: ReactNode }) => {
         width: 0;
         height: 0;
         z-index: 2147483647;`;
-      root.id = "hiraku-web-frame-root";
-      frameRootsRef.current.set(xpath, root);
+      root.id = frameRootId;
       frame.document.body.appendChild(root);
 
       // 強制的に再レンダリング
@@ -61,7 +80,7 @@ export const FrameManager = ({ children }: { children?: ReactNode }) => {
     } catch {
       /* noop */
     }
-  };
+  }, [frameRootId]);
 
   // MutationObserverで動的に追加されるframe要素を監視
   useEffect(() => {
@@ -104,13 +123,7 @@ export const FrameManager = ({ children }: { children?: ReactNode }) => {
 
       // 新しいframeが見つかったら状態を更新（FloatingUIのものは除外）
       if (hasNewFrames) {
-        setFrameElements([
-          ...[
-            ...document.querySelectorAll<HTMLFrameElement | HTMLIFrameElement>(
-              "iframe,frame",
-            ),
-          ].filter((el) => !rootRef.current?.contains(el)),
-        ]);
+        setFrameElements(getFrames());
       }
     });
 
@@ -120,136 +133,68 @@ export const FrameManager = ({ children }: { children?: ReactNode }) => {
     });
 
     return () => observer.disconnect();
-  }, [rootRef]);
+  }, []);
 
   // frame要素ごとにrootを作成し、loadイベントを監視
   frameElements.forEach((frameElement) => {
-    const xpath = getXPath(frameElement);
-
-    // rootが存在しない場合は作成
-    if (!frameRootsRef.current.has(xpath)) {
-      createFrameRoot(frameElement, xpath);
-    }
-
-    // loadイベントリスナーが存在しない場合は追加
-    if (!frameLoadListenersRef.current.has(xpath)) {
-      const loadListener = () => {
-        // iframe内でページ遷移が発生したので、rootを再作成
-        createFrameRoot(frameElement, xpath);
-      };
-      try {
+    if (isExcludeFrame(frameElement)) return;
+    try {
+      const root = getElementByIdFromFrame(frameElement, frameRootId);
+      if (!root) {
+        createFrameRoot(frameElement);
+        const loadListener = () => {
+          // iframe内でページ遷移が発生したので、rootを再作成
+          createFrameRoot(frameElement);
+          // frameElementsに追加されていない場合は追加
+          setFrameElements((frames) =>
+            frames.includes(frameElement) ? frames : [...frames, frameElement]
+          );
+        };
         frameElement.addEventListener("load", loadListener);
-        frameLoadListenersRef.current.set(xpath, loadListener);
-      } catch {
-        /* noop */
+
+        // pagehideイベント時にframeElementsから削除した状態をrender (再render時のエラー抑止)
+        const prehideListener = () => {
+          console.log("pagehide detected");
+          // frameElementがpagehideされた場合はframeElementsから削除
+          setFrameElements((frames) =>
+            frames.filter((f) => f !== frameElement)
+          );
+        };
+        frameElement.contentWindow?.addEventListener("pagehide", prehideListener);
       }
+    } catch {
+      /* noop */
     }
   });
-
-  // 削除されたframe要素のrootとイベントリスナーをクリーンアップ
-  useEffect(() => {
-    const currentXPaths = new Set(frameElements.map((el) => getXPath(el)));
-    const rootsToDelete: string[] = [];
-    const listenersToDelete: string[] = [];
-
-    for (const [xpath, root] of frameRootsRef.current.entries()) {
-      if (!currentXPaths.has(xpath)) {
-        if (root.parentNode) {
-          root.parentNode.removeChild(root);
-        }
-        rootsToDelete.push(xpath);
-      }
-    }
-
-    for (const [xpath, listener] of frameLoadListenersRef.current.entries()) {
-      if (!currentXPaths.has(xpath)) {
-        // frameElementを取得してイベントリスナーを削除
-        const frameElement = document.evaluate(
-          xpath,
-          document,
-          null,
-          XPathResult.FIRST_ORDERED_NODE_TYPE,
-          null,
-        ).singleNodeValue as HTMLFrameElement | HTMLIFrameElement | null;
-        if (frameElement) {
-          try {
-            frameElement.removeEventListener("load", listener);
-          } catch {
-            /* noop */
-          }
-        }
-        listenersToDelete.push(xpath);
-      }
-    }
-
-    for (const xpath of rootsToDelete) {
-      frameRootsRef.current.delete(xpath);
-    }
-
-    for (const xpath of listenersToDelete) {
-      frameLoadListenersRef.current.delete(xpath);
-    }
-  }, [frameElements]);
-
-  // unmount時にすべてのrootとイベントリスナーを削除
-  useEffect(() => {
-    return () => {
-      // rootを削除
-      for (const root of frameRootsRef.current.values()) {
-        if (root?.parentNode) {
-          root.parentNode.removeChild(root);
-        }
-      }
-      frameRootsRef.current.clear();
-
-      // イベントリスナーを削除
-      for (const [xpath, listener] of frameLoadListenersRef.current.entries()) {
-        const frameElement = document.evaluate(
-          xpath,
-          document,
-          null,
-          XPathResult.FIRST_ORDERED_NODE_TYPE,
-          null,
-        ).singleNodeValue as HTMLFrameElement | HTMLIFrameElement | null;
-        if (frameElement) {
-          try {
-            frameElement.removeEventListener("load", listener);
-          } catch {
-            /* noop */
-          }
-        }
-      }
-      frameLoadListenersRef.current.clear();
-    };
-  }, []);
 
   return (
     <>
       {frameElements.map((frameElement) => {
-        const xpath = getXPath(frameElement);
-        const root = frameRootsRef.current.get(xpath);
-        if (!root) return null;
-        const tagName = frameElement.tagName.toLowerCase();
-        const frameType =
-          tagName === "iframe"
-            ? "iframe"
-            : tagName === "frame"
-              ? "frame"
-              : null;
         let frameWindow: Window | null = null;
         try {
           frameWindow = frameElement.contentWindow || null;
+          const root = getElementByIdFromFrame(frameElement, frameRootId);
+
+          if (!root) return null;
+          const tagName = frameElement.tagName.toLowerCase();
+          const frameType =
+            tagName === "iframe"
+              ? "iframe"
+              : tagName === "frame"
+              ? "frame"
+              : null;
+          const xpath = getXPath(root);
+          return createPortal(
+            <Fragment key={xpath}>
+              <FrameContext value={{ frameType, frameElement, frameWindow }}>
+                {children}
+              </FrameContext>
+            </Fragment>,
+            root
+          );
         } catch {
-          /* noop */
+          return null;
         }
-        return createPortal(
-          <Fragment key={xpath}>
-            <FrameContext value={{ frameType, frameElement, frameWindow }}>
-              {children}
-            </FrameContext>
-          </Fragment>,
-          root,
-        );
       })}
     </>
   );

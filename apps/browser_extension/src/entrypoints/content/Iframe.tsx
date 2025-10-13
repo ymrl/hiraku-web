@@ -55,6 +55,7 @@ export const Iframe = ({ children }: { children?: React.ReactNode }) => {
   return (
     <>
       <iframe
+        id={`hiraku-web-iframe-${id}`}
         title={t("IframeTitle")}
         ref={iframeRef}
         style={{
@@ -66,6 +67,7 @@ export const Iframe = ({ children }: { children?: React.ReactNode }) => {
           border: "none",
           maxWidth: "100dvw",
         }}
+        data-hiraku-web-iframe="true"
       />
       {rootRef.current && createPortal(children, rootRef.current)}
     </>
