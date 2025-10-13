@@ -64,6 +64,7 @@ export const Iframe = ({ children }: { children?: React.ReactNode }) => {
           zIndex: 2147483647,
           background: "transparent",
           border: "none",
+          maxWidth: "100dvw",
         }}
       />
       {rootRef.current && createPortal(children, rootRef.current)}

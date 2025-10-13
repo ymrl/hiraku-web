@@ -26,7 +26,7 @@ export function FloatingWindow({
   };
 
   return (
-    <div className="w-96 border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 flex flex-col shadow-md shadow-black/10 dark:shadow-white/10 rounded-lg overflow-hidden">
+    <div className="w-96 max-w-dvw border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 flex flex-col shadow-md shadow-black/10 dark:shadow-white/10 rounded-lg">
       <div className="bg-stone-200 dark:bg-stone-800 text-stone-800 dark:text-stone-200 dark:border-stone-600 px-2 py-1 flex items-center justify-between">
         <h1 className="text-sm font-bold">{t("extensionName")}</h1>
         <button
