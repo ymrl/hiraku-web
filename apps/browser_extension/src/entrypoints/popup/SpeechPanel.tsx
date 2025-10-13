@@ -1,19 +1,13 @@
 import { useCallback, useRef, useState } from "react";
-import { browser } from "wxt/browser";
 import { getCurrentTabId } from "@/browser/getCurrentTabId";
 import { Speech } from "@/components/Speech";
 import { sendMessage, sendMessageToTab } from "@/ExtensionMessages";
+import {
+  loadSpeechSettings,
+  removeSpeechSettings,
+  saveSpeechSettings,
+} from "@/storage/Speech";
 import type { SpeechSettings } from "@/types";
-
-const saveSpeechSettings = async (newSettings: SpeechSettings) => {
-  try {
-    await browser.storage.local.set({
-      speechSettings: newSettings,
-    });
-  } catch (err) {
-    console.error("Failed to save speech settings:", err);
-  }
-};
 
 const sendSettingToTab = async (newSettings: SpeechSettings) => {
   try {
@@ -51,14 +45,8 @@ export const SpeechPanel = () => {
     await sendMessage({ action: "speechDisabled" });
   }, []);
 
-  const loadSpeechSettings = async () => {
-    try {
-      const result = await browser.storage.local.get(["speechSettings"]);
-
-      setSpeechSettings(result.speechSettings || {});
-    } catch (err) {
-      console.error("Failed to load speech settings:", err);
-    }
+  const initSpeechSettings = async () => {
+    setSpeechSettings((await loadSpeechSettings()) || {});
   };
 
   const loadEnabled = async () => {
@@ -75,7 +63,7 @@ export const SpeechPanel = () => {
   };
 
   const resetToDefaults = useCallback(async () => {
-    await browser.storage.local.remove("speechSettings");
+    removeSpeechSettings();
     setSpeechSettings({});
     const tabId = await getCurrentTabId();
     if (!tabId) throw new Error("No active tab found");
@@ -97,7 +85,7 @@ export const SpeechPanel = () => {
   const isLoadedRef = useRef(false);
   if (!isLoadedRef.current) {
     isLoadedRef.current = true;
-    loadSpeechSettings();
+    initSpeechSettings();
     loadEnabled();
   }
 

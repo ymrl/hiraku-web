@@ -9,6 +9,7 @@ import {
   sendMessage,
   type UpdateSpeechSettings,
 } from "@/ExtensionMessages";
+import { loadSpeechSettings } from "@/storage";
 import type { SpeechSettings } from "@/types";
 
 export const useSpeech = () => {
@@ -39,15 +40,8 @@ export const useSpeech = () => {
   if (!isLoadedRef.current) {
     isLoadedRef.current = true;
     (async () => {
-      try {
-        const result = await sendMessage({
-          action: "getSpeechSettings",
-        });
-        const { settings } = result;
-        setSpeechSettings(settings || {});
-      } catch (err) {
-        console.error("Failed to load speech settings:", err);
-      }
+      const settings = await loadSpeechSettings();
+      setSpeechSettings(settings || {});
     })();
   }
 

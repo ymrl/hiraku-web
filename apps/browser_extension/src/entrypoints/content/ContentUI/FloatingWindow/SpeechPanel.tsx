@@ -1,20 +1,8 @@
 import { use, useCallback } from "react";
 import { Speech } from "@/components/Speech";
-import { sendMessage } from "@/ExtensionMessages";
+import { removeSpeechSettings, saveSpeechSettings } from "@/storage";
 import type { SpeechSettings } from "@/types";
 import { ExtensionContext } from "../../ExtensionContext";
-
-const saveSpeechSettings = async (newSettings: SpeechSettings) => {
-  sendMessage({
-    action: "saveSpeechSettings",
-    settings: newSettings,
-  });
-};
-const removeSpeechSettings = async () => {
-  sendMessage({
-    action: "removeSpeechSettings",
-  });
-};
 
 export const SpeechPanel = () => {
   const {

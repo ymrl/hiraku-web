@@ -4,7 +4,14 @@ import { browser } from "wxt/browser";
 import { Button } from "@/components/Button";
 import { SettingSlider } from "@/components/SettingSlider";
 import { TextCSS } from "@/components/TextCSS";
-import { loadDefaultTextStyleSettings, TEXT_STYLE_SETTINGS } from "@/TextStyle";
+import {
+  loadDefaultTextStyleSettings,
+  loadUserInterfaceSettings,
+  removeDefaultTextStyleSettings,
+  saveDefaultTextStyleSettings,
+  saveUserInterfaceSettings,
+} from "@/storage";
+import { TEXT_STYLE_SETTINGS } from "@/TextStyle";
 import type { TextStyleSettings } from "../../types/text";
 
 const { t } = createI18n();
@@ -39,24 +46,20 @@ function App() {
   }>({
     showButtonOnPage: false,
   });
-  const loadUserInterfaceSettings = useCallback(async () => {
-    const result = await browser.storage.sync.get("userInterfaceSettings");
-    setUserInterfaceSettings({
-      showButtonOnPage: false,
-      ...result.userInterfaceSettings,
-    });
+  const initUserInterfaceSettings = useCallback(async () => {
+    setUserInterfaceSettings(await loadUserInterfaceSettings());
   }, []);
 
   useEffect(() => {
     loadSavedKeys();
     loadDefaultSettings();
-    loadUserInterfaceSettings();
-  }, [loadSavedKeys, loadDefaultSettings, loadUserInterfaceSettings]);
+    initUserInterfaceSettings();
+  }, [loadSavedKeys, loadDefaultSettings, initUserInterfaceSettings]);
 
   const saveDefaultSettings = useCallback(async () => {
     try {
       setIsSaving(true);
-      await browser.storage.sync.set({ defaultTextStyle: defaultTextStyle });
+      await saveDefaultTextStyleSettings(defaultTextStyle);
     } catch (err) {
       console.error("Failed to save default settings:", err);
     } finally {
@@ -69,7 +72,7 @@ function App() {
   const resetToDefaults = useCallback(async () => {
     try {
       setIsSaving(true);
-      await browser.storage.sync.remove("defaultTextStyle");
+      await removeDefaultTextStyleSettings();
     } catch (err) {
       console.error("Failed to reset to defaults:", err);
     } finally {
@@ -371,9 +374,8 @@ function App() {
                 ...userInterfaceSettings,
                 showButtonOnPage: e.target.checked,
               };
-              console.log(userInterfaceSettings, newSettings);
               setUserInterfaceSettings(newSettings);
-              browser.storage.sync.set({ userInterfaceSettings: newSettings });
+              saveUserInterfaceSettings(newSettings);
             }}
             className="w-4 h-4"
           />

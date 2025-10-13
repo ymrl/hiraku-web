@@ -11,12 +11,6 @@ import type {
   DisableSpeechResponse,
   EnableSpeech,
   EnableSpeechResponse,
-  GetSpeechSettings,
-  GetSpeechSettingsResponse,
-  RemoveSpeechSettings,
-  RemoveSpeechSettingsResponse,
-  SaveSpeechSettings,
-  SaveSpeechSettingsResponse,
   SpeechDisabled,
   SpeechDisabledResponse,
   SpeechEnabled,
@@ -27,25 +21,14 @@ import type {
   UpdateSpeechSettingsResponse,
 } from "./Speech";
 import type {
-  GetHostTextStyleSettings,
-  GetHostTextStyleSettingsResponse,
   GetPageTextStyle,
   GetPageTextStyleResponse,
-  RemoveHostTextStyle,
-  RemoveHostTextStyleResponse,
-  SaveHostTextStyle,
-  SaveHostTextStyleResponse,
   UpdateTextStyle,
   UpdateTextStyleResponse,
 } from "./TextStyleSettings";
-import type {
-  GetUserInterfaceSettings,
-  GetUserInterfaceSettingsResponse,
-} from "./UserInterface";
 
 export type ExtensionMessage =
   | GetHeadings
-  | GetHostTextStyleSettings
   | UpdateTextStyle
   | GetPageTextStyle
   | GetLandmarks
@@ -57,16 +40,9 @@ export type ExtensionMessage =
   | SpeechEnabled
   | ScrollToElement
   | SelectTab
-  | SaveHostTextStyle
-  | RemoveHostTextStyle
-  | SaveSpeechSettings
-  | RemoveSpeechSettings
-  | GetSpeechSettings
-  | GetUserInterfaceSettings
   | OpenUserInterface;
 export type ExtensionMessageResponse =
   | GetHeadingsResponse
-  | GetHostTextStyleSettingsResponse
   | UpdateTextStyleResponse
   | GetPageTextStyleResponse
   | GetLandmarksResponse
@@ -78,12 +54,6 @@ export type ExtensionMessageResponse =
   | SpeechEnabledResponse
   | ScrollToElementResponse
   | SelectTabResponse
-  | SaveHostTextStyleResponse
-  | RemoveHostTextStyleResponse
-  | SaveSpeechSettingsResponse
-  | RemoveSpeechSettingsResponse
-  | GetSpeechSettingsResponse
-  | GetUserInterfaceSettingsResponse
   | OpenUserInterfaceResponse;
 
 type ExtractResponse<M extends ExtensionMessage> = M extends {

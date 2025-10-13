@@ -11,7 +11,7 @@ import {
   sendMessageToTab,
 } from "@/ExtensionMessages";
 import type { SelectTab } from "@/ExtensionMessages/Popup";
-import { loadDefaultTextStyleSettings } from "@/TextStyle";
+import { loadDefaultTextStyleSettings } from "@/storage";
 import type { TextStyleSettings } from "../../types";
 import { HeadingsPanel } from "./HeadingsPanel";
 import { LandmarksPanel } from "./LandmarksPanel";

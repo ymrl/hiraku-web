@@ -3,7 +3,12 @@ import { browser } from "wxt/browser";
 import { getCurrentTabId } from "@/browser/getCurrentTabId";
 import { TextStyle } from "@/components/TextStyle";
 import { sendMessageToTab } from "@/ExtensionMessages";
-import { loadDefaultTextStyleSettings, loadHostTextStyle } from "@/TextStyle";
+import {
+  loadDefaultTextStyleSettings,
+  loadHostTextStyle,
+  removeHostTextStyle,
+  saveHostTextStyle,
+} from "@/storage";
 import type { TextStyleSettings } from "@/types";
 
 const getHost = async () => {
@@ -29,26 +34,6 @@ const sendSettingsToContentScript = async (settings: TextStyleSettings) => {
       action: "updateTextStyle",
       settings: settings,
     });
-  }
-};
-const removeHostSettings = async (host: string) => {
-  if (!host) {
-    return;
-  }
-  // ページの設定を削除
-  await browser.storage.local.remove(`textStyle_${host}`);
-};
-
-const saveHostTextStyle = async (host: string, settings: TextStyleSettings) => {
-  if (!host) {
-    return;
-  }
-  try {
-    await browser.storage.local.set({
-      [`textStyle_${host}`]: settings,
-    });
-  } catch (err) {
-    console.error("Failed to save text style settings:", err);
   }
 };
 
@@ -97,7 +82,6 @@ export const TextStylePanel = () => {
 
   return (
     <TextStyle
-      currentTabHost={currentTabHost}
       currentTextStyle={currentTextStyle}
       pageDefaultTextStyle={pageDefaultTextStyle}
       onChangeTextStyle={(style) => {
@@ -105,7 +89,7 @@ export const TextStylePanel = () => {
         saveHostTextStyle(currentTabHost, style);
       }}
       onResetToDefaults={async () => {
-        await removeHostSettings(currentTabHost);
+        await removeHostTextStyle(currentTabHost);
         const defaults = await loadDefaultTextStyleSettings();
         setCurrentTextStyle(defaults);
         sendSettingsToContentScript(defaults || {});

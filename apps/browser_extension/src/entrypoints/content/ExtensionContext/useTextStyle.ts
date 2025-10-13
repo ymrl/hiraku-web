@@ -4,9 +4,9 @@ import {
   type GetPageTextStyle,
   type MessageListener,
   removeListener,
-  sendMessage,
   type UpdateTextStyle,
 } from "@/ExtensionMessages";
+import { loadHostTextStyle } from "@/storage";
 import type { TextStyleSettings } from "@/types";
 export const useTextStyle = () => {
   const [currentTextStyle, setCurrentTextStyle] = useState<
@@ -17,10 +17,7 @@ export const useTextStyle = () => {
   );
 
   const getHostTextStyle = async (hostname: string) => {
-    const { settings } = await sendMessage({
-      action: "getHostTextStyleSettings",
-      hostname: hostname,
-    });
+    const settings = await loadHostTextStyle(hostname);
     setCurrentTextStyle(settings);
   };
 
