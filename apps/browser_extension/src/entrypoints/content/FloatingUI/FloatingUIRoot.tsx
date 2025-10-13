@@ -1,43 +1,59 @@
+import { StrictMode, use, useCallback, useEffect, useState } from "react";
 import {
-  StrictMode,
-  use,
-  useCallback,
-  useImperativeHandle,
-  useState,
-} from "react";
+  addListener,
+  type ExtensionMessage,
+  type MessageListener,
+  removeListener,
+} from "@/ExtensionMessages";
 import style from "../content.css?inline";
 import { ExtensionContext } from "../ExtensionContext";
+import { FrameContext } from "../FrameManager";
 import { FloatingButton } from "./FloatingButton";
 import { FloatingWindow } from "./FloatingWindow";
 
-export type FloatingUIHandle = {
-  closePanel: () => void;
-};
-
-export function FloatingUIRoot({
-  handleRef,
-  windowHeight,
-}: {
-  handleRef?: React.RefObject<FloatingUIHandle | null>;
-  windowHeight?: number;
-}) {
+export function FloatingUIRoot({ windowHeight }: { windowHeight?: number }) {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const { userInterfaceSettings } = use(ExtensionContext);
+  const { frameWindow } = use(FrameContext);
 
   const handleClosePanel = useCallback(() => {
     setIsPanelOpen(false);
   }, []);
 
-  useImperativeHandle(
-    handleRef,
-    () => ({
-      closePanel: handleClosePanel,
-    }),
-    [handleClosePanel],
-  );
   const [activeTab, setActiveTab] = useState<
     "headings" | "landmarks" | "text" | "speech"
   >("headings");
+
+  const messageListener: MessageListener<ExtensionMessage> = useCallback(
+    (message, _sender, _sendResponse) => {
+      const { action } = message;
+      if (action === "openUserInterface") {
+        const { frameUrl, tab } = message;
+        if (frameUrl && frameUrl !== frameWindow?.location?.href) {
+          // Ignore messages from other frames
+          return false;
+        }
+        setActiveTab(tab);
+        setIsPanelOpen(true);
+        return true;
+      }
+    },
+    [frameWindow],
+  );
+
+  useEffect(() => {
+    addListener(messageListener);
+    return () => {
+      removeListener(messageListener);
+    };
+  }, [messageListener]);
+
+  useEffect(() => {
+    (frameWindow || window).addEventListener("click", handleClosePanel);
+    return () => {
+      (frameWindow || window).removeEventListener("click", handleClosePanel);
+    };
+  });
 
   return (
     <StrictMode>

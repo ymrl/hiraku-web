@@ -236,9 +236,17 @@ export const FrameManager = ({ children }: { children?: ReactNode }) => {
             : tagName === "frame"
               ? "frame"
               : null;
+        let frameWindow: Window | null = null;
+        try {
+          frameWindow = frameElement.contentWindow || null;
+        } catch {
+          /* noop */
+        }
         return createPortal(
           <Fragment key={xpath}>
-            <FrameContext value={{ frameType }}>{children}</FrameContext>
+            <FrameContext value={{ frameType, frameElement, frameWindow }}>
+              {children}
+            </FrameContext>
           </Fragment>,
           root,
         );

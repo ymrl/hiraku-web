@@ -1,15 +1,7 @@
+import type { OpenUserInterface, OpenUserInterfaceResponse } from "./Content";
 import type { GetHeadings, GetHeadingsResponse } from "./GetHeadings";
 import type { GetLandmarks, GetLandmarksResponse } from "./GetLandmarks";
-import type {
-  SelectHeadingsTab,
-  SelectHeadingsTabResponse,
-  SelectLandmarksTab,
-  SelectLandmarksTabResponse,
-  SelectSpeechTab,
-  SelectSpeechTabResponse,
-  SelectTextTab,
-  SelectTextTabResponse,
-} from "./Popup";
+import type { SelectTab, SelectTabResponse } from "./Popup";
 import type {
   ScrollToElement,
   ScrollToElementResponse,
@@ -64,16 +56,14 @@ export type ExtensionMessage =
   | SpeechDisabled
   | SpeechEnabled
   | ScrollToElement
-  | SelectHeadingsTab
-  | SelectLandmarksTab
-  | SelectTextTab
-  | SelectSpeechTab
+  | SelectTab
   | SaveHostTextStyle
   | RemoveHostTextStyle
   | SaveSpeechSettings
   | RemoveSpeechSettings
   | GetSpeechSettings
-  | GetUserInterfaceSettings;
+  | GetUserInterfaceSettings
+  | OpenUserInterface;
 export type ExtensionMessageResponse =
   | GetHeadingsResponse
   | GetHostTextStyleSettingsResponse
@@ -87,16 +77,14 @@ export type ExtensionMessageResponse =
   | SpeechDisabledResponse
   | SpeechEnabledResponse
   | ScrollToElementResponse
-  | SelectHeadingsTabResponse
-  | SelectLandmarksTabResponse
-  | SelectTextTabResponse
-  | SelectSpeechTabResponse
+  | SelectTabResponse
   | SaveHostTextStyleResponse
   | RemoveHostTextStyleResponse
   | SaveSpeechSettingsResponse
   | RemoveSpeechSettingsResponse
   | GetSpeechSettingsResponse
-  | GetUserInterfaceSettingsResponse;
+  | GetUserInterfaceSettingsResponse
+  | OpenUserInterfaceResponse;
 
 type ExtractResponse<M extends ExtensionMessage> = M extends {
   action: infer A;

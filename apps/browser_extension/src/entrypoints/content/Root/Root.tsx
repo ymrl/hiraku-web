@@ -3,14 +3,12 @@ import {
   createRef,
   type RefObject,
   use,
-  useCallback,
   useEffect,
   useId,
-  useRef,
 } from "react";
 import { createRoot } from "react-dom/client";
-import { MessageResponder } from "../ExtensionContext/MessageResponder";
-import { type FloatingUIHandle, FloatingUIRoot } from "../FloatingUI";
+import { Provider } from "../ExtensionContext";
+import { FloatingUIRoot } from "../FloatingUI";
 import { FrameContext, FrameManager } from "../FrameManager";
 import { Iframe } from "../Iframe";
 import { LandmarkNavigation } from "../LandmarkNavigation";
@@ -42,19 +40,6 @@ export const Root = ({
 }: {
   rootRef: RefObject<HTMLElement | null>;
 }) => {
-  const handleRef = useRef<FloatingUIHandle | null>(null);
-
-  const windowClicked = useCallback(() => {
-    handleRef.current?.closePanel();
-  }, []);
-
-  useEffect(() => {
-    window.addEventListener("click", windowClicked);
-    return () => {
-      window.removeEventListener("click", windowClicked);
-    };
-  }, [windowClicked]);
-
   const { windowHeight } = useWindowHeight();
   const id = useId();
   useEffect(() => {
@@ -63,45 +48,33 @@ export const Root = ({
 
   return (
     <RootContext value={{ id, rootRef }}>
-      <MessageResponder>
+      <Provider>
         <TextStyleTweaker />
         <LandmarkNavigation />
         <Speaker />
         <Iframe>
-          <FloatingUIRoot handleRef={handleRef} windowHeight={windowHeight} />
+          <FloatingUIRoot windowHeight={windowHeight} />
         </Iframe>
 
         <FrameManager>
           <TextStyleTweaker />
           <Speaker />
-          <UIFrame />
+          <UIFrame windowHeight={windowHeight} />
         </FrameManager>
-      </MessageResponder>
+      </Provider>
     </RootContext>
   );
 };
 
-const UIFrame = () => {
+const UIFrame = ({ windowHeight }: { windowHeight: number }) => {
   const { frameType } = use(FrameContext);
-  const handleRef = useRef<FloatingUIHandle | null>(null);
-  const windowClicked = useCallback(() => {
-    handleRef.current?.closePanel();
-  }, []);
-  useEffect(() => {
-    window.addEventListener("click", windowClicked);
-    return () => {
-      window.removeEventListener("click", windowClicked);
-    };
-  }, [windowClicked]);
-  const { windowHeight } = useWindowHeight();
-
   if (frameType !== "frame") {
     return null;
   }
 
   return (
     <Iframe>
-      <FloatingUIRoot handleRef={handleRef} windowHeight={windowHeight} />
+      <FloatingUIRoot windowHeight={windowHeight} />
     </Iframe>
   );
 };

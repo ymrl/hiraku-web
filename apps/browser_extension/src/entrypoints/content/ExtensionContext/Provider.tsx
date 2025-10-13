@@ -8,7 +8,7 @@ import { useSpeech } from "./useSpeech";
 import { useTextStyle } from "./useTextStyle";
 import { useUserInterfaceSettings } from "./useUserInterfaceSettings";
 
-export const MessageResponder = ({ children }: { children?: ReactNode }) => {
+export const Provider = ({ children }: { children?: ReactNode }) => {
   const { currentTextStyle, pageDefaultTextStyle, updateCurrentTextStyle } =
     useTextStyle();
 

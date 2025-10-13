@@ -10,12 +10,7 @@ import {
   removeListener,
   sendMessageToTab,
 } from "@/ExtensionMessages";
-import type {
-  SelectHeadingsTab,
-  SelectLandmarksTab,
-  SelectSpeechTab,
-  SelectTextTab,
-} from "@/ExtensionMessages/Popup";
+import type { SelectTab } from "@/ExtensionMessages/Popup";
 import type { TextStyleSettings } from "../../types";
 import { HeadingsPanel } from "./HeadingsPanel";
 import { LandmarksPanel } from "./LandmarksPanel";
@@ -33,28 +28,16 @@ function App() {
   );
 
   useEffect(() => {
-    const listener: MessageListener<
-      SelectHeadingsTab | SelectLandmarksTab | SelectTextTab | SelectSpeechTab
-    > = (message, _sender, sendResponse) => {
+    const listener: MessageListener<SelectTab> = (
+      message,
+      _sender,
+      sendResponse,
+    ) => {
       const { action } = message;
-      if (action === "selectHeadingsTab") {
-        setActiveTab("headings");
-        sendResponse({ action, success: true });
-        return true;
-      }
-      if (action === "selectLandmarksTab") {
-        setActiveTab("landmarks");
-        sendResponse({ action, success: true });
-        return true;
-      }
-      if (action === "selectTextTab") {
-        setActiveTab("text");
-        sendResponse({ action, success: true });
-        return true;
-      }
-      if (action === "selectSpeechTab") {
-        setActiveTab("speech");
-        sendResponse({ action, success: true });
+      if (action === "selectTab") {
+        const { tab } = message;
+        setActiveTab(tab);
+        sendResponse({ action, tab, success: true });
         return true;
       }
     };
