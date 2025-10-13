@@ -13,7 +13,6 @@ export function TextStyle({
   onChangeTextStyle,
   onResetToDefaults,
 }: {
-  currentTabHost: string;
   currentTextStyle: TextStyleSettings | undefined;
   pageDefaultTextStyle?: TextStyleSettings;
   onChangeTextStyle?: (style: TextStyleSettings) => void;

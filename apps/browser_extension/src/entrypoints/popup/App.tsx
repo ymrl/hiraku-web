@@ -11,6 +11,7 @@ import {
   sendMessageToTab,
 } from "@/ExtensionMessages";
 import type { SelectTab } from "@/ExtensionMessages/Popup";
+import { loadDefaultTextStyleSettings } from "@/TextStyle";
 import type { TextStyleSettings } from "../../types";
 import { HeadingsPanel } from "./HeadingsPanel";
 import { LandmarksPanel } from "./LandmarksPanel";
@@ -49,19 +50,16 @@ function App() {
 
   useEffect(() => {
     const loadSavedSettings = async () => {
+      const defaultTextStyle = await loadDefaultTextStyleSettings();
+      if (defaultTextStyle) {
+        setTextStyleSettings(defaultTextStyle);
+      }
       try {
         // 設定の読み込み
-        const result = await browser.storage.local.get([
-          "defaultTextStyle",
-          "activeTab",
-        ]);
-
+        const result = await browser.storage.local.get("activeTab");
+        console.log("Loaded saved settings:", result);
         if (result.activeTab) {
           setActiveTab(result.activeTab);
-        }
-
-        if (result.defaultTextStyle) {
-          setTextStyleSettings(result.defaultTextStyle);
         }
       } catch (err) {
         console.error("Failed to load saved settings:", err);

@@ -21,7 +21,6 @@ export const TextStylePanel = () => {
 
   return (
     <TextStyle
-      currentTabHost={host}
       currentTextStyle={currentTextStyle}
       pageDefaultTextStyle={pageDefaultTextStyle}
       onChangeTextStyle={(style) => {
