@@ -2,9 +2,8 @@ import { createI18n } from "@wxt-dev/i18n";
 import { use } from "react";
 import { TabNavigation } from "@/components/TabNavigation";
 import { ExtensionContext } from "../../ExtensionContext";
-import { HeadingsPanel } from "./HeadingsPanel";
-import { LandmarksPanel } from "./LandmarksPanel";
 import { SpeechPanel } from "./SpeechPanel";
+import { TableOfContentsPanel } from "./TableOfContentsPanel";
 import { TextStylePanel } from "./TextStylePanel";
 
 const { t } = createI18n();
@@ -14,8 +13,8 @@ export function FloatingWindow({
   onTabChange,
   onClose,
 }: {
-  activeTab: "headings" | "landmarks" | "text" | "speech";
-  onTabChange: (tab: "headings" | "landmarks" | "text" | "speech") => void;
+  activeTab: "tableOfContents" | "text" | "speech";
+  onTabChange: (tab: "tableOfContents" | "text" | "speech") => void;
   onClose: () => void;
 }) {
   const { updateXpaths } = use(ExtensionContext);
@@ -48,12 +47,8 @@ export function FloatingWindow({
       </div>
       <TabNavigation activeTab={activeTab} onTabChange={onTabChange} />
       <div className="flex-1 overflow-y-auto">
-        {activeTab === "headings" && (
-          <HeadingsPanel onScrollToElement={scrollToElement} />
-        )}
-
-        {activeTab === "landmarks" && (
-          <LandmarksPanel onScrollToElement={scrollToElement} />
+        {activeTab === "tableOfContents" && (
+          <TableOfContentsPanel onScrollToElement={scrollToElement} />
         )}
 
         {activeTab === "text" && <TextStylePanel />}

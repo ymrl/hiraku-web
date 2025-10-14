@@ -1,6 +1,10 @@
 import type { OpenUserInterface, OpenUserInterfaceResponse } from "./Content";
 import type { GetHeadings, GetHeadingsResponse } from "./GetHeadings";
 import type { GetLandmarks, GetLandmarksResponse } from "./GetLandmarks";
+import type {
+  GetTableOfContents,
+  GetTableOfContentsResponse,
+} from "./GetTableOfContents";
 import type { SelectTab, SelectTabResponse } from "./Popup";
 import type {
   ScrollToElement,
@@ -32,6 +36,7 @@ export type ExtensionMessage =
   | UpdateTextStyle
   | GetPageTextStyle
   | GetLandmarks
+  | GetTableOfContents
   | EnableSpeech
   | DisableSpeech
   | UpdateSpeechSettings
@@ -46,6 +51,7 @@ export type ExtensionMessageResponse =
   | UpdateTextStyleResponse
   | GetPageTextStyleResponse
   | GetLandmarksResponse
+  | GetTableOfContentsResponse
   | EnableSpeechResponse
   | DisableSpeechResponse
   | UpdateSpeechSettingsResponse

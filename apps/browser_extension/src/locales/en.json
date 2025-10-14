@@ -5,10 +5,12 @@
   "title": "Page Structure",
   "headings": "Headings",
   "landmarks": "Landmarks",
+  "tableOfContents": "Table of Contents",
   "speeches": "Speech",
   "text": "Text",
   "noHeadings": "No headings found",
   "noLandmarks": "No landmarks found",
+  "noTableOfContents": "No table of contents found",
   "loading": "Loading...",
   "error": "Error loading page structure",
   "level": "Level",
@@ -61,8 +63,7 @@
     "em": "em"
   },
   "contextMenu": {
-    "openHeadingsList": "Open Headings List...",
-    "openLandmarksList": "Open Landmarks List...",
+    "openTableOfContents": "Open Table of Contents...",
     "openTextSettings": "Open Text Settings...",
     "openSpeechSettings": "Open Speech Settings...",
     "speech": "Speech"

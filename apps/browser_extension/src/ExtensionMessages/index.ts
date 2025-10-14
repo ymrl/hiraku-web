@@ -2,6 +2,7 @@ export * from "./addListener";
 export * from "./ExtensionMessage";
 export * from "./GetHeadings";
 export * from "./GetLandmarks";
+export * from "./GetTableOfContents";
 export * from "./Popup";
 export * from "./ScrollToElement";
 export * from "./Speech";

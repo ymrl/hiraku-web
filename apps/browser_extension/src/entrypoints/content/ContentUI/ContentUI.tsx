@@ -28,8 +28,8 @@ export function ContentUI({
   }, []);
 
   const [activeTab, setActiveTab] = useState<
-    "headings" | "landmarks" | "text" | "speech"
-  >("headings");
+    "tableOfContents" | "text" | "speech"
+  >("tableOfContents");
 
   const messageListener: MessageListener<ExtensionMessage> = useCallback(
     (message, _sender, _sendResponse) => {

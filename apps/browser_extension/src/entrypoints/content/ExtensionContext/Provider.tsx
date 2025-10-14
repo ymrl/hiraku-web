@@ -1,7 +1,7 @@
 import { type ReactNode, useCallback, useEffect } from "react";
 import { browser } from "wxt/browser";
 import type { ExtensionMessage, MessageListener } from "@/ExtensionMessages";
-import { getHeadings, getLandmarks } from "../collection";
+import { getHeadings, getLandmarks, getTableOfContents } from "../collection";
 import { ExtensionContext } from "./ExtensionContext";
 import { useNavigation } from "./useNavigation";
 import { useSpeech } from "./useSpeech";
@@ -38,6 +38,13 @@ export const Provider = ({ children }: { children?: ReactNode }) => {
           exclude: "[data-hiraku-web-iframe-root]",
         });
         sendResponse({ action, landmarks });
+        return true;
+      }
+      if (action === "getTableOfContents") {
+        const tableOfContents = getTableOfContents({
+          exclude: "[data-hiraku-web-iframe-root]",
+        });
+        sendResponse({ action, tableOfContents });
         return true;
       }
     },

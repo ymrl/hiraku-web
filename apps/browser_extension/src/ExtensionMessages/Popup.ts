@@ -1,6 +1,6 @@
 export type SelectTab = {
   action: "selectTab";
-  tab: "headings" | "landmarks" | "text" | "speech";
+  tab: "tableOfContents" | "text" | "speech";
 };
 export type SelectTabResponse = SelectTab & {
   success: boolean;

@@ -13,17 +13,16 @@ import {
 import type { SelectTab } from "@/ExtensionMessages/Popup";
 import { loadDefaultTextStyleSettings } from "@/storage";
 import type { TextStyleSettings } from "../../types";
-import { HeadingsPanel } from "./HeadingsPanel";
-import { LandmarksPanel } from "./LandmarksPanel";
 import { SpeechPanel } from "./SpeechPanel";
+import { TableOfContentsPanel } from "./TableOfContentsPanel";
 import { TextStylePanel } from "./TextStylePanel";
 
 const { t } = createI18n();
 
 function App() {
   const [activeTab, setActiveTab] = useState<
-    "headings" | "landmarks" | "text" | "speech"
-  >("headings");
+    "tableOfContents" | "text" | "speech"
+  >("tableOfContents");
   const [textStyleSettings, setTextStyleSettings] = useState<TextStyleSettings>(
     {},
   );
@@ -69,7 +68,7 @@ function App() {
   }, []);
 
   const handleTabChange = async (
-    tab: "headings" | "landmarks" | "text" | "speech",
+    tab: "tableOfContents" | "text" | "speech",
   ) => {
     setActiveTab(tab);
     try {
@@ -106,12 +105,8 @@ function App() {
         <TabNavigation activeTab={activeTab} onTabChange={handleTabChange} />
       </header>
 
-      {activeTab === "headings" && (
-        <HeadingsPanel onScrollToElement={scrollToElement} />
-      )}
-
-      {activeTab === "landmarks" && (
-        <LandmarksPanel onScrollToElement={scrollToElement} />
+      {activeTab === "tableOfContents" && (
+        <TableOfContentsPanel onScrollToElement={scrollToElement} />
       )}
 
       {activeTab === "text" && <TextStylePanel />}
