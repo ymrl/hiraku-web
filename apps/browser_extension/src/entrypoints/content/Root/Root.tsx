@@ -2,19 +2,17 @@ import {
   createElement,
   createRef,
   type RefObject,
-  use,
   useEffect,
   useId,
 } from "react";
 import { createRoot } from "react-dom/client";
 import { ContentUI } from "../ContentUI";
 import { Provider } from "../ExtensionContext";
-import { FrameContext, FrameManager } from "../FrameManager";
-import { Iframe } from "../Iframe";
+import { FrameManager } from "../FrameManager";
 import { LandmarkNavigation } from "../LandmarkNavigation";
 import { Speaker } from "../Speaker";
 import { TextStyleTweaker } from "../TextStyleTweaker";
-import { useWindowHeight } from "../useWindowHeight";
+import { useWindowSize } from "../useWindowSize";
 import { RootContext } from "./RootContext";
 
 export const CONTENT_ROOT_ID = "hiraku-web-content-root";
@@ -40,7 +38,8 @@ export const Root = ({
 }: {
   rootRef: RefObject<HTMLElement | null>;
 }) => {
-  const { windowHeight } = useWindowHeight();
+  const windowSize: { windowHeight: number; windowWidth: number } =
+    useWindowSize();
   const id = useId();
   useEffect(() => {
     rootRef.current?.setAttribute("id", id);
@@ -52,28 +51,13 @@ export const Root = ({
         <TextStyleTweaker />
         <LandmarkNavigation />
         <Speaker />
-        <Iframe>
-          <ContentUI windowHeight={windowHeight} />
-        </Iframe>
+        <ContentUI {...windowSize} />
         <FrameManager>
           <TextStyleTweaker />
           <Speaker />
-          <UIFrame windowHeight={windowHeight} />
+          <ContentUI {...windowSize} />
         </FrameManager>
       </Provider>
     </RootContext>
-  );
-};
-
-const UIFrame = ({ windowHeight }: { windowHeight: number }) => {
-  const { frameType } = use(FrameContext);
-  if (frameType !== "frame") {
-    return null;
-  }
-
-  return (
-    <Iframe>
-      <ContentUI windowHeight={windowHeight} />
-    </Iframe>
   );
 };

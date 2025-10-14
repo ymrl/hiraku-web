@@ -19,9 +19,8 @@ export const Iframe = ({ children }: { children?: React.ReactNode }) => {
     }
 
     iframeDoc.body.style.cssText = `
-      width: max-content;
+      width: fit-content;
       overflow: hidden;
-      max-height: 100vh;
     `;
     // React用のrootを作成
     const iframeRoot =
@@ -39,7 +38,7 @@ export const Iframe = ({ children }: { children?: React.ReactNode }) => {
     const resizeObserver = new ResizeObserver(() => {
       if (!iframeRoot) return;
       const rect = iframeRoot.getBoundingClientRect();
-      iframe.style.width = `${rect.width}px`;
+      iframe.style.width = `min(100vw, ${rect.width}px)`;
       iframe.style.height = `min(100vh, ${rect.height}px)`;
     });
     resizeObserver.observe(iframeRoot);

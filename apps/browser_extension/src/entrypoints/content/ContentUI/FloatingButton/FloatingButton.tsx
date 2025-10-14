@@ -21,22 +21,22 @@ export function FloatingButton({
   return (
     <div className="flex items-stretch">
       {isOpen && (
-        <button
-          type="button"
-          className="bg-transparent border-0 grow shrink basis-0"
-          onClick={onClose}
-          tabIndex={-1}
-          aria-hidden="true"
-        >
-          <span className="sr-only">{t("close")}</span>
-        </button>
-      )}
-      {isOpen && (
-        <div className="grow-0 shrink-0 mr-1 flex items-center">
-          <Button appearance="secondary" onClick={onHide} size="small">
-            {t("HideTemporarily")}
-          </Button>
-        </div>
+        <>
+          <div className="grow-0 shrink-0 ml-2 flex items-center">
+            <Button appearance="secondary" onClick={onHide} size="small">
+              {t("HideTemporarily")}
+            </Button>
+          </div>
+          <button
+            type="button"
+            className="bg-transparent border-0 grow shrink basis-0"
+            onClick={onClose}
+            tabIndex={-1}
+            aria-hidden="true"
+          >
+            <span className="sr-only">{t("close")}</span>
+          </button>
+        </>
       )}
       <button
         type="button"

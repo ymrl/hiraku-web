@@ -1,4 +1,4 @@
-import { StrictMode, use, useCallback, useEffect, useState } from "react";
+import { use, useCallback, useEffect, useState } from "react";
 import {
   addListener,
   type ExtensionMessage,
@@ -10,8 +10,15 @@ import { ExtensionContext } from "../ExtensionContext";
 import { FrameContext } from "../FrameManager";
 import { FloatingButton } from "./FloatingButton";
 import { FloatingWindow } from "./FloatingWindow";
+import { Iframe } from "./Iframe";
 
-export function ContentUI({ windowHeight }: { windowHeight?: number }) {
+export function ContentUI({
+  windowHeight,
+  windowWidth,
+}: {
+  windowHeight: number;
+  windowWidth: number;
+}) {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const { userInterfaceSettings } = use(ExtensionContext);
   const { frameWindow } = use(FrameContext);
@@ -55,11 +62,15 @@ export function ContentUI({ windowHeight }: { windowHeight?: number }) {
     };
   });
   const [temporarilyHidden, setTemporarilyHidden] = useState(false);
+  const { frameType } = use(FrameContext);
+  if (frameType === "iframe") {
+    return null;
+  }
 
   return (
-    <StrictMode>
+    <Iframe>
       <style>{style}</style>
-      <div className="flex flex-col-reverse items-stretch">
+      <div className="flex flex-col-reverse items-stretch max-w-dvh">
         {userInterfaceSettings.showButtonOnPage && !temporarilyHidden && (
           <FloatingButton
             onToggle={() => {
@@ -75,11 +86,12 @@ export function ContentUI({ windowHeight }: { windowHeight?: number }) {
         )}
         {isPanelOpen && (
           <div
-            className="px-2 pl-4 shrink grow flex justify-stretch"
+            className="shrink grow flex justify-stretch px-2"
             style={{
               height: windowHeight
                 ? `min(calc(${windowHeight}px - 5rem), 40rem)`
                 : undefined,
+              width: `max(min(${windowWidth}px, 25rem), 20rem)`,
             }}
           >
             <FloatingWindow
@@ -90,6 +102,6 @@ export function ContentUI({ windowHeight }: { windowHeight?: number }) {
           </div>
         )}
       </div>
-    </StrictMode>
+    </Iframe>
   );
 }

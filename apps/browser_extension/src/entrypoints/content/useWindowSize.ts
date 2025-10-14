@@ -2,13 +2,15 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 const THROTTLE_INTERVAL = 50;
 
-export const useWindowHeight = () => {
+export const useWindowSize = () => {
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const lastResizeTimeRef = useRef(0);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleResize = useCallback(() => {
     setWindowHeight(window.innerHeight);
+    setWindowWidth(window.innerWidth);
   }, []);
 
   const throttled = useCallback(() => {
@@ -38,5 +40,5 @@ export const useWindowHeight = () => {
       }
     };
   }, [throttled]);
-  return { windowHeight };
+  return { windowHeight, windowWidth };
 };
