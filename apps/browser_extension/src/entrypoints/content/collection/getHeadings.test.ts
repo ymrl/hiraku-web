@@ -290,4 +290,164 @@ describe("getHeadings", () => {
       },
     ]);
   });
+
+  test("exclude option - exclude headings by selector", () => {
+    document.body.innerHTML = `
+      <h1>Visible Heading 1</h1>
+      <div class="excluded">
+        <h2>Excluded Heading 2</h2>
+        <h3>Excluded Heading 3</h3>
+      </div>
+      <h4>Visible Heading 4</h4>
+      <div id="sidebar">
+        <h5>Excluded Sidebar Heading</h5>
+      </div>
+      <h6>Visible Heading 6</h6>
+    `;
+    const headings = getHeadings({ exclude: ".excluded" });
+    expect(headings).toEqual([
+      { level: 1, text: "Visible Heading 1", xpaths: ["/html/body/h1"] },
+      { level: 4, text: "Visible Heading 4", xpaths: ["/html/body/h4"] },
+      {
+        level: 5,
+        text: "Excluded Sidebar Heading",
+        xpaths: ["/html/body/div[2]/h5"],
+      },
+      { level: 6, text: "Visible Heading 6", xpaths: ["/html/body/h6"] },
+    ]);
+  });
+
+  test("exclude option - exclude by ID selector", () => {
+    document.body.innerHTML = `
+      <h1>Visible Heading 1</h1>
+      <div id="excluded-section">
+        <h2>Excluded Heading 2</h2>
+        <h3>Excluded Heading 3</h3>
+      </div>
+      <h4>Visible Heading 4</h4>
+    `;
+    const headings = getHeadings({ exclude: "#excluded-section" });
+    expect(headings).toEqual([
+      { level: 1, text: "Visible Heading 1", xpaths: ["/html/body/h1"] },
+      { level: 4, text: "Visible Heading 4", xpaths: ["/html/body/h4"] },
+    ]);
+  });
+
+  test("exclude option - exclude heading itself", () => {
+    document.body.innerHTML = `
+      <h1>Visible Heading 1</h1>
+      <h2 class="exclude-me">Excluded Heading 2</h2>
+      <h3>Visible Heading 3</h3>
+      <h4 class="exclude-me">Excluded Heading 4</h4>
+    `;
+    const headings = getHeadings({ exclude: ".exclude-me" });
+    expect(headings).toEqual([
+      { level: 1, text: "Visible Heading 1", xpaths: ["/html/body/h1"] },
+      { level: 3, text: "Visible Heading 3", xpaths: ["/html/body/h3"] },
+    ]);
+  });
+
+  test("exclude option - nested excluded containers", () => {
+    document.body.innerHTML = `
+      <h1>Visible Heading 1</h1>
+      <div class="outer">
+        <h2>Outer Heading</h2>
+        <div class="excluded">
+          <h3>Excluded Heading</h3>
+        </div>
+      </div>
+      <h4>Visible Heading 4</h4>
+    `;
+    const headings = getHeadings({ exclude: ".excluded" });
+    expect(headings).toEqual([
+      { level: 1, text: "Visible Heading 1", xpaths: ["/html/body/h1"] },
+      { level: 2, text: "Outer Heading", xpaths: ["/html/body/div/h2"] },
+      { level: 4, text: "Visible Heading 4", xpaths: ["/html/body/h4"] },
+    ]);
+  });
+
+  test("exclude option - exclude ARIA headings", () => {
+    document.body.innerHTML = `
+      <h1>Visible Heading 1</h1>
+      <div class="excluded">
+        <div role="heading" aria-level="2">Excluded ARIA Heading</div>
+      </div>
+      <div role="heading" aria-level="3">Visible ARIA Heading</div>
+    `;
+    const headings = getHeadings({ exclude: ".excluded" });
+    expect(headings).toEqual([
+      { level: 1, text: "Visible Heading 1", xpaths: ["/html/body/h1"] },
+      { level: 3, text: "Visible ARIA Heading", xpaths: ["/html/body/div[2]"] },
+    ]);
+  });
+
+  test("exclude option - exclude headings in iframe", () => {
+    document.body.innerHTML = `
+      <h1>Top Level Heading</h1>
+      <iframe id="test-iframe"></iframe>
+    `;
+    const iframe = document.getElementById("test-iframe") as HTMLIFrameElement;
+    const iframeDoc = iframe.contentDocument;
+    if (iframeDoc) {
+      iframeDoc.body.innerHTML = `
+        <h2>Iframe Heading 1</h2>
+        <div class="excluded">
+          <h3>Excluded Iframe Heading</h3>
+        </div>
+        <h4>Iframe Heading 2</h4>
+      `;
+    }
+
+    const headings = getHeadings({ exclude: ".excluded" });
+    expect(headings).toEqual([
+      { level: 1, text: "Top Level Heading", xpaths: ["/html/body/h1"] },
+      {
+        level: 2,
+        text: "Iframe Heading 1",
+        xpaths: ['//*[@id="test-iframe"]', "/html/body/h2"],
+      },
+      {
+        level: 4,
+        text: "Iframe Heading 2",
+        xpaths: ['//*[@id="test-iframe"]', "/html/body/h4"],
+      },
+    ]);
+  });
+
+  test("exclude option - no match returns all headings", () => {
+    document.body.innerHTML = `
+      <h1>Heading 1</h1>
+      <h2>Heading 2</h2>
+      <h3>Heading 3</h3>
+    `;
+    const headings = getHeadings({ exclude: ".nonexistent" });
+    expect(headings).toEqual([
+      { level: 1, text: "Heading 1", xpaths: ["/html/body/h1"] },
+      { level: 2, text: "Heading 2", xpaths: ["/html/body/h2"] },
+      { level: 3, text: "Heading 3", xpaths: ["/html/body/h3"] },
+    ]);
+  });
+
+  test("exclude option - complex selector", () => {
+    document.body.innerHTML = `
+      <h1>Visible Heading 1</h1>
+      <div class="sidebar" data-test="ignore">
+        <h2>Excluded Sidebar Heading</h2>
+      </div>
+      <div class="sidebar">
+        <h3>Visible Sidebar Heading</h3>
+      </div>
+      <h4>Visible Heading 4</h4>
+    `;
+    const headings = getHeadings({ exclude: '.sidebar[data-test="ignore"]' });
+    expect(headings).toEqual([
+      { level: 1, text: "Visible Heading 1", xpaths: ["/html/body/h1"] },
+      {
+        level: 3,
+        text: "Visible Sidebar Heading",
+        xpaths: ["/html/body/div[2]/h3"],
+      },
+      { level: 4, text: "Visible Heading 4", xpaths: ["/html/body/h4"] },
+    ]);
+  });
 });

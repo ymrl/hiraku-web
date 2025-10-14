@@ -1,5 +1,12 @@
-import { useCallback, useRef, useState } from "react";
-import { sendMessage } from "@/ExtensionMessages";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  addListener,
+  type GetPageTextStyle,
+  type MessageListener,
+  removeListener,
+  type UpdateTextStyle,
+} from "@/ExtensionMessages";
+import { loadHostTextStyle } from "@/storage";
 import type { TextStyleSettings } from "@/types";
 export const useTextStyle = () => {
   const [currentTextStyle, setCurrentTextStyle] = useState<
@@ -9,13 +16,10 @@ export const useTextStyle = () => {
     undefined,
   );
 
-  const getHostTextStyle = useCallback(async (hostname: string) => {
-    const { settings } = await sendMessage({
-      action: "getHostTextStyleSettings",
-      hostname: hostname,
-    });
+  const getHostTextStyle = async (hostname: string) => {
+    const settings = await loadHostTextStyle(hostname);
     setCurrentTextStyle(settings);
-  }, []);
+  };
 
   const renderedOnceRef = useRef(false);
   if (!renderedOnceRef.current) {
@@ -33,17 +37,47 @@ export const useTextStyle = () => {
           : lineHeightPx / fontSizePx,
     };
     pageDefaultTextStyleRef.current = textStyle;
+    getHostTextStyle(window.location.hostname);
     renderedOnceRef.current = true;
   }
 
-  const updateCurrentTextStyle = useCallback((newStyle: TextStyleSettings) => {
-    setCurrentTextStyle(newStyle);
-  }, []);
+  const updateCurrentTextStyle = useCallback(
+    (newStyle: TextStyleSettings | undefined) => {
+      setCurrentTextStyle(newStyle);
+    },
+    [],
+  );
+
+  useEffect(() => {
+    const listener: MessageListener<UpdateTextStyle | GetPageTextStyle> = (
+      message,
+      _sender,
+      sendResponse,
+    ) => {
+      const { action } = message;
+      if (action === "updateTextStyle") {
+        const { settings } = message;
+        updateCurrentTextStyle(settings);
+        sendResponse({ action, success: true });
+        return true;
+      }
+      if (action === "getPageTextStyle") {
+        sendResponse({
+          action,
+          pageTextStyle: pageDefaultTextStyleRef.current || {},
+        });
+        return true;
+      }
+    };
+    addListener(listener);
+    return () => {
+      removeListener(listener);
+    };
+  }, [updateCurrentTextStyle]);
 
   return {
     currentTextStyle,
-    getHostTextStyle,
-    pageDefaultTextStyleRef,
+    pageDefaultTextStyle: pageDefaultTextStyleRef.current,
     updateCurrentTextStyle,
   };
 };

@@ -1,2 +1,2 @@
 export * from "./ExtensionContext";
-export * from "./MessageResponder";
+export * from "./Provider";

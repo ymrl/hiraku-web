@@ -2,6 +2,7 @@ import { createI18n } from "@wxt-dev/i18n";
 import { useEffect, useState } from "react";
 import { browser } from "wxt/browser";
 import { getCurrentTabId } from "@/browser/getCurrentTabId";
+import { TabNavigation } from "@/components/TabNavigation";
 import { TextCSS } from "@/components/TextCSS";
 import {
   addListener,
@@ -9,18 +10,13 @@ import {
   removeListener,
   sendMessageToTab,
 } from "@/ExtensionMessages";
-import type {
-  SelectHeadingsTab,
-  SelectLandmarksTab,
-  SelectSpeechTab,
-  SelectTextTab,
-} from "@/ExtensionMessages/Popup";
+import type { SelectTab } from "@/ExtensionMessages/Popup";
+import { loadDefaultTextStyleSettings } from "@/storage";
 import type { TextStyleSettings } from "../../types";
-import { HeadingsList } from "./HeadingsList";
-import { LandmarksList } from "./LandmarksList";
-import { Speech } from "./Speech";
-import { TabNavigation } from "./TabNavigation";
-import { TextStyle } from "./TextStyle";
+import { HeadingsPanel } from "./HeadingsPanel";
+import { LandmarksPanel } from "./LandmarksPanel";
+import { SpeechPanel } from "./SpeechPanel";
+import { TextStylePanel } from "./TextStylePanel";
 
 const { t } = createI18n();
 
@@ -28,34 +24,21 @@ function App() {
   const [activeTab, setActiveTab] = useState<
     "headings" | "landmarks" | "text" | "speech"
   >("headings");
-  const [currentTabHost, setCurrentTabHost] = useState<string>("");
   const [textStyleSettings, setTextStyleSettings] = useState<TextStyleSettings>(
     {},
   );
 
   useEffect(() => {
-    const listener: MessageListener<
-      SelectHeadingsTab | SelectLandmarksTab | SelectTextTab | SelectSpeechTab
-    > = (message, _sender, sendResponse) => {
+    const listener: MessageListener<SelectTab> = (
+      message,
+      _sender,
+      sendResponse,
+    ) => {
       const { action } = message;
-      if (action === "selectHeadingsTab") {
-        setActiveTab("headings");
-        sendResponse({ action, success: true });
-        return true;
-      }
-      if (action === "selectLandmarksTab") {
-        setActiveTab("landmarks");
-        sendResponse({ action, success: true });
-        return true;
-      }
-      if (action === "selectTextTab") {
-        setActiveTab("text");
-        sendResponse({ action, success: true });
-        return true;
-      }
-      if (action === "selectSpeechTab") {
-        setActiveTab("speech");
-        sendResponse({ action, success: true });
+      if (action === "selectTab") {
+        const { tab } = message;
+        setActiveTab(tab);
+        sendResponse({ action, tab, success: true });
         return true;
       }
     };
@@ -67,31 +50,16 @@ function App() {
 
   useEffect(() => {
     const loadSavedSettings = async () => {
+      const defaultTextStyle = await loadDefaultTextStyleSettings();
+      if (defaultTextStyle) {
+        setTextStyleSettings(defaultTextStyle);
+      }
       try {
-        // アクティブタブの取得
-        const [tab] = await browser.tabs.query({
-          active: true,
-          currentWindow: true,
-        });
-
-        if (tab?.url) {
-          const url = new URL(tab.url);
-          const host = url.hostname;
-          setCurrentTabHost(host);
-
-          // 設定の読み込み
-          const result = await browser.storage.local.get([
-            "defaultTextStyle",
-            "activeTab",
-          ]);
-
-          if (result.activeTab) {
-            setActiveTab(result.activeTab);
-          }
-
-          if (result.defaultTextStyle) {
-            setTextStyleSettings(result.defaultTextStyle);
-          }
+        // 設定の読み込み
+        const result = await browser.storage.local.get("activeTab");
+        console.log("Loaded saved settings:", result);
+        if (result.activeTab) {
+          setActiveTab(result.activeTab);
         }
       } catch (err) {
         console.error("Failed to load saved settings:", err);
@@ -139,16 +107,16 @@ function App() {
       </header>
 
       {activeTab === "headings" && (
-        <HeadingsList onScrollToElement={scrollToElement} />
+        <HeadingsPanel onScrollToElement={scrollToElement} />
       )}
 
       {activeTab === "landmarks" && (
-        <LandmarksList onScrollToElement={scrollToElement} />
+        <LandmarksPanel onScrollToElement={scrollToElement} />
       )}
 
-      {activeTab === "text" && <TextStyle currentTabHost={currentTabHost} />}
+      {activeTab === "text" && <TextStylePanel />}
 
-      {activeTab === "speech" && <Speech />}
+      {activeTab === "speech" && <SpeechPanel />}
     </div>
   );
 }

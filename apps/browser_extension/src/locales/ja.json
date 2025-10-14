@@ -17,6 +17,9 @@
   "tag": "タグ",
   "Levels": "レベル",
   "All": "すべて",
+  "Close": "閉じる",
+  "HideTemporarily": "一時的に非表示",
+  "IframeTitle": "ひらくウェブ フレーム",
   "options": {
     "clearSettings": "Webサイトごとの設定をクリア",
     "clearingDescription": "Webサイトごとに調整した文字の設定などを削除します。この操作は元に戻せません。",
@@ -29,7 +32,9 @@
     "enableLineHeight": "行の高さを変更する",
     "enableParagraphSpacing": "段落の間隔を変更する",
     "enableLetterSpacing": "文字の間隔を変更する",
-    "enableWordSpacing": "単語の間隔を変更する"
+    "enableWordSpacing": "単語の間隔を変更する",
+    "userInterface": "ユーザーインターフェース",
+    "showButtonOnPage": "ページ右下に「ひらくウェブ」ボタンを表示する"
   },
   "landmarkRoles": {
     "banner": "バナー",

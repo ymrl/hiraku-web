@@ -4,7 +4,14 @@ import { browser } from "wxt/browser";
 import { Button } from "@/components/Button";
 import { SettingSlider } from "@/components/SettingSlider";
 import { TextCSS } from "@/components/TextCSS";
-import { loadDefaultTextStyleSettings, TEXT_STYLE_SETTINGS } from "@/TextStyle";
+import {
+  loadDefaultTextStyleSettings,
+  loadUserInterfaceSettings,
+  removeDefaultTextStyleSettings,
+  saveDefaultTextStyleSettings,
+  saveUserInterfaceSettings,
+} from "@/storage";
+import { TEXT_STYLE_SETTINGS } from "@/TextStyle";
 import type { TextStyleSettings } from "../../types/text";
 
 const { t } = createI18n();
@@ -34,15 +41,25 @@ function App() {
     }
   }, []);
 
+  const [userInterfaceSettings, setUserInterfaceSettings] = useState<{
+    showButtonOnPage: boolean;
+  }>({
+    showButtonOnPage: false,
+  });
+  const initUserInterfaceSettings = useCallback(async () => {
+    setUserInterfaceSettings(await loadUserInterfaceSettings());
+  }, []);
+
   useEffect(() => {
     loadSavedKeys();
     loadDefaultSettings();
-  }, [loadSavedKeys, loadDefaultSettings]);
+    initUserInterfaceSettings();
+  }, [loadSavedKeys, loadDefaultSettings, initUserInterfaceSettings]);
 
   const saveDefaultSettings = useCallback(async () => {
     try {
       setIsSaving(true);
-      await browser.storage.sync.set({ defaultTextStyle: defaultTextStyle });
+      await saveDefaultTextStyleSettings(defaultTextStyle);
     } catch (err) {
       console.error("Failed to save default settings:", err);
     } finally {
@@ -55,7 +72,7 @@ function App() {
   const resetToDefaults = useCallback(async () => {
     try {
       setIsSaving(true);
-      await browser.storage.sync.remove("defaultTextStyle");
+      await removeDefaultTextStyleSettings();
     } catch (err) {
       console.error("Failed to reset to defaults:", err);
     } finally {
@@ -343,6 +360,29 @@ function App() {
             {t("options.noSettings")}
           </p>
         )}
+      </section>
+      <section className="mb-6">
+        <h2 className="text-lg font-bold text-stone-800 dark:text-stone-200 mb-2">
+          {t("options.userInterface")}
+        </h2>
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={userInterfaceSettings.showButtonOnPage}
+            onChange={(e) => {
+              const newSettings = {
+                ...userInterfaceSettings,
+                showButtonOnPage: e.target.checked,
+              };
+              setUserInterfaceSettings(newSettings);
+              saveUserInterfaceSettings(newSettings);
+            }}
+            className="w-4 h-4"
+          />
+          <span className="text-sm text-stone-700 dark:text-stone-300">
+            {t("options.showButtonOnPage")}
+          </span>
+        </label>
       </section>
       <TextCSS settings={savedTextStyle} />
     </div>

@@ -25,6 +25,7 @@ const landmarkSelectors = [
 const getLandmarksFromDocument = (
   doc: Document,
   xpathPrefix: string[] = [],
+  exclude?: string,
 ): Landmark[] => {
   const landmarks = [
     ...doc.querySelectorAll<HTMLElement>(landmarkSelectors.join(",")),
@@ -35,6 +36,9 @@ const getLandmarksFromDocument = (
         isAriaHidden(element) ||
         isInAriaHidden(element)
       ) {
+        return undefined;
+      }
+      if (exclude && element.closest(exclude)) {
         return undefined;
       }
       const role = getLandmarkRole(element);
@@ -64,10 +68,11 @@ const getLandmarksFromDocument = (
       if (!frameDoc) continue;
 
       const frameXPath = getXPath(frame);
-      const frameLandmarks = getLandmarksFromDocument(frameDoc, [
-        ...xpathPrefix,
-        frameXPath,
-      ]);
+      const frameLandmarks = getLandmarksFromDocument(
+        frameDoc,
+        [...xpathPrefix, frameXPath],
+        exclude,
+      );
       landmarks.push(...frameLandmarks);
     } catch (_e) {}
   }
@@ -75,6 +80,6 @@ const getLandmarksFromDocument = (
   return landmarks;
 };
 
-export const getLandmarks = (): Landmark[] => {
-  return getLandmarksFromDocument(document);
+export const getLandmarks = (options?: { exclude?: string }): Landmark[] => {
+  return getLandmarksFromDocument(document, [], options?.exclude);
 };

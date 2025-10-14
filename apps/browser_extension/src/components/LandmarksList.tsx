@@ -1,47 +1,18 @@
 import { createI18n } from "@wxt-dev/i18n";
-import { useEffect, useId, useState } from "react";
-import { getCurrentTabId } from "@/browser/getCurrentTabId";
-import { type GetLandmarks, sendMessageToTab } from "@/ExtensionMessages";
-import type { Landmark } from "../../types";
+import { useId } from "react";
+import type { Landmark } from "@/types";
 
 const { t } = createI18n();
 
-interface LandmarksListProps {
-  onScrollToElement: (xpaths: string[]) => void;
-}
-
-const getLandmarks = async (): Promise<Landmark[]> => {
-  try {
-    const tabId = await getCurrentTabId();
-    if (!tabId) {
-      return [];
-    }
-    const response = await sendMessageToTab<GetLandmarks>(tabId, {
-      action: "getLandmarks",
-    });
-    if (response?.landmarks) {
-      return response.landmarks;
-    }
-    return [];
-  } catch (err) {
-    console.error("Failed to get landmarks from content script:", err);
-    return [];
-  }
-};
 export function LandmarksList({
-  // landmarks,
   onScrollToElement,
-}: LandmarksListProps) {
-  const [loading, setLoading] = useState(true);
-  const [landmarks, setLandmarks] = useState<Landmark[]>([]);
-
-  useEffect(() => {
-    getLandmarks().then((landmarks) => {
-      setLoading(false);
-      setLandmarks(landmarks);
-    });
-  }, []);
-
+  loading = false,
+  landmarks,
+}: {
+  onScrollToElement: (xpaths: string[]) => void;
+  loading?: boolean;
+  landmarks: Landmark[];
+}) {
   const id = useId();
   return (
     <section

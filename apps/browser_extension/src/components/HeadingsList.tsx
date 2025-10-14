@@ -1,79 +1,23 @@
 import { createI18n } from "@wxt-dev/i18n";
-import { useEffect, useId, useMemo, useState } from "react";
-import { browser } from "wxt/browser";
-import { getCurrentTabId } from "@/browser/getCurrentTabId";
-import { type GetHeadings, sendMessageToTab } from "@/ExtensionMessages";
-import type { Heading } from "../../types";
+import { useId, useMemo } from "react";
+import type { Heading } from "@/types";
 import { HeadingLevelSlider } from "./HeadingLevelSlider";
 
 const { t } = createI18n();
 
-interface HeadingsListProps {
+export function HeadingsList({
+  onScrollToElement,
+  onLevelFilterChange,
+  loading = false,
+  levelFilter = 7,
+  headings,
+}: {
   onScrollToElement: (xpaths: string[]) => void;
-}
-
-const loadLevelFilter = async (): Promise<number> => {
-  try {
-    const result = await browser.storage.local.get("headingLevel");
-    if (result.headingLevel) {
-      return result.headingLevel;
-    }
-    return 7;
-  } catch (err) {
-    console.error("Failed to load heading level filter:", err);
-    return 7;
-  }
-};
-
-const saveLevelFlter = async (levelFilter: number) => {
-  try {
-    browser.storage.local.set({
-      headingLevel: levelFilter,
-    });
-  } catch (err) {
-    console.error("Failed to save heading level filter:", err);
-  }
-};
-
-const getHeadings = async (): Promise<Heading[]> => {
-  try {
-    const tabId = await getCurrentTabId();
-    if (!tabId) {
-      return [];
-    }
-    const response = await sendMessageToTab<GetHeadings>(tabId, {
-      action: "getHeadings",
-    });
-    if (response?.headings) {
-      return response.headings;
-    }
-    return [];
-  } catch (err) {
-    console.error("Failed to get headings from content script:", err);
-    return [];
-  }
-};
-
-export function HeadingsList({ onScrollToElement }: HeadingsListProps) {
-  const [loading, setLoading] = useState(true);
-  const [levelFilter, setLevelFilter] = useState(7);
-  const [headings, setHeadings] = useState<Heading[]>([]);
-  const onLevelFilterChange = (level: number) => {
-    setLevelFilter(level);
-    saveLevelFlter(level);
-  };
-
-  useEffect(() => {
-    getHeadings().then((headings) => {
-      setHeadings(headings);
-      setLoading(false);
-    });
-
-    loadLevelFilter().then((level) => {
-      setLevelFilter(level);
-    });
-  }, []);
-
+  onLevelFilterChange?: (level: number) => void;
+  loading?: boolean;
+  levelFilter?: number;
+  headings: Heading[];
+}) {
   const filteredHeadings = useMemo(() => {
     if (levelFilter === 7) return headings;
     return headings.filter((heading) => heading.level <= levelFilter);
@@ -89,7 +33,10 @@ export function HeadingsList({ onScrollToElement }: HeadingsListProps) {
       <h2 className="sr-only" id={`${id}-heading`}>
         {t("headings")}
       </h2>
-      <HeadingLevelSlider value={levelFilter} onChange={onLevelFilterChange} />
+      <HeadingLevelSlider
+        value={levelFilter}
+        onChange={(value) => onLevelFilterChange?.(value)}
+      />
       {loading ? (
         <div className="h-32 flex justify-center items-center">
           <p className="text-sm text-stone-500 dark:text-stone-400">

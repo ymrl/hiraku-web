@@ -36,7 +36,7 @@ const Tab = ({
     tabIndex={isActive ? 0 : -1}
     onClick={onClick}
     onKeyDown={onTabKeyDown}
-    className={`px-3 pt-1.5 pb-1 text-sm font-bold rounded-t-md transition-colors cursor-pointer ${
+    className={`px-2 pt-1.5 pb-1 text-sm font-bold rounded-t-md transition-colors cursor-pointer whitespace-nowrap ${
       isActive
         ? `bg-white text-rose-600 shadow-sm
            dark:bg-stone-600 dark:text-rose-50
@@ -54,32 +54,30 @@ const Tab = ({
 
 export function TabNavigation({ activeTab, onTabChange }: TabNavigationProps) {
   return (
-    <nav>
-      <div
-        className="flex space-x-2 px-3 pt-1 bg-stone-200 dark:bg-stone-800"
-        role="tablist"
-      >
-        <Tab
-          isActive={activeTab === "headings"}
-          label={t("headings")}
-          onClick={() => onTabChange("headings")}
-        />
-        <Tab
-          isActive={activeTab === "landmarks"}
-          label={t("landmarks")}
-          onClick={() => onTabChange("landmarks")}
-        />
-        <Tab
-          isActive={activeTab === "text"}
-          label={t("text")}
-          onClick={() => onTabChange("text")}
-        />
-        <Tab
-          isActive={activeTab === "speech"}
-          label={t("speeches")}
-          onClick={() => onTabChange("speech")}
-        />
-      </div>
-    </nav>
+    <div
+      className="flex gap-1 px-3 pt-1 bg-stone-200 dark:bg-stone-800"
+      role="tablist"
+    >
+      <Tab
+        isActive={activeTab === "headings"}
+        label={t("headings")}
+        onClick={() => onTabChange("headings")}
+      />
+      <Tab
+        isActive={activeTab === "landmarks"}
+        label={t("landmarks")}
+        onClick={() => onTabChange("landmarks")}
+      />
+      <Tab
+        isActive={activeTab === "text"}
+        label={t("text")}
+        onClick={() => onTabChange("text")}
+      />
+      <Tab
+        isActive={activeTab === "speech"}
+        label={t("speeches")}
+        onClick={() => onTabChange("speech")}
+      />
+    </div>
   );
 }

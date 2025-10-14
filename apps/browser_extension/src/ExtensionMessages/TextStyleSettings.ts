@@ -1,15 +1,5 @@
 import type { TextStyleSettings } from "../types";
 
-export type GetHostTextStyleSettings = {
-  action: "getHostTextStyleSettings";
-  hostname: string;
-};
-
-export type GetHostTextStyleSettingsResponse = {
-  action: "getHostTextStyleSettings";
-  settings: TextStyleSettings | undefined;
-};
-
 export type UpdateTextStyle = {
   action: "updateTextStyle";
   settings: TextStyleSettings;

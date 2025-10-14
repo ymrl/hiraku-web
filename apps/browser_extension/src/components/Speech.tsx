@@ -1,79 +1,47 @@
 import { createI18n } from "@wxt-dev/i18n";
-import { useCallback, useEffect, useId, useState } from "react";
-import { browser } from "wxt/browser";
-import { getCurrentTabId } from "@/browser/getCurrentTabId";
+import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import { Button } from "@/components/Button";
 import { SettingSlider } from "@/components/SettingSlider";
-import { sendMessage, sendMessageToTab } from "@/ExtensionMessages";
 import { SPEECH_SETTINGS } from "@/Speech";
 import type { SpeechSettings } from "@/types";
 
 const { t } = createI18n();
 
-export function Speech() {
-  const [speechSettings, setSpeechSettings] = useState<SpeechSettings>({});
+export function Speech({
+  isSpeechEnabled = false,
+  speechSettings: savedSettings = {},
+  onChangeSettings,
+  onReset,
+  onEnable,
+  onDisable,
+}: {
+  isSpeechEnabled?: boolean;
+  speechSettings?: SpeechSettings;
+  onChangeSettings?: (settings: SpeechSettings) => void;
+  onReset?: () => void;
+  onEnable?: () => void;
+  onDisable?: () => void;
+}) {
+  const [unsavedSettings, setUnsavedSettings] =
+    useState<SpeechSettings>(savedSettings);
+  const speechSettings = useMemo(
+    () => ({ ...savedSettings, ...unsavedSettings }),
+    [savedSettings, unsavedSettings],
+  );
+
   const [availableVoices, setAvailableVoices] = useState<
     SpeechSynthesisVoice[]
   >([]);
-  const [isEnabled, setIsEnabled] = useState(false);
   const voiceSelectId = useId();
 
-  const loadSpeechSettings = useCallback(async () => {
-    try {
-      const result = await browser.storage.local.get(["speechSettings"]);
-
-      setSpeechSettings(result.speechSettings || {});
-    } catch (err) {
-      console.error("Failed to load speech settings:", err);
-    }
-  }, []);
-
-  const saveSpeechSettings = useCallback(
-    async (newSettings: SpeechSettings) => {
-      try {
-        await browser.storage.local.set({
-          speechSettings: newSettings,
-        });
-        const tabId = await getCurrentTabId();
-        if (!tabId) throw new Error("No active tab found");
-        await sendMessageToTab(tabId, {
-          action: "updateSpeechSettings",
-          settings: newSettings,
-        });
-      } catch (err) {
-        console.error("Failed to save speech settings:", err);
-      }
-    },
-    [],
-  );
-
-  const handleSettingChange = useCallback(
-    (key: keyof SpeechSettings, value: number | string) => {
-      setSpeechSettings((prev) => {
-        const newSettings = { ...prev, [key]: value };
-        saveSpeechSettings(newSettings);
-        return newSettings;
-      });
-    },
-    [saveSpeechSettings],
-  );
-  const sendSpeechStatus = useCallback(async () => {
-    try {
-      const tabId = await getCurrentTabId();
-      if (!tabId) throw new Error("No active tab found");
-      const { isEnabled } = await sendMessageToTab(tabId, {
-        action: "speechStatus",
-      });
-      setIsEnabled(isEnabled);
-    } catch (err) {
-      console.error("Failed to send speech status message:", err);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadSpeechSettings();
-    sendSpeechStatus();
-  }, [loadSpeechSettings, sendSpeechStatus]);
+  const handleSettingChange = (
+    key: keyof SpeechSettings,
+    value: number | string,
+  ) => {
+    const newSettings = { ...savedSettings, ...unsavedSettings, [key]: value };
+    onChangeSettings?.(newSettings);
+    setUnsavedSettings(newSettings);
+  };
 
   useEffect(() => {
     const loadVoices = () => {
@@ -89,40 +57,13 @@ export function Speech() {
     };
   }, []);
 
-  const enableSpeech = useCallback(async () => {
-    setIsEnabled(true);
-    const tabId = await getCurrentTabId();
-    if (!tabId) throw new Error("No active tab found");
-    await sendMessageToTab(tabId, {
-      action: "enableSpeech",
-      settings: speechSettings,
-    });
-    await sendMessage({ action: "speechEnabled" });
-  }, [speechSettings]);
-
-  const disableSpeech = useCallback(async () => {
-    setIsEnabled(false);
-    const tabId = await getCurrentTabId();
-    if (!tabId) throw new Error("No active tab found");
-    await sendMessageToTab(tabId, { action: "disableSpeech" });
-    await sendMessage({ action: "speechDisabled" });
-  }, []);
-
   const resetToDefaults = useCallback(async () => {
-    try {
-      await browser.storage.local.remove("speechSettings");
-      setSpeechSettings({});
-      const tabId = await getCurrentTabId();
-      if (!tabId) throw new Error("No active tab found");
-      await sendMessageToTab(tabId, {
-        action: "updateSpeechSettings",
-        settings: {},
-      });
-    } catch (err) {
-      console.error("Failed to reset speech settings:", err);
-    }
-  }, []);
+    setUnsavedSettings({});
+    onReset?.();
+  }, [onReset]);
+
   const id = useId();
+  const isEnabled = isSpeechEnabled;
 
   return (
     <section
@@ -137,7 +78,7 @@ export function Speech() {
         <label className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => (isEnabled ? disableSpeech() : enableSpeech())}
+            onClick={() => (isEnabled ? onDisable?.() : onEnable?.())}
             className={
               "w-11 h-6 rounded-full relative " +
               "before:content-[''] before:absolute before:rounded-full before:h-5 before:w-5 before:transition-all " +

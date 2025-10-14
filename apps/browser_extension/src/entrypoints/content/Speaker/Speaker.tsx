@@ -140,7 +140,17 @@ export const Speaker = () => {
   }, []);
 
   return (
-    <div ref={ref}>
+    <div
+      style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        width: 0,
+        height: 0,
+        zIndex: 2147483647,
+      }}
+      ref={ref}
+    >
       {isSpeechEnabled && targetRect && (
         <SpeechButton
           onClick={() => {
