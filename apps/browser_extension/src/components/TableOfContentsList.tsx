@@ -1,5 +1,10 @@
 import { createI18n } from "@wxt-dev/i18n";
-import { useId, useMemo, useState } from "react";
+import { useId, useMemo, useRef, useState } from "react";
+import {
+  loadTocListState,
+  saveTocListState,
+  type TocListState,
+} from "@/storage";
 import type {
   LandmarkEntry,
   TableOfContents,
@@ -149,19 +154,27 @@ function LandmarkGroup({
 
 export function TableOfContentsList({
   onScrollToElement,
-  onLevelFilterChange,
   loading = false,
-  levelFilter = 7,
   tableOfContents,
 }: {
   onScrollToElement: (xpaths: string[]) => void;
-  onLevelFilterChange?: (level: number) => void;
   loading?: boolean;
-  levelFilter?: number;
   tableOfContents: TableOfContents | null;
 }) {
   const id = useId();
-  const [displayMode, setDisplayMode] = useState<DisplayMode>("all");
+  const [tocListState, setTocListState] = useState<TocListState>({
+    levelFilter: 7,
+    displayMode: "all",
+  });
+  const { levelFilter, displayMode } = tocListState;
+  const loadedRef = useRef(false);
+  if (!loadedRef.current && !loading) {
+    loadedRef.current = true;
+    (async () => {
+      const state = await loadTocListState();
+      setTocListState(state);
+    })();
+  }
 
   // 表示モードとフィルタを適用したエントリ
   const visibleEntries = useMemo(() => {
@@ -213,7 +226,21 @@ export function TableOfContentsList({
           <select
             id={`${id}-display-mode`}
             value={displayMode}
-            onChange={(e) => setDisplayMode(e.target.value as DisplayMode)}
+            onChange={(e) => {
+              const { value } = e.target;
+              if (
+                value === "all" ||
+                value === "landmarksOnly" ||
+                value === "headingsOnly"
+              ) {
+                const newState = {
+                  ...tocListState,
+                  displayMode: value,
+                } as const;
+                setTocListState(newState);
+                saveTocListState(newState);
+              }
+            }}
             className="text-sm pl-0.5 pr-0 py-1 w-28 h-8 rounded border border-stone-300 dark:border-stone-600
               bg-white dark:bg-stone-800
               text-stone-800 dark:text-stone-200"
@@ -230,7 +257,11 @@ export function TableOfContentsList({
         <div className="flex-1">
           <HeadingLevelSlider
             value={levelFilter}
-            onChange={(value) => onLevelFilterChange?.(value)}
+            onChange={(value) => {
+              const newState = { ...tocListState, levelFilter: value };
+              setTocListState(newState);
+              saveTocListState(newState);
+            }}
             disabled={displayMode === "landmarksOnly"}
           />
         </div>
