@@ -1,6 +1,7 @@
 import { createI18n } from "@wxt-dev/i18n";
 import { use } from "react";
 import { TabNavigation } from "@/components/TabNavigation";
+import type { ExtensionTab } from "@/storage";
 import { ExtensionContext } from "../../ExtensionContext";
 import { SpeechPanel } from "./SpeechPanel";
 import { TableOfContentsPanel } from "./TableOfContentsPanel";
@@ -13,7 +14,7 @@ export function FloatingWindow({
   onTabChange,
   onClose,
 }: {
-  activeTab: "tableOfContents" | "text" | "speech";
+  activeTab: ExtensionTab;
   onTabChange: (tab: "tableOfContents" | "text" | "speech") => void;
   onClose: () => void;
 }) {

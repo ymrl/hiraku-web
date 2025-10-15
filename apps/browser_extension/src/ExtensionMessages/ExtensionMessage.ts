@@ -5,7 +5,12 @@ import type {
   GetTableOfContents,
   GetTableOfContentsResponse,
 } from "./GetTableOfContents";
-import type { SelectTab, SelectTabResponse } from "./Popup";
+import type {
+  SelectedTab,
+  SelectedTabResponse,
+  SelectTab,
+  SelectTabResponse,
+} from "./Popup";
 import type {
   ScrollToElement,
   ScrollToElementResponse,
@@ -45,6 +50,7 @@ export type ExtensionMessage =
   | SpeechEnabled
   | ScrollToElement
   | SelectTab
+  | SelectedTab
   | OpenUserInterface;
 export type ExtensionMessageResponse =
   | GetHeadingsResponse
@@ -60,6 +66,7 @@ export type ExtensionMessageResponse =
   | SpeechEnabledResponse
   | ScrollToElementResponse
   | SelectTabResponse
+  | SelectedTabResponse
   | OpenUserInterfaceResponse;
 
 type ExtractResponse<M extends ExtensionMessage> = M extends {

@@ -1,6 +1,5 @@
 import { createI18n } from "@wxt-dev/i18n";
 import { useEffect, useState } from "react";
-import { browser } from "wxt/browser";
 import { getCurrentTabId } from "@/browser/getCurrentTabId";
 import { TabNavigation } from "@/components/TabNavigation";
 import { TextCSS } from "@/components/TextCSS";
@@ -11,7 +10,12 @@ import {
   sendMessageToTab,
 } from "@/ExtensionMessages";
 import type { SelectTab } from "@/ExtensionMessages/Popup";
-import { loadDefaultTextStyleSettings } from "@/storage";
+import {
+  type ExtensionTab,
+  loadActiveTab,
+  loadDefaultTextStyleSettings,
+  saveActiveTab,
+} from "@/storage";
 import type { TextStyleSettings } from "../../types";
 import { SpeechPanel } from "./SpeechPanel";
 import { TableOfContentsPanel } from "./TableOfContentsPanel";
@@ -20,9 +24,7 @@ import { TextStylePanel } from "./TextStylePanel";
 const { t } = createI18n();
 
 function App() {
-  const [activeTab, setActiveTab] = useState<
-    "tableOfContents" | "text" | "speech"
-  >("tableOfContents");
+  const [activeTab, setActiveTab] = useState<ExtensionTab>("tableOfContents");
   const [textStyleSettings, setTextStyleSettings] = useState<TextStyleSettings>(
     {},
   );
@@ -37,6 +39,7 @@ function App() {
       if (action === "selectTab") {
         const { tab } = message;
         setActiveTab(tab);
+        saveActiveTab(tab);
         sendResponse({ action, tab, success: true });
         return true;
       }
@@ -53,16 +56,8 @@ function App() {
       if (defaultTextStyle) {
         setTextStyleSettings(defaultTextStyle);
       }
-      try {
-        // 設定の読み込み
-        const result = await browser.storage.local.get("activeTab");
-        console.log("Loaded saved settings:", result);
-        if (result.activeTab) {
-          setActiveTab(result.activeTab);
-        }
-      } catch (err) {
-        console.error("Failed to load saved settings:", err);
-      }
+      const activeTab = await loadActiveTab();
+      setActiveTab(activeTab);
     };
     loadSavedSettings();
   }, []);
@@ -71,10 +66,10 @@ function App() {
     tab: "tableOfContents" | "text" | "speech",
   ) => {
     setActiveTab(tab);
-    try {
-      await browser.storage.local.set({ activeTab: tab });
-    } catch (err) {
-      console.error("Failed to save tab preference:", err);
+    await saveActiveTab(tab);
+    const tabId = await getCurrentTabId();
+    if (tabId) {
+      await sendMessageToTab(tabId, { action: "selectedTab", tab });
     }
   };
 
