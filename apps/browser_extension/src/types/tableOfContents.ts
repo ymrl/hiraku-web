@@ -8,6 +8,8 @@ export type TableOfContentsEntryBase = {
   type: "heading" | "landmark";
   /** XPathの配列 */
   xpaths: string[];
+  /** エントリのインデックス */
+  index: number;
 };
 
 /**

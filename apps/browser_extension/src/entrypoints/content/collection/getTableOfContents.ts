@@ -1,9 +1,284 @@
 import { computeAccessibleName } from "dom-accessibility-api";
 import getXPath from "get-xpath";
 import { getLandmarkRole } from "@/aria/getLandmarkRole";
-import type { HeadingEntry, LandmarkEntry, TableOfContents } from "@/types";
+import type {
+  HeadingEntry,
+  LandmarkEntry,
+  LandmarkRole,
+  TableOfContents,
+} from "@/types";
 import { isAriaHidden, isInAriaHidden } from "@/utils/isAriaHidden";
 import { isHidden } from "@/utils/isHidden";
+
+/**
+ * 要素をスキップすべきか判定する
+ */
+const shouldSkipElement = (element: Element, exclude?: string): boolean =>
+  isHidden(element) ||
+  isAriaHidden(element) ||
+  isInAriaHidden(element) ||
+  Boolean(exclude && element.closest(exclude));
+
+/**
+ * 親ランドマークのインデックスを探す（再帰的）
+ */
+const findParentLandmarkIndexRecursive = (
+  currentParent: Element | null,
+  doc: Document,
+  elementMap: Map<Element, number>,
+  entries: Array<HeadingEntry | LandmarkEntry>,
+): number | undefined => {
+  if (!currentParent || currentParent === doc.documentElement) {
+    return undefined;
+  }
+
+  const parentIndex = elementMap.get(currentParent);
+  if (parentIndex !== undefined) {
+    const parentEntry = entries[parentIndex];
+    if (parentEntry.type === "landmark") {
+      return parentIndex;
+    }
+  }
+
+  return findParentLandmarkIndexRecursive(
+    currentParent.parentElement,
+    doc,
+    elementMap,
+    entries,
+  );
+};
+
+/**
+ * 親ランドマークのインデックスを探す
+ */
+const findParentLandmarkIndex = (
+  element: Element,
+  doc: Document,
+  elementMap: Map<Element, number>,
+  entries: Array<HeadingEntry | LandmarkEntry>,
+  inheritedParentLandmarkIndex?: number,
+): number | undefined =>
+  findParentLandmarkIndexRecursive(
+    element.parentElement,
+    doc,
+    elementMap,
+    entries,
+  ) ?? inheritedParentLandmarkIndex;
+
+/**
+ * 親ランドマークの子リストに追加する
+ */
+const addChildToParentLandmark = (
+  parentLandmarkIndex: number | undefined,
+  childIndex: number,
+  entries: Array<HeadingEntry | LandmarkEntry>,
+): void => {
+  if (parentLandmarkIndex !== undefined) {
+    const parent = entries[parentLandmarkIndex];
+    if (parent.type === "landmark") {
+      parent.childIndices.push(childIndex);
+    }
+  }
+};
+
+/**
+ * iframe要素の親ランドマークを探す（再帰的）
+ */
+const findIframeParentLandmarkIndexRecursive = (
+  currentParent: HTMLElement | null,
+  elementMap: Map<Element, number>,
+  entries: Array<HeadingEntry | LandmarkEntry>,
+): number | undefined => {
+  if (!currentParent?.ownerDocument) {
+    return undefined;
+  }
+
+  const parentIndex = elementMap.get(currentParent);
+  if (parentIndex !== undefined) {
+    const parentEntry = entries[parentIndex];
+    if (parentEntry.type === "landmark") {
+      return parentIndex;
+    }
+  }
+
+  return findIframeParentLandmarkIndexRecursive(
+    currentParent.parentElement,
+    elementMap,
+    entries,
+  );
+};
+
+/**
+ * iframe/frame要素を処理する
+ */
+const processIframeElement = (
+  element: HTMLIFrameElement | HTMLFrameElement,
+  xpathPrefix: string[],
+  exclude: string | undefined,
+  elementMap: Map<Element, number>,
+  entries: Array<HeadingEntry | LandmarkEntry>,
+  getTableOfContentsFromDocument: (
+    doc: Document,
+    xpathPrefix: string[],
+    exclude?: string,
+    parentElementMap?: Map<Element, number>,
+    parentEntries?: Array<HeadingEntry | LandmarkEntry>,
+    inheritedParentLandmarkIndex?: number,
+  ) => void,
+): void => {
+  try {
+    const frameDoc = element.contentDocument;
+    if (frameDoc) {
+      const frameXPath = getXPath(element);
+      const iframeParentLandmarkIndex = findIframeParentLandmarkIndexRecursive(
+        element.parentElement,
+        elementMap,
+        entries,
+      );
+
+      getTableOfContentsFromDocument(
+        frameDoc,
+        [...xpathPrefix, frameXPath],
+        exclude,
+        elementMap,
+        entries,
+        iframeParentLandmarkIndex,
+      );
+    }
+  } catch (_e) {
+    // iframe/frameへのアクセスが許可されていない場合はスキップ
+  }
+};
+
+/**
+ * 見出し要素を処理する
+ */
+const processHeadingElement = (
+  element: Element,
+  tagName: string,
+  xpaths: string[],
+  doc: Document,
+  elementMap: Map<Element, number>,
+  entries: Array<HeadingEntry | LandmarkEntry>,
+  inheritedParentLandmarkIndex?: number,
+): void => {
+  const text = element.textContent?.trim() || "";
+  if (!text) return;
+
+  const level = /^h[1-6]$/.test(tagName)
+    ? Number.parseInt(tagName.substring(1), 10)
+    : Number.parseInt(element.getAttribute("aria-level") || "2", 10);
+
+  const parentLandmarkIndex = findParentLandmarkIndex(
+    element,
+    doc,
+    elementMap,
+    entries,
+    inheritedParentLandmarkIndex,
+  );
+
+  const entryIndex = entries.length;
+
+  const entry: HeadingEntry = {
+    type: "heading",
+    level,
+    text,
+    xpaths,
+    index: entryIndex,
+    parentLandmarkIndex,
+  };
+
+  elementMap.set(element, entryIndex);
+  entries.push(entry);
+
+  addChildToParentLandmark(parentLandmarkIndex, entryIndex, entries);
+};
+
+/**
+ * 親ランドマークを探してnestLevelを計算する（再帰的）
+ */
+const findParentLandmarkWithNestLevel = (
+  currentParent: Element | null,
+  doc: Document,
+  elementMap: Map<Element, number>,
+  entries: Array<HeadingEntry | LandmarkEntry>,
+): { parentLandmarkIndex?: number; nestLevel: number } => {
+  if (!currentParent || currentParent === doc.documentElement) {
+    return { nestLevel: 0 };
+  }
+
+  const parentIndex = elementMap.get(currentParent);
+  if (parentIndex !== undefined) {
+    const parentEntry = entries[parentIndex];
+    if (parentEntry.type === "landmark") {
+      return {
+        parentLandmarkIndex: parentIndex,
+        nestLevel: parentEntry.nestLevel + 1,
+      };
+    }
+  }
+
+  return findParentLandmarkWithNestLevel(
+    currentParent.parentElement,
+    doc,
+    elementMap,
+    entries,
+  );
+};
+
+/**
+ * ランドマーク要素を処理する
+ */
+const processLandmarkElement = (
+  element: Element,
+  tagName: string,
+  landmarkRole: LandmarkRole,
+  xpaths: string[],
+  doc: Document,
+  elementMap: Map<Element, number>,
+  entries: Array<HeadingEntry | LandmarkEntry>,
+  inheritedParentLandmarkIndex?: number,
+): void => {
+  const label = computeAccessibleName(element).trim();
+  if (tagName === "section" && !label) {
+    return;
+  }
+
+  const { parentLandmarkIndex: foundParentIndex, nestLevel: foundNestLevel } =
+    findParentLandmarkWithNestLevel(
+      element.parentElement,
+      doc,
+      elementMap,
+      entries,
+    );
+
+  const parentLandmarkIndex = foundParentIndex ?? inheritedParentLandmarkIndex;
+  const nestLevel =
+    foundParentIndex !== undefined
+      ? foundNestLevel
+      : inheritedParentLandmarkIndex !== undefined
+        ? (entries[inheritedParentLandmarkIndex] as LandmarkEntry).nestLevel + 1
+        : 0;
+
+  const entryIndex = entries.length;
+
+  const entry: LandmarkEntry = {
+    type: "landmark",
+    role: landmarkRole,
+    label,
+    tag: tagName,
+    xpaths,
+    index: entryIndex,
+    childIndices: [],
+    nestLevel,
+    parentLandmarkIndex,
+  };
+
+  elementMap.set(element, entryIndex);
+  entries.push(entry);
+
+  addChildToParentLandmark(parentLandmarkIndex, entryIndex, entries);
+};
 
 /**
  * ドキュメントから目次を取得する（再帰的にiframe/frameも処理）
@@ -49,10 +324,7 @@ const getTableOfContentsFromDocument = (
 
   for (const element of allElements) {
     // 除外条件チェック
-    if (isHidden(element) || isAriaHidden(element) || isInAriaHidden(element)) {
-      continue;
-    }
-    if (exclude && element.closest(exclude)) {
+    if (shouldSkipElement(element, exclude)) {
       continue;
     }
 
@@ -61,39 +333,14 @@ const getTableOfContentsFromDocument = (
       element instanceof HTMLIFrameElement ||
       element instanceof HTMLFrameElement
     ) {
-      try {
-        const frameDoc = element.contentDocument;
-        if (frameDoc) {
-          const frameXPath = getXPath(element);
-
-          // iframe要素自体の親ランドマークを探す
-          let iframeParentLandmarkIndex: number | undefined;
-          let currentParent = element.parentElement;
-          while (currentParent?.ownerDocument) {
-            const parentIndex = elementMap.get(currentParent);
-            if (parentIndex !== undefined) {
-              const parentEntry = entries[parentIndex];
-              if (parentEntry.type === "landmark") {
-                iframeParentLandmarkIndex = parentIndex;
-                break;
-              }
-            }
-            currentParent = currentParent.parentElement;
-          }
-
-          // 再帰的に処理（同じentriesとelementMapを渡し、iframe要素の親ランドマークも渡す）
-          getTableOfContentsFromDocument(
-            frameDoc,
-            [...xpathPrefix, frameXPath],
-            exclude,
-            elementMap,
-            entries,
-            iframeParentLandmarkIndex,
-          );
-        }
-      } catch (_e) {
-        // iframe/frameへのアクセスが許可されていない場合はスキップ
-      }
+      processIframeElement(
+        element,
+        xpathPrefix,
+        exclude,
+        elementMap,
+        entries,
+        getTableOfContentsFromDocument,
+      );
       continue;
     }
 
@@ -109,110 +356,26 @@ const getTableOfContentsFromDocument = (
       : getLandmarkRole(element as HTMLElement);
 
     if (isHeading) {
-      // 見出し
-      const text = element.textContent?.trim() || "";
-      if (!text) continue;
-
-      const level = /^h[1-6]$/.test(tagName)
-        ? Number.parseInt(tagName.substring(1), 10)
-        : Number.parseInt(element.getAttribute("aria-level") || "2", 10);
-
-      // 親ランドマークを探す
-      let parentLandmarkIndex: number | undefined;
-      let currentParent = element.parentElement;
-      while (currentParent && currentParent !== doc.documentElement) {
-        const parentIndex = elementMap.get(currentParent);
-        if (parentIndex !== undefined) {
-          const parentEntry = entries[parentIndex];
-          if (parentEntry.type === "landmark") {
-            parentLandmarkIndex = parentIndex;
-            break;
-          }
-        }
-        currentParent = currentParent.parentElement;
-      }
-      // 親ドキュメントから継承された親ランドマークがある場合
-      if (
-        parentLandmarkIndex === undefined &&
-        inheritedParentLandmarkIndex !== undefined
-      ) {
-        parentLandmarkIndex = inheritedParentLandmarkIndex;
-      }
-
-      const entry: HeadingEntry = {
-        type: "heading",
-        level,
-        text,
+      processHeadingElement(
+        element,
+        tagName,
         xpaths,
-        parentLandmarkIndex,
-      };
-
-      elementMap.set(element, entries.length);
-      entries.push(entry);
-
-      // 親ランドマークの子リストに追加
-      if (parentLandmarkIndex !== undefined) {
-        const parent = entries[parentLandmarkIndex];
-        if (parent.type === "landmark") {
-          parent.childIndices.push(entries.length - 1);
-        }
-      }
+        doc,
+        elementMap,
+        entries,
+        inheritedParentLandmarkIndex,
+      );
     } else if (landmarkRole) {
-      // ランドマーク
-      const label = computeAccessibleName(element).trim();
-      if (tagName === "section" && !label) {
-        continue;
-      }
-
-      // 親ランドマークを探す
-      let parentLandmarkIndex: number | undefined;
-      let nestLevel = 0;
-      let currentParent = element.parentElement;
-      while (currentParent && currentParent !== doc.documentElement) {
-        const parentIndex = elementMap.get(currentParent);
-        if (parentIndex !== undefined) {
-          const parentEntry = entries[parentIndex];
-          if (parentEntry.type === "landmark") {
-            parentLandmarkIndex = parentIndex;
-            nestLevel = parentEntry.nestLevel + 1;
-            break;
-          }
-        }
-        currentParent = currentParent.parentElement;
-      }
-      // 親ドキュメントから継承された親ランドマークがある場合
-      if (
-        parentLandmarkIndex === undefined &&
-        inheritedParentLandmarkIndex !== undefined
-      ) {
-        parentLandmarkIndex = inheritedParentLandmarkIndex;
-        const inheritedParent = entries[inheritedParentLandmarkIndex];
-        if (inheritedParent.type === "landmark") {
-          nestLevel = inheritedParent.nestLevel + 1;
-        }
-      }
-
-      const entry: LandmarkEntry = {
-        type: "landmark",
-        role: landmarkRole,
-        label,
-        tag: tagName,
+      processLandmarkElement(
+        element,
+        tagName,
+        landmarkRole,
         xpaths,
-        childIndices: [],
-        nestLevel,
-        parentLandmarkIndex,
-      };
-
-      elementMap.set(element, entries.length);
-      entries.push(entry);
-
-      // 親ランドマークの子リストに追加
-      if (parentLandmarkIndex !== undefined) {
-        const parent = entries[parentLandmarkIndex];
-        if (parent.type === "landmark") {
-          parent.childIndices.push(entries.length - 1);
-        }
-      }
+        doc,
+        elementMap,
+        entries,
+        inheritedParentLandmarkIndex,
+      );
     }
   }
 
@@ -232,18 +395,9 @@ export const getTableOfContents = (options?: {
   );
 
   // トップレベルのエントリ（親がないもの）を抽出
-  const topLevelIndices: number[] = [];
-  for (let i = 0; i < entries.length; i++) {
-    const entry = entries[i];
-    if (entry.type === "heading" && entry.parentLandmarkIndex === undefined) {
-      topLevelIndices.push(i);
-    } else if (
-      entry.type === "landmark" &&
-      entry.parentLandmarkIndex === undefined
-    ) {
-      topLevelIndices.push(i);
-    }
-  }
+  const topLevelIndices = entries
+    .filter((entry) => entry.parentLandmarkIndex === undefined)
+    .map((entry) => entry.index);
 
   return {
     entries,
