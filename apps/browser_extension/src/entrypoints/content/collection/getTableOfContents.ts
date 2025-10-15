@@ -12,14 +12,18 @@ const getTableOfContentsFromDocument = (
   doc: Document,
   xpathPrefix: string[] = [],
   exclude?: string,
+  parentElementMap?: Map<Element, number>,
+  parentEntries?: Array<HeadingEntry | LandmarkEntry>,
+  inheritedParentLandmarkIndex?: number,
 ): {
   entries: Array<HeadingEntry | LandmarkEntry>;
   elementMap: Map<Element, number>;
 } => {
-  const entries: Array<HeadingEntry | LandmarkEntry> = [];
-  const elementMap = new Map<Element, number>();
+  // 親から渡された場合はそれを使用、なければ新規作成
+  const entries = parentEntries || [];
+  const elementMap = parentElementMap || new Map<Element, number>();
 
-  // 見出しとランドマークのセレクタを一度に取得
+  // 見出しとランドマークのセレクタ
   const headingSelector = "h1, h2, h3, h4, h5, h6, [role='heading']";
   const landmarkSelector = [
     "header",
@@ -38,9 +42,9 @@ const getTableOfContentsFromDocument = (
     '[role="region"]',
   ].join(",");
 
-  // すべての要素を一度に取得してDOM順にイテレート
+  // iframe/frameも含めてすべての要素を取得
   const allElements = doc.querySelectorAll(
-    `${headingSelector}, ${landmarkSelector}`,
+    `${headingSelector}, ${landmarkSelector}, iframe, frame`,
   );
 
   for (const element of allElements) {
@@ -49,6 +53,47 @@ const getTableOfContentsFromDocument = (
       continue;
     }
     if (exclude && element.closest(exclude)) {
+      continue;
+    }
+
+    // iframe/frameの場合は中身を処理
+    if (
+      element instanceof HTMLIFrameElement ||
+      element instanceof HTMLFrameElement
+    ) {
+      try {
+        const frameDoc = element.contentDocument;
+        if (frameDoc) {
+          const frameXPath = getXPath(element);
+
+          // iframe要素自体の親ランドマークを探す
+          let iframeParentLandmarkIndex: number | undefined;
+          let currentParent = element.parentElement;
+          while (currentParent?.ownerDocument) {
+            const parentIndex = elementMap.get(currentParent);
+            if (parentIndex !== undefined) {
+              const parentEntry = entries[parentIndex];
+              if (parentEntry.type === "landmark") {
+                iframeParentLandmarkIndex = parentIndex;
+                break;
+              }
+            }
+            currentParent = currentParent.parentElement;
+          }
+
+          // 再帰的に処理（同じentriesとelementMapを渡し、iframe要素の親ランドマークも渡す）
+          getTableOfContentsFromDocument(
+            frameDoc,
+            [...xpathPrefix, frameXPath],
+            exclude,
+            elementMap,
+            entries,
+            iframeParentLandmarkIndex,
+          );
+        }
+      } catch (_e) {
+        // iframe/frameへのアクセスが許可されていない場合はスキップ
+      }
       continue;
     }
 
@@ -85,6 +130,13 @@ const getTableOfContentsFromDocument = (
           }
         }
         currentParent = currentParent.parentElement;
+      }
+      // 親ドキュメントから継承された親ランドマークがある場合
+      if (
+        parentLandmarkIndex === undefined &&
+        inheritedParentLandmarkIndex !== undefined
+      ) {
+        parentLandmarkIndex = inheritedParentLandmarkIndex;
       }
 
       const entry: HeadingEntry = {
@@ -128,6 +180,17 @@ const getTableOfContentsFromDocument = (
         }
         currentParent = currentParent.parentElement;
       }
+      // 親ドキュメントから継承された親ランドマークがある場合
+      if (
+        parentLandmarkIndex === undefined &&
+        inheritedParentLandmarkIndex !== undefined
+      ) {
+        parentLandmarkIndex = inheritedParentLandmarkIndex;
+        const inheritedParent = entries[inheritedParentLandmarkIndex];
+        if (inheritedParent.type === "landmark") {
+          nestLevel = inheritedParent.nestLevel + 1;
+        }
+      }
 
       const entry: LandmarkEntry = {
         type: "landmark",
@@ -150,50 +213,6 @@ const getTableOfContentsFromDocument = (
           parent.childIndices.push(entries.length - 1);
         }
       }
-    }
-  }
-
-  // iframe/frame内も処理
-  const frames = doc.querySelectorAll("iframe, frame");
-  for (const frame of frames) {
-    try {
-      const frameElement = frame as HTMLIFrameElement | HTMLFrameElement;
-      const frameDoc = frameElement.contentDocument;
-      if (!frameDoc) continue;
-
-      const frameXPath = getXPath(frame);
-      const frameResult = getTableOfContentsFromDocument(
-        frameDoc,
-        [...xpathPrefix, frameXPath],
-        exclude,
-      );
-
-      // フレーム内のエントリを追加（インデックスを調整）
-      const indexOffset = entries.length;
-      for (const entry of frameResult.entries) {
-        if (entry.type === "landmark") {
-          const adjustedEntry: LandmarkEntry = {
-            ...entry,
-            parentLandmarkIndex:
-              entry.parentLandmarkIndex !== undefined
-                ? entry.parentLandmarkIndex + indexOffset
-                : undefined,
-            childIndices: entry.childIndices.map((i) => i + indexOffset),
-          };
-          entries.push(adjustedEntry);
-        } else {
-          const adjustedEntry: HeadingEntry = {
-            ...entry,
-            parentLandmarkIndex:
-              entry.parentLandmarkIndex !== undefined
-                ? entry.parentLandmarkIndex + indexOffset
-                : undefined,
-          };
-          entries.push(adjustedEntry);
-        }
-      }
-    } catch (_e) {
-      // iframe/frameへのアクセスが許可されていない場合はスキップ
     }
   }
 

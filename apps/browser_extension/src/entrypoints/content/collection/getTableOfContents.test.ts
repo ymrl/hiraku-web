@@ -333,4 +333,188 @@ describe("getTableOfContents", () => {
     );
     expect(visible).toBeDefined();
   });
+
+  test("iframe content is included in DOM order", () => {
+    document.body.innerHTML = `
+      <h1>Before iframe</h1>
+      <iframe id="test-iframe"></iframe>
+      <h2>After iframe</h2>
+    `;
+
+    const iframe = document.getElementById("test-iframe") as HTMLIFrameElement;
+    const iframeDoc = iframe.contentDocument;
+    if (iframeDoc) {
+      iframeDoc.body.innerHTML = `
+        <h3>Heading in iframe</h3>
+        <nav aria-label="Iframe nav">Nav in iframe</nav>
+      `;
+    }
+
+    const toc = getTableOfContents();
+
+    // DOM順序を確認
+    const entries = toc.entries;
+    const h1Index = entries.findIndex(
+      (e) => e.type === "heading" && e.text === "Before iframe",
+    );
+    const h3Index = entries.findIndex(
+      (e) => e.type === "heading" && e.text === "Heading in iframe",
+    );
+    const navIndex = entries.findIndex(
+      (e) => e.type === "landmark" && e.role === "navigation",
+    );
+    const h2Index = entries.findIndex(
+      (e) => e.type === "heading" && e.text === "After iframe",
+    );
+
+    // iframe内のコンテンツがDOM順序で表示されることを確認
+    expect(h1Index).toBeLessThan(h3Index);
+    expect(h3Index).toBeLessThan(navIndex);
+    expect(navIndex).toBeLessThan(h2Index);
+  });
+
+  test("iframe content inherits parent landmark", () => {
+    document.body.innerHTML = `
+      <main>
+        <h1>Main heading</h1>
+        <iframe id="test-iframe"></iframe>
+      </main>
+    `;
+
+    const iframe = document.getElementById("test-iframe") as HTMLIFrameElement;
+    const iframeDoc = iframe.contentDocument;
+    if (iframeDoc) {
+      iframeDoc.body.innerHTML = `
+        <h2>Iframe heading</h2>
+        <nav aria-label="Iframe nav">Nav in iframe</nav>
+      `;
+    }
+
+    const toc = getTableOfContents();
+
+    // mainランドマークを探す
+    const mainEntry = toc.entries.find(
+      (e) => e.type === "landmark" && e.role === "main",
+    );
+    expect(mainEntry).toBeDefined();
+    if (!mainEntry) return;
+
+    const mainIndex = toc.entries.indexOf(mainEntry);
+
+    // iframe内の見出しがmainを親として持つことを確認
+    const iframeHeading = toc.entries.find(
+      (e) => e.type === "heading" && e.text === "Iframe heading",
+    );
+    expect(iframeHeading).toBeDefined();
+    expect(iframeHeading?.type).toBe("heading");
+    if (iframeHeading?.type === "heading") {
+      expect(iframeHeading.parentLandmarkIndex).toBe(mainIndex);
+    }
+
+    // iframe内のランドマークもmainを親として持つことを確認
+    const iframeNav = toc.entries.find(
+      (e) => e.type === "landmark" && e.role === "navigation",
+    );
+    expect(iframeNav).toBeDefined();
+    expect(iframeNav?.type).toBe("landmark");
+    if (iframeNav?.type === "landmark") {
+      expect(iframeNav.parentLandmarkIndex).toBe(mainIndex);
+      expect(iframeNav.nestLevel).toBe(1); // mainのnestLevel(0) + 1
+    }
+  });
+
+  test("nested iframe with landmarks", () => {
+    document.body.innerHTML = `
+      <main>
+        <h1>Main heading</h1>
+        <aside>
+          <h2>Aside heading</h2>
+          <iframe id="test-iframe"></iframe>
+        </aside>
+      </main>
+    `;
+
+    const iframe = document.getElementById("test-iframe") as HTMLIFrameElement;
+    const iframeDoc = iframe.contentDocument;
+    if (iframeDoc) {
+      iframeDoc.body.innerHTML = `
+        <h3>Iframe heading in aside</h3>
+        <section aria-label="Section">Section in iframe</section>
+      `;
+    }
+
+    const toc = getTableOfContents();
+
+    // asideランドマークを探す
+    const asideEntry = toc.entries.find(
+      (e) => e.type === "landmark" && e.role === "complementary",
+    );
+    expect(asideEntry).toBeDefined();
+    expect(asideEntry?.type).toBe("landmark");
+    if (!asideEntry) return;
+
+    const asideIndex = toc.entries.indexOf(asideEntry);
+
+    // asideのnestLevelを確認（mainの中なので1）
+    if (asideEntry?.type === "landmark") {
+      expect(asideEntry.nestLevel).toBe(1);
+    }
+
+    // iframe内の見出しがasideを親として持つことを確認
+    const iframeHeading = toc.entries.find(
+      (e) => e.type === "heading" && e.text === "Iframe heading in aside",
+    );
+    expect(iframeHeading).toBeDefined();
+    if (iframeHeading?.type === "heading") {
+      expect(iframeHeading.parentLandmarkIndex).toBe(asideIndex);
+    }
+
+    // iframe内のsectionランドマークがasideを親として持つことを確認
+    const iframeSection = toc.entries.find(
+      (e) =>
+        e.type === "landmark" && e.role === "region" && e.label === "Section",
+    );
+    expect(iframeSection).toBeDefined();
+    if (iframeSection?.type === "landmark") {
+      expect(iframeSection.parentLandmarkIndex).toBe(asideIndex);
+      expect(iframeSection.nestLevel).toBe(2); // asideのnestLevel(1) + 1
+    }
+  });
+
+  test("iframe without parent landmark", () => {
+    document.body.innerHTML = `
+      <h1>Top heading</h1>
+      <iframe id="test-iframe"></iframe>
+    `;
+
+    const iframe = document.getElementById("test-iframe") as HTMLIFrameElement;
+    const iframeDoc = iframe.contentDocument;
+    if (iframeDoc) {
+      iframeDoc.body.innerHTML = `
+        <h2>Iframe heading</h2>
+        <main>Main in iframe</main>
+      `;
+    }
+
+    const toc = getTableOfContents();
+
+    // iframe内の見出しが親ランドマークを持たないことを確認
+    const iframeHeading = toc.entries.find(
+      (e) => e.type === "heading" && e.text === "Iframe heading",
+    );
+    expect(iframeHeading).toBeDefined();
+    if (iframeHeading?.type === "heading") {
+      expect(iframeHeading.parentLandmarkIndex).toBeUndefined();
+    }
+
+    // iframe内のmainランドマークもトップレベルであることを確認
+    const iframeMain = toc.entries.find(
+      (e) => e.type === "landmark" && e.role === "main",
+    );
+    expect(iframeMain).toBeDefined();
+    if (iframeMain?.type === "landmark") {
+      expect(iframeMain.parentLandmarkIndex).toBeUndefined();
+      expect(iframeMain.nestLevel).toBe(0);
+    }
+  });
 });
