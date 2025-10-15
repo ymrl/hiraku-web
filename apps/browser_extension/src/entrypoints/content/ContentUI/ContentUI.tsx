@@ -48,21 +48,23 @@ export function ContentUI({
     [frameWindow],
   );
 
+  const { frameType } = use(FrameContext);
   useEffect(() => {
+    if (frameType === "iframe") return;
     addListener(messageListener);
     return () => {
       removeListener(messageListener);
     };
-  }, [messageListener]);
+  }, [messageListener, frameType]);
 
   useEffect(() => {
+    if (frameType === "iframe") return;
     (frameWindow || window).addEventListener("click", handleClosePanel);
     return () => {
       (frameWindow || window).removeEventListener("click", handleClosePanel);
     };
   });
   const [temporarilyHidden, setTemporarilyHidden] = useState(false);
-  const { frameType } = use(FrameContext);
   if (frameType === "iframe") {
     return null;
   }
