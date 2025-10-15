@@ -13,6 +13,12 @@
   "noTableOfContents": "No table of contents found",
   "loading": "Loading...",
   "error": "Error loading page structure",
+  "displayMode": "Display",
+  "displayModes": {
+    "all": "All",
+    "landmarksOnly": "Landmarks Only",
+    "headingsOnly": "Headings Only"
+  },
   "level": "Level",
   "role": "Role",
   "label": "Label",

@@ -13,6 +13,12 @@
   "noTableOfContents": "目次が見つかりません",
   "loading": "読み込み中...",
   "error": "ページ構造の読み込みエラー",
+  "displayMode": "表示",
+  "displayModes": {
+    "all": "すべて",
+    "landmarksOnly": "ランドマークのみ",
+    "headingsOnly": "見出しのみ"
+  },
   "level": "レベル",
   "role": "ロール",
   "label": "ラベル",
