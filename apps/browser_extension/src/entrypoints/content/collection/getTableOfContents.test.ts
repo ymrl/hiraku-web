@@ -38,6 +38,50 @@ describe("getTableOfContents", () => {
     expect(toc.entries[1]).toMatchObject({ text: "Hello" });
   });
 
+  test("aria-level overrides tag name", () => {
+    document.body.innerHTML = `
+      <h1 aria-level="3">H1 with aria-level 3</h1>
+      <h2 aria-level="1">H2 with aria-level 1</h2>
+      <div role="heading" aria-level="4">Heading with aria-level 4</div>
+      <div role="heading">Heading without aria-level</div>
+    `;
+    const toc = getTableOfContents();
+
+    expect(toc.entries.length).toBe(4);
+    expect(toc.entries.every((entry) => entry.type === "heading")).toBe(true);
+
+    const h1Entry = toc.entries.find(
+      (e) => e.type === "heading" && e.text === "H1 with aria-level 3",
+    );
+    const h2Entry = toc.entries.find(
+      (e) => e.type === "heading" && e.text === "H2 with aria-level 1",
+    );
+    const divEntry = toc.entries.find(
+      (e) => e.type === "heading" && e.text === "Heading with aria-level 4",
+    );
+    const divNoLevelEntry = toc.entries.find(
+      (e) => e.type === "heading" && e.text === "Heading without aria-level",
+    );
+
+    expect(h1Entry).toBeDefined();
+    expect(h2Entry).toBeDefined();
+    expect(divEntry).toBeDefined();
+    expect(divNoLevelEntry).toBeDefined();
+
+    if (h1Entry?.type === "heading") {
+      expect(h1Entry.level).toBe(3);
+    }
+    if (h2Entry?.type === "heading") {
+      expect(h2Entry.level).toBe(1);
+    }
+    if (divEntry?.type === "heading") {
+      expect(divEntry.level).toBe(4);
+    }
+    if (divNoLevelEntry?.type === "heading") {
+      expect(divNoLevelEntry.level).toBe(2); // デフォルト値
+    }
+  });
+
   test("only landmarks (no headings)", () => {
     document.body.innerHTML = `
       <header>Header</header>

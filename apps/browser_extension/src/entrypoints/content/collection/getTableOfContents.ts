@@ -166,9 +166,13 @@ const processHeadingElement = (
     computeAccessibleName(element) || element.textContent?.trim() || "";
   if (!text) return;
 
-  const level = /^h[1-6]$/.test(tagName)
-    ? Number.parseInt(tagName.substring(1), 10)
-    : Number.parseInt(element.getAttribute("aria-level") || "2", 10);
+  // aria-level属性がある場合はそれを優先、なければタグ名から取得
+  const ariaLevel = element.getAttribute("aria-level");
+  const level = ariaLevel
+    ? Number.parseInt(ariaLevel, 10)
+    : /^h[1-6]$/.test(tagName)
+      ? Number.parseInt(tagName.substring(1), 10)
+      : 2;
 
   const parentLandmarkIndex = findParentLandmarkIndex(
     element,
