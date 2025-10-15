@@ -11,13 +11,14 @@
   "noHeadings": "見出しが見つかりません",
   "noLandmarks": "ランドマークが見つかりません",
   "noTableOfContents": "目次が見つかりません",
+  "noLevelHeadings": "指定されたレベルの見出しが見つかりません",
   "loading": "読み込み中...",
   "error": "ページ構造の読み込みエラー",
   "displayMode": "表示",
   "displayModes": {
-    "all": "すべて",
-    "landmarksOnly": "ランドマークのみ",
-    "headingsOnly": "見出しのみ"
+    "all": "目次",
+    "landmarksOnly": "ランドマーク",
+    "headingsOnly": "見出し"
   },
   "level": "レベル",
   "role": "ロール",

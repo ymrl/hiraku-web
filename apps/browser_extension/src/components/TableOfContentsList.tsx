@@ -204,28 +204,21 @@ export function TableOfContentsList({
       <h2 className="sr-only" id={`${id}-heading`}>
         {t("tableOfContents")}
       </h2>
-      <div className="flex items-center gap-2 mb-2 px-2">
-        <div className="flex-1">
-          <HeadingLevelSlider
-            value={levelFilter}
-            onChange={(value) => onLevelFilterChange?.(value)}
-          />
-        </div>
-        <div className="flex items-center gap-1">
-          <label
-            htmlFor={`${id}-display-mode`}
-            className="text-sm text-stone-700 dark:text-stone-300"
-          >
+      <div
+        className="flex items-center gap-4 px-3 py-2 sticky top-0 left-0 bg-stone-100 dark:bg-stone-800 border-b border-stone-200 dark:border-stone-700
+      "
+      >
+        <div>
+          <label htmlFor={`${id}-display-mode`} className="sr-only">
             {t("displayMode")}:
           </label>
           <select
             id={`${id}-display-mode`}
             value={displayMode}
             onChange={(e) => setDisplayMode(e.target.value as DisplayMode)}
-            className="text-sm px-2 py-1 rounded border border-stone-300 dark:border-stone-600
+            className="text-sm pl-0.5 pr-0 py-1 w-28 h-8 rounded border border-stone-300 dark:border-stone-600
               bg-white dark:bg-stone-800
-              text-stone-800 dark:text-stone-200
-              focus:outline-none focus:ring-2 focus:ring-rose-400"
+              text-stone-800 dark:text-stone-200"
           >
             <option value="all">{t("displayModes.all")}</option>
             <option value="landmarksOnly">
@@ -235,6 +228,13 @@ export function TableOfContentsList({
               {t("displayModes.headingsOnly")}
             </option>
           </select>
+        </div>
+        <div className="flex-1">
+          <HeadingLevelSlider
+            value={levelFilter}
+            onChange={(value) => onLevelFilterChange?.(value)}
+            disabled={displayMode === "landmarksOnly"}
+          />
         </div>
       </div>
       {loading ? (
@@ -272,7 +272,7 @@ export function TableOfContentsList({
           <p className="text-sm text-stone-500 dark:text-stone-400">
             {!tableOfContents || tableOfContents.entries.length === 0
               ? t("noTableOfContents")
-              : "選択したレベルの見出しがありません"}
+              : t("noLevelHeadings")}
           </p>
         </div>
       )}
