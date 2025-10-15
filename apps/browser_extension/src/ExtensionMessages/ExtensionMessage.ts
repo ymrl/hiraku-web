@@ -1,6 +1,4 @@
 import type { OpenUserInterface, OpenUserInterfaceResponse } from "./Content";
-import type { GetHeadings, GetHeadingsResponse } from "./GetHeadings";
-import type { GetLandmarks, GetLandmarksResponse } from "./GetLandmarks";
 import type {
   GetTableOfContents,
   GetTableOfContentsResponse,
@@ -37,10 +35,8 @@ import type {
 } from "./TextStyleSettings";
 
 export type ExtensionMessage =
-  | GetHeadings
   | UpdateTextStyle
   | GetPageTextStyle
-  | GetLandmarks
   | GetTableOfContents
   | EnableSpeech
   | DisableSpeech
@@ -53,10 +49,8 @@ export type ExtensionMessage =
   | SelectedTab
   | OpenUserInterface;
 export type ExtensionMessageResponse =
-  | GetHeadingsResponse
   | UpdateTextStyleResponse
   | GetPageTextStyleResponse
-  | GetLandmarksResponse
   | GetTableOfContentsResponse
   | EnableSpeechResponse
   | DisableSpeechResponse

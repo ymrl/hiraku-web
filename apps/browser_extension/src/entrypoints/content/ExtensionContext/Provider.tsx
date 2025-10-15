@@ -1,7 +1,7 @@
 import { type ReactNode, useCallback, useEffect } from "react";
 import { browser } from "wxt/browser";
 import type { ExtensionMessage, MessageListener } from "@/ExtensionMessages";
-import { getHeadings, getLandmarks, getTableOfContents } from "../collection";
+import { getTableOfContents } from "../collection";
 import { ExtensionContext } from "./ExtensionContext";
 import { useNavigation } from "./useNavigation";
 import { useSpeech } from "./useSpeech";
@@ -26,20 +26,6 @@ export const Provider = ({ children }: { children?: ReactNode }) => {
   const respondMessage: MessageListener<ExtensionMessage> = useCallback(
     (message, _sender, sendResponse) => {
       const { action } = message;
-      if (action === "getHeadings") {
-        const headings = getHeadings({
-          exclude: "[data-hiraku-web-iframe-root]",
-        });
-        sendResponse({ action, headings });
-        return true;
-      }
-      if (action === "getLandmarks") {
-        const landmarks = getLandmarks({
-          exclude: "[data-hiraku-web-iframe-root]",
-        });
-        sendResponse({ action, landmarks });
-        return true;
-      }
       if (action === "getTableOfContents") {
         const tableOfContents = getTableOfContents({
           exclude: "[data-hiraku-web-iframe-root]",
