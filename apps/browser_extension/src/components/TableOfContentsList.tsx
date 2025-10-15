@@ -105,14 +105,14 @@ function LandmarkGroup({
           rounded-lg border-2 border-transparent
           hover:border-rose-300 dark:hover:border-rose-400
           cursor-pointer
-          flex items-center py-2 px-2"
+          flex items-center py-1 px-2"
       >
         <span>
-          <span className="text-base">
+          <span className="text-sm">
             {entry.label || t(`landmarkRoles.${entry.role}`)}
           </span>
           {entry.label && (
-            <span className="text-sm font-normal">
+            <span className="text-xs font-normal">
               {" "}
               ({t(`landmarkRoles.${entry.role}`)})
             </span>
@@ -124,7 +124,7 @@ function LandmarkGroup({
           className="space-y-1"
           aria-labelledby={groupId}
           style={{
-            paddingLeft: `${0.5 + (indentLevel + 1) * 1.5}rem`,
+            paddingLeft: `${(indentLevel + 1) * 1}rem`,
           }}
         >
           {childEntries.map((child) =>
