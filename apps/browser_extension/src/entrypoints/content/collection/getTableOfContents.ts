@@ -1,121 +1,203 @@
-import type {
-  Heading,
-  HeadingEntry,
-  Landmark,
-  LandmarkEntry,
-  TableOfContents,
-} from "@/types";
-import { getHeadings } from "./getHeadings";
-import { getLandmarks } from "./getLandmarks";
+import { computeAccessibleName } from "dom-accessibility-api";
+import getXPath from "get-xpath";
+import { getLandmarkRole } from "@/aria/getLandmarkRole";
+import type { HeadingEntry, LandmarkEntry, TableOfContents } from "@/types";
+import { isAriaHidden, isInAriaHidden } from "@/utils/isAriaHidden";
+import { isHidden } from "@/utils/isHidden";
 
 /**
- * XPathから要素を取得する
+ * ドキュメントから目次を取得する（再帰的にiframe/frameも処理）
  */
-const getElementByXPath = (xpaths: string[]): Element | null => {
-  let currentDoc: Document | null = document;
-  let currentElement: Element | null = null;
+const getTableOfContentsFromDocument = (
+  doc: Document,
+  xpathPrefix: string[] = [],
+  exclude?: string,
+): {
+  entries: Array<HeadingEntry | LandmarkEntry>;
+  elementMap: Map<Element, number>;
+} => {
+  const entries: Array<HeadingEntry | LandmarkEntry> = [];
+  const elementMap = new Map<Element, number>();
 
-  for (const xpath of xpaths) {
-    if (!currentDoc) return null;
+  // 見出しとランドマークのセレクタを一度に取得
+  const headingSelector = "h1, h2, h3, h4, h5, h6, [role='heading']";
+  const landmarkSelector = [
+    "header",
+    "nav",
+    "main",
+    "aside",
+    "footer",
+    "section",
+    '[role="banner"]',
+    '[role="navigation"]',
+    '[role="main"]',
+    '[role="complementary"]',
+    '[role="contentinfo"]',
+    '[role="search"]',
+    '[role="form"]',
+    '[role="region"]',
+  ].join(",");
 
-    const result = currentDoc.evaluate(
-      xpath,
-      currentDoc,
-      null,
-      XPathResult.FIRST_ORDERED_NODE_TYPE,
-      null,
-    );
-    currentElement = result.singleNodeValue as Element | null;
+  // すべての要素を一度に取得してDOM順にイテレート
+  const allElements = doc.querySelectorAll(
+    `${headingSelector}, ${landmarkSelector}`,
+  );
 
-    if (!currentElement) return null;
-
-    // iframe/frameの場合は次のdocumentに移動
-    if (
-      currentElement instanceof HTMLIFrameElement ||
-      currentElement instanceof HTMLFrameElement
-    ) {
-      currentDoc = currentElement.contentDocument;
-    } else if (xpaths[xpaths.length - 1] !== xpath) {
-      // まだXPathが残っているのに要素がiframe/frameでない場合はエラー
-      return null;
+  for (const element of allElements) {
+    // 除外条件チェック
+    if (isHidden(element) || isAriaHidden(element) || isInAriaHidden(element)) {
+      continue;
     }
-  }
+    if (exclude && element.closest(exclude)) {
+      continue;
+    }
 
-  return currentElement;
-};
+    const xpath = getXPath(element);
+    const xpaths = [...xpathPrefix, xpath];
+    const tagName = element.tagName.toLowerCase();
 
-/**
- * 要素が別の要素に含まれているかを判定
- */
-const isElementInContainer = (
-  elementXPaths: string[],
-  containerXPaths: string[],
-): boolean => {
-  const element = getElementByXPath(elementXPaths);
-  const container = getElementByXPath(containerXPaths);
+    // 見出しかランドマークか判定
+    const isHeading =
+      /^h[1-6]$/.test(tagName) || element.getAttribute("role") === "heading";
+    const landmarkRole = isHeading
+      ? null
+      : getLandmarkRole(element as HTMLElement);
 
-  if (!element || !container) return false;
-  if (element === container) return false;
+    if (isHeading) {
+      // 見出し
+      const text = element.textContent?.trim() || "";
+      if (!text) continue;
 
-  return container.contains(element);
-};
+      const level = /^h[1-6]$/.test(tagName)
+        ? Number.parseInt(tagName.substring(1), 10)
+        : Number.parseInt(element.getAttribute("aria-level") || "2", 10);
 
-/**
- * 見出しまたはランドマークの親ランドマークを見つける
- */
-const findParentLandmark = (
-  elementXPaths: string[],
-  landmarks: LandmarkEntry[],
-): number | undefined => {
-  // より深い（より具体的な）ランドマークを優先
-  let deepestParent: { index: number; depth: number } | undefined;
+      // 親ランドマークを探す
+      let parentLandmarkIndex: number | undefined;
+      let currentParent = element.parentElement;
+      while (currentParent && currentParent !== doc.documentElement) {
+        const parentIndex = elementMap.get(currentParent);
+        if (parentIndex !== undefined) {
+          const parentEntry = entries[parentIndex];
+          if (parentEntry.type === "landmark") {
+            parentLandmarkIndex = parentIndex;
+            break;
+          }
+        }
+        currentParent = currentParent.parentElement;
+      }
 
-  for (let i = 0; i < landmarks.length; i++) {
-    if (isElementInContainer(elementXPaths, landmarks[i].xpaths)) {
-      const depth = landmarks[i].xpaths.join("/").length;
-      if (!deepestParent || depth > deepestParent.depth) {
-        deepestParent = { index: i, depth };
+      const entry: HeadingEntry = {
+        type: "heading",
+        level,
+        text,
+        xpaths,
+        parentLandmarkIndex,
+      };
+
+      elementMap.set(element, entries.length);
+      entries.push(entry);
+
+      // 親ランドマークの子リストに追加
+      if (parentLandmarkIndex !== undefined) {
+        const parent = entries[parentLandmarkIndex];
+        if (parent.type === "landmark") {
+          parent.childIndices.push(entries.length - 1);
+        }
+      }
+    } else if (landmarkRole) {
+      // ランドマーク
+      const label = computeAccessibleName(element).trim();
+      if (tagName === "section" && !label) {
+        continue;
+      }
+
+      // 親ランドマークを探す
+      let parentLandmarkIndex: number | undefined;
+      let nestLevel = 0;
+      let currentParent = element.parentElement;
+      while (currentParent && currentParent !== doc.documentElement) {
+        const parentIndex = elementMap.get(currentParent);
+        if (parentIndex !== undefined) {
+          const parentEntry = entries[parentIndex];
+          if (parentEntry.type === "landmark") {
+            parentLandmarkIndex = parentIndex;
+            nestLevel = parentEntry.nestLevel + 1;
+            break;
+          }
+        }
+        currentParent = currentParent.parentElement;
+      }
+
+      const entry: LandmarkEntry = {
+        type: "landmark",
+        role: landmarkRole,
+        label,
+        tag: tagName,
+        xpaths,
+        childIndices: [],
+        nestLevel,
+        parentLandmarkIndex,
+      };
+
+      elementMap.set(element, entries.length);
+      entries.push(entry);
+
+      // 親ランドマークの子リストに追加
+      if (parentLandmarkIndex !== undefined) {
+        const parent = entries[parentLandmarkIndex];
+        if (parent.type === "landmark") {
+          parent.childIndices.push(entries.length - 1);
+        }
       }
     }
   }
 
-  return deepestParent?.index;
-};
+  // iframe/frame内も処理
+  const frames = doc.querySelectorAll("iframe, frame");
+  for (const frame of frames) {
+    try {
+      const frameElement = frame as HTMLIFrameElement | HTMLFrameElement;
+      const frameDoc = frameElement.contentDocument;
+      if (!frameDoc) continue;
 
-/**
- * 2つの要素のDOM順序を比較する（マージソート用）
- */
-const compareElementPosition = (
-  xpathsA: string[],
-  xpathsB: string[],
-): number => {
-  const elementA = getElementByXPath(xpathsA);
-  const elementB = getElementByXPath(xpathsB);
+      const frameXPath = getXPath(frame);
+      const frameResult = getTableOfContentsFromDocument(
+        frameDoc,
+        [...xpathPrefix, frameXPath],
+        exclude,
+      );
 
-  if (!elementA || !elementB) {
-    return 0;
+      // フレーム内のエントリを追加（インデックスを調整）
+      const indexOffset = entries.length;
+      for (const entry of frameResult.entries) {
+        if (entry.type === "landmark") {
+          const adjustedEntry: LandmarkEntry = {
+            ...entry,
+            parentLandmarkIndex:
+              entry.parentLandmarkIndex !== undefined
+                ? entry.parentLandmarkIndex + indexOffset
+                : undefined,
+            childIndices: entry.childIndices.map((i) => i + indexOffset),
+          };
+          entries.push(adjustedEntry);
+        } else {
+          const adjustedEntry: HeadingEntry = {
+            ...entry,
+            parentLandmarkIndex:
+              entry.parentLandmarkIndex !== undefined
+                ? entry.parentLandmarkIndex + indexOffset
+                : undefined,
+          };
+          entries.push(adjustedEntry);
+        }
+      }
+    } catch (_e) {
+      // iframe/frameへのアクセスが許可されていない場合はスキップ
+    }
   }
 
-  if (elementA === elementB) return 0;
-
-  const position = elementA.compareDocumentPosition(elementB);
-
-  if (position & Node.DOCUMENT_POSITION_FOLLOWING) {
-    return -1; // A が B より前
-  }
-  if (position & Node.DOCUMENT_POSITION_PRECEDING) {
-    return 1; // A が B より後
-  }
-
-  // 包含関係の場合、親が先
-  if (position & Node.DOCUMENT_POSITION_CONTAINS) {
-    return -1;
-  }
-  if (position & Node.DOCUMENT_POSITION_CONTAINED_BY) {
-    return 1;
-  }
-
-  return 0;
+  return { entries, elementMap };
 };
 
 /**
@@ -124,123 +206,23 @@ const compareElementPosition = (
 export const getTableOfContents = (options?: {
   exclude?: string;
 }): TableOfContents => {
-  const headings: Heading[] = getHeadings(options);
-  const landmarks: Landmark[] = getLandmarks(options);
-
-  // ランドマークエントリを作成
-  const landmarkEntries: LandmarkEntry[] = landmarks.map((landmark) => ({
-    type: "landmark" as const,
-    role: landmark.role,
-    label: landmark.label,
-    tag: landmark.tag,
-    xpaths: landmark.xpaths,
-    childIndices: [],
-    nestLevel: 0,
-  }));
-
-  // ランドマークの親子関係を設定
-  for (let i = 0; i < landmarkEntries.length; i++) {
-    const parentIndex = findParentLandmark(
-      landmarkEntries[i].xpaths,
-      landmarkEntries.slice(0, i),
-    );
-    if (parentIndex !== undefined) {
-      landmarkEntries[i].parentLandmarkIndex = parentIndex;
-      const parent = landmarkEntries[parentIndex];
-      landmarkEntries[i].nestLevel = parent.nestLevel + 1;
-    }
-  }
-
-  // 見出しエントリを作成
-  const headingEntries: HeadingEntry[] = headings.map((heading) => {
-    const parentIndex = findParentLandmark(heading.xpaths, landmarkEntries);
-    return {
-      type: "heading" as const,
-      level: heading.level,
-      text: heading.text,
-      xpaths: heading.xpaths,
-      parentLandmarkIndex: parentIndex,
-    };
-  });
-
-  // 見出しとランドマークをマージしてDOM順にソート
-  type EntryWithType =
-    | { type: "heading"; entry: HeadingEntry; originalIndex: number }
-    | { type: "landmark"; entry: LandmarkEntry; originalIndex: number };
-
-  const allEntries: EntryWithType[] = [
-    ...landmarkEntries.map((entry, index) => ({
-      type: "landmark" as const,
-      entry,
-      originalIndex: index,
-    })),
-    ...headingEntries.map((entry, index) => ({
-      type: "heading" as const,
-      entry,
-      originalIndex: index,
-    })),
-  ];
-
-  // DOM順にソート
-  allEntries.sort((a, b) =>
-    compareElementPosition(a.entry.xpaths, b.entry.xpaths),
+  const { entries } = getTableOfContentsFromDocument(
+    document,
+    [],
+    options?.exclude,
   );
 
-  // 最終的なエントリリストとトップレベルインデックスを構築
-  const entries: Array<HeadingEntry | LandmarkEntry> = [];
+  // トップレベルのエントリ（親がないもの）を抽出
   const topLevelIndices: number[] = [];
-  const landmarkIndexMap = new Map<number, number>();
-
-  for (const item of allEntries) {
-    const newIndex = entries.length;
-
-    if (item.type === "landmark") {
-      landmarkIndexMap.set(item.originalIndex, newIndex);
-      entries.push(item.entry);
-
-      if (item.entry.parentLandmarkIndex === undefined) {
-        topLevelIndices.push(newIndex);
-      }
-    } else {
-      // 見出しの親ランドマークインデックスを新しいインデックスに変換
-      const entry = { ...item.entry };
-      if (entry.parentLandmarkIndex !== undefined) {
-        entry.parentLandmarkIndex = landmarkIndexMap.get(
-          entry.parentLandmarkIndex,
-        );
-      }
-      entries.push(entry);
-
-      if (entry.parentLandmarkIndex === undefined) {
-        topLevelIndices.push(newIndex);
-      }
-    }
-  }
-
-  // ランドマークの親子インデックスを更新
   for (let i = 0; i < entries.length; i++) {
     const entry = entries[i];
-
-    if (entry.type === "landmark" && entry.parentLandmarkIndex !== undefined) {
-      const originalParentIndex = landmarkEntries.findIndex(
-        (le) => le.xpaths.join("/") === entry.xpaths.join("/"),
-      );
-      if (originalParentIndex !== -1) {
-        const parentEntry = landmarkEntries[originalParentIndex];
-        if (parentEntry.parentLandmarkIndex !== undefined) {
-          entry.parentLandmarkIndex = landmarkIndexMap.get(
-            parentEntry.parentLandmarkIndex,
-          );
-        }
-      }
-    }
-
-    // 子インデックスを設定
-    if (entry.parentLandmarkIndex !== undefined) {
-      const parent = entries[entry.parentLandmarkIndex];
-      if (parent.type === "landmark") {
-        parent.childIndices.push(i);
-      }
+    if (entry.type === "heading" && entry.parentLandmarkIndex === undefined) {
+      topLevelIndices.push(i);
+    } else if (
+      entry.type === "landmark" &&
+      entry.parentLandmarkIndex === undefined
+    ) {
+      topLevelIndices.push(i);
     }
   }
 
