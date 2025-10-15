@@ -24,6 +24,20 @@ describe("getTableOfContents", () => {
     expect(toc.topLevelIndices).toEqual([0, 1, 2]);
   });
 
+  test("image heading", () => {
+    document.body.innerHTML = `
+      <h1><img src="image.png" alt="Heading1"></h1>
+      <h2><img src="image.png" alt=""></h2>
+      <h3><img src="image.png" alt="">Hello</h3>
+    `;
+    const toc = getTableOfContents();
+    expect(toc.entries.length).toBe(2);
+    expect(toc.entries.every((entry) => entry.type === "heading")).toBe(true);
+    expect(toc.topLevelIndices).toEqual([0, 1]);
+    expect(toc.entries[0]).toMatchObject({ text: "Heading1" });
+    expect(toc.entries[1]).toMatchObject({ text: "Hello" });
+  });
+
   test("only landmarks (no headings)", () => {
     document.body.innerHTML = `
       <header>Header</header>

@@ -162,7 +162,8 @@ const processHeadingElement = (
   entries: Array<HeadingEntry | LandmarkEntry>,
   inheritedParentLandmarkIndex?: number,
 ): void => {
-  const text = element.textContent?.trim() || "";
+  const text =
+    computeAccessibleName(element) || element.textContent?.trim() || "";
   if (!text) return;
 
   const level = /^h[1-6]$/.test(tagName)
