@@ -35,7 +35,7 @@ function HeadingItem({
           rounded-lg border-2 border-transparent
           hover:border-rose-300 dark:hover:border-rose-400
           cursor-pointer
-          flex items-center py-2 space-x-2 px-2"
+          flex items-center py-2 px-2 gap-2"
       >
         <span
           className="flex-shrink-0
@@ -88,7 +88,7 @@ function LandmarkGroup({
     });
 
   return (
-    <>
+    <li className="flex items-stretch flex-col">
       <button
         type="button"
         id={groupId}
@@ -100,21 +100,19 @@ function LandmarkGroup({
           rounded-lg border-2 border-transparent
           hover:border-rose-300 dark:hover:border-rose-400
           cursor-pointer
-          py-2 font-semibold"
-        style={{
-          paddingLeft: `${0.5 + indentLevel * 1.5}rem`,
-          paddingRight: "0.5rem",
-        }}
+          flex items-center py-2 px-2"
       >
-        <span className="text-base">
-          {entry.label || t(`landmarkRoles.${entry.role}`)}
-        </span>
-        {entry.label && (
-          <span className="text-sm font-normal">
-            {" "}
-            ({t(`landmarkRoles.${entry.role}`)})
+        <span>
+          <span className="text-base">
+            {entry.label || t(`landmarkRoles.${entry.role}`)}
           </span>
-        )}
+          {entry.label && (
+            <span className="text-sm font-normal">
+              {" "}
+              ({t(`landmarkRoles.${entry.role}`)})
+            </span>
+          )}
+        </span>
       </button>
       {childEntries.length > 0 && (
         <ul
@@ -145,7 +143,7 @@ function LandmarkGroup({
           )}
         </ul>
       )}
-    </>
+    </li>
   );
 }
 
@@ -244,29 +242,27 @@ export function TableOfContentsList({
           </p>
         </div>
       ) : hasVisibleEntries && tableOfContents ? (
-        <div className="space-y-1 p-1 min-h-32">
+        <ul className="p-1 space-y-1 min-h-32">
           {visibleEntries.map((entry) =>
             entry.type === "heading" ? (
-              <ul key={`top-heading-${entry.index}`} className="space-y-1">
-                <HeadingItem
-                  entry={entry}
-                  onScrollToElement={onScrollToElement}
-                />
-              </ul>
+              <HeadingItem
+                key={`top-heading-${entry.index}`}
+                entry={entry}
+                onScrollToElement={onScrollToElement}
+              />
             ) : (
-              <div key={`top-landmark-${entry.index}`} className="space-y-1">
-                <LandmarkGroup
-                  entry={entry}
-                  tableOfContents={tableOfContents}
-                  onScrollToElement={onScrollToElement}
-                  displayMode={displayMode}
-                  levelFilter={levelFilter}
-                  groupId={`${id}-landmark-${entry.index}`}
-                />
-              </div>
+              <LandmarkGroup
+                key={`top-landmark-${entry.index}`}
+                entry={entry}
+                tableOfContents={tableOfContents}
+                onScrollToElement={onScrollToElement}
+                displayMode={displayMode}
+                levelFilter={levelFilter}
+                groupId={`${id}-landmark-${entry.index}`}
+              />
             ),
           )}
-        </div>
+        </ul>
       ) : (
         <div className="h-32 flex justify-center items-center">
           <p className="text-sm text-stone-500 dark:text-stone-400">
