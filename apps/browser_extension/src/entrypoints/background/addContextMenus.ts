@@ -32,15 +32,9 @@ export const addContextMenus = () => {
       contexts: ["page", "frame", "selection", "link", "editable", "image"],
     });
     browser.contextMenus.create({
-      id: "openHeadingsList",
+      id: "openTableOfContents",
       parentId: "root",
-      title: t("contextMenu.openHeadingsList"),
-      contexts: ["page", "frame", "selection", "link", "editable", "image"],
-    });
-    browser.contextMenus.create({
-      id: "openLandmarksList",
-      parentId: "root",
-      title: t("contextMenu.openLandmarksList"),
+      title: t("contextMenu.openTableOfContents"),
       contexts: ["page", "frame", "selection", "link", "editable", "image"],
     });
     browser.contextMenus.create({
@@ -58,12 +52,8 @@ export const addContextMenus = () => {
   });
 
   browser.contextMenus.onClicked.addListener((info) => {
-    if (info.menuItemId === "openHeadingsList") {
-      openTab(info, "headings");
-      return;
-    }
-    if (info.menuItemId === "openLandmarksList") {
-      openTab(info, "landmarks");
+    if (info.menuItemId === "openTableOfContents") {
+      openTab(info, "tableOfContents");
       return;
     }
     if (info.menuItemId === "openTextSettings") {
@@ -97,7 +87,7 @@ export const addContextMenus = () => {
 
 const openTab = async (
   info: Browser.contextMenus.OnClickData,
-  tab: "headings" | "landmarks" | "text" | "speech",
+  tab: "tableOfContents" | "text" | "speech",
 ) => {
   console.log("Open tab:", tab, info);
   if (browser.action) {

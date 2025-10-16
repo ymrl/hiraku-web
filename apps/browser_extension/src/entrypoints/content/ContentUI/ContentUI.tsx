@@ -1,10 +1,11 @@
-import { use, useCallback, useEffect, useState } from "react";
+import { use, useCallback, useEffect, useRef, useState } from "react";
 import {
   addListener,
   type ExtensionMessage,
   type MessageListener,
   removeListener,
 } from "@/ExtensionMessages";
+import { type ExtensionTab, loadActiveTab, saveActiveTab } from "@/storage";
 import style from "../content.css?inline";
 import { ExtensionContext } from "../ExtensionContext";
 import { FrameContext } from "../FrameManager";
@@ -27,9 +28,16 @@ export function ContentUI({
     setIsPanelOpen(false);
   }, []);
 
-  const [activeTab, setActiveTab] = useState<
-    "headings" | "landmarks" | "text" | "speech"
-  >("headings");
+  const [activeTab, setActiveTab] = useState<ExtensionTab>("tableOfContents");
+
+  const loadedRef = useRef(false);
+  if (!loadedRef.current) {
+    (async () => {
+      const savedTab = await loadActiveTab();
+      setActiveTab(savedTab);
+    })();
+    loadedRef.current = true;
+  }
 
   const messageListener: MessageListener<ExtensionMessage> = useCallback(
     (message, _sender, _sendResponse) => {
@@ -42,6 +50,13 @@ export function ContentUI({
         }
         setActiveTab(tab);
         setIsPanelOpen(true);
+        saveActiveTab(tab);
+        return true;
+      }
+      if (action === "selectedTab") {
+        const { tab } = message;
+        setActiveTab(tab);
+        saveActiveTab(tab);
         return true;
       }
     },
@@ -99,7 +114,10 @@ export function ContentUI({
             <FloatingWindow
               onClose={handleClosePanel}
               activeTab={activeTab}
-              onTabChange={(tab) => setActiveTab(tab)}
+              onTabChange={(tab) => {
+                setActiveTab(tab);
+                saveActiveTab(tab);
+              }}
             />
           </div>
         )}

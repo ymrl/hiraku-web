@@ -5,12 +5,21 @@
   "title": "ページ構造",
   "headings": "見出し",
   "landmarks": "ランドマーク",
+  "tableOfContents": "目次",
   "speeches": "読み上げ",
   "text": "文字",
   "noHeadings": "見出しが見つかりません",
   "noLandmarks": "ランドマークが見つかりません",
+  "noTableOfContents": "目次が見つかりません",
+  "noLevelHeadings": "指定されたレベルの見出しが見つかりません",
   "loading": "読み込み中...",
   "error": "ページ構造の読み込みエラー",
+  "displayMode": "表示",
+  "displayModes": {
+    "all": "目次",
+    "landmarksOnly": "ランドマーク",
+    "headingsOnly": "見出し"
+  },
   "level": "レベル",
   "role": "ロール",
   "label": "ラベル",
@@ -61,8 +70,7 @@
     "em": "em"
   },
   "contextMenu": {
-    "openHeadingsList": "見出しリストを開く...",
-    "openLandmarksList": "ランドマークのリストを開く...",
+    "openTableOfContents": "目次を開く...",
     "openTextSettings": "文字の設定を開く...",
     "openSpeechSettings": "音声読み上げの設定を開く...",
     "speech": "音声読み上げ"

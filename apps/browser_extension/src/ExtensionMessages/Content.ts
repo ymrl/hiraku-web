@@ -1,6 +1,6 @@
 export type OpenUserInterface = {
   action: "openUserInterface";
-  tab: "headings" | "landmarks" | "text" | "speech";
+  tab: "tableOfContents" | "text" | "speech";
   frameUrl?: string;
 };
 export type OpenUserInterfaceResponse = {
