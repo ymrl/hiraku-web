@@ -1,4 +1,5 @@
 import type { TableOfContentsEntry } from "@/types";
+import { Level } from "./Level";
 
 /**
  * 見出しアイテム
@@ -24,18 +25,9 @@ export function HeadingItem({
           rounded-lg border-2 border-transparent
           hover:border-rose-300 dark:hover:border-rose-400
           cursor-pointer
-          flex items-center py-2 px-2 gap-2"
+          flex items-center py-2 px-2 gap-3"
       >
-        <span
-          className="flex-shrink-0
-            inline-flex items-center justify-center
-            w-6 h-6
-            text-sm font-bold
-            text-stone-500 dark:text-stone-300
-            border border-rose-200 dark:border-rose-300 rounded"
-        >
-          {entry.level}
-        </span>
+        <Level level={entry.level} />
         <span className="text-left text-base">{entry.text}</span>
       </button>
     </li>
