@@ -106,11 +106,11 @@ export function TableOfContentsList({
               text-stone-800 dark:text-stone-200"
           >
             <option value="all">{t("displayModes.all")}</option>
-            <option value="landmarksOnly">
-              {t("displayModes.landmarksOnly")}
-            </option>
             <option value="headingsOnly">
               {t("displayModes.headingsOnly")}
+            </option>
+            <option value="landmarksOnly">
+              {t("displayModes.landmarksOnly")}
             </option>
           </select>
         </div>
