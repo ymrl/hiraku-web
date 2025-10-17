@@ -1,8 +1,10 @@
 import { browser } from "wxt/browser";
 
+export type DisplayMode = "all" | "landmarksOnly" | "headingsOnly";
+
 export type TocListState = {
   levelFilter: number;
-  displayMode: "all" | "landmarksOnly" | "headingsOnly";
+  displayMode: DisplayMode;
 };
 
 export const saveTocListState = async (state: TocListState) => {
