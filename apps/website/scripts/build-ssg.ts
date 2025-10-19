@@ -14,6 +14,7 @@ interface PageConfig {
   lang: "ja" | "en";
   title: string;
   description: string;
+  url: string;
 }
 
 const pages: PageConfig[] = [
@@ -24,6 +25,7 @@ const pages: PageConfig[] = [
     title: "ひらくウェブ - 読みやすいウェブへ",
     description:
       "ウェブページをもっと快適に。目次を作ったり、文字の大きさや間隔を調節したり。読みやすさに合わせてウェブをひらく拡張機能です。",
+    url: "https://ymrl.github.io/hiraku-web/",
   },
   {
     path: "en.html",
@@ -32,11 +34,13 @@ const pages: PageConfig[] = [
     title: "Hiraku Web - Make the Web More Readable",
     description:
       "A browser extension that makes the web more readable. Create table of contents, adjust text styling, and read aloud.",
+    url: "https://ymrl.github.io/hiraku-web/en.html",
   },
 ];
 
 function generateHTML(config: PageConfig): string {
   const html = renderToStaticMarkup(config.component);
+  const ogImageUrl = "https://ymrl.github.io/hiraku-web/card.png";
 
   return `<!doctype html>
 <html lang="${config.lang}">
@@ -46,6 +50,21 @@ function generateHTML(config: PageConfig): string {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="${config.description}" />
     <title>${config.title}</title>
+
+    <!-- Open Graph Protocol -->
+    <meta property="og:title" content="${config.title}" />
+    <meta property="og:description" content="${config.description}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="${config.url}" />
+    <meta property="og:image" content="${ogImageUrl}" />
+    <meta property="og:locale" content="${config.lang === "ja" ? "ja_JP" : "en_US"}" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${config.title}" />
+    <meta name="twitter:description" content="${config.description}" />
+    <meta name="twitter:image" content="${ogImageUrl}" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
