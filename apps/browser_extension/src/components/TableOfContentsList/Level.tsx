@@ -20,14 +20,14 @@ export const Level = ({ level }: { level: number }) => {
                   : "text-stone-600 dark:text-stone-300"
         } ${
           level === 1
-            ? "border-rose-400 dark:border-rose-500 border-2"
+            ? "border-rose-400 dark:border-rose-100 border-2"
             : level === 2
-              ? "border-rose-300 dark:border-rose-700 border-2"
+              ? "border-rose-300 dark:border-rose-200 border-2"
               : level === 3
-                ? "border-rose-200 dark:border-rose-800 border-2"
+                ? "border-rose-200 dark:border-rose-300 border-2"
                 : level === 4
-                  ? "border-rose-300 dark:border-rose-800 border"
-                  : "border-rose-200 dark:border-rose-800 border"
+                  ? "border-rose-300 dark:border-rose-400 border"
+                  : "border-rose-200 dark:border-rose-500 border"
         }`}
       >
         {level}
