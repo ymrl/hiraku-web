@@ -2,6 +2,10 @@
 
 ひらくウェブは、Webページの目次を見たり、文字の表示をカスタマイズしたり、音声で読み上げたりできるブラウザ拡張機能です。
 
+[Webサイト](https://ymrl.github.io/hiraku-web/)
+
+このドキュメントは、開発者向けの情報です。
+
 ## 開発
 
 ```bash
@@ -20,7 +24,18 @@ $ pnpm build
 # テスト
 $ pnpm install-playwright
 $ pnpm test
+
+# リント・フォーマット
+$ pnpm lint
+$ pnpm lint-fix
+
+# Webサイトのプレビュー
+$ pnpm dev:website
 ```
+
+## プライバシーポリシー
+
+[./PRIVACY.md](./PRIVACY.md)
 
 ## ライセンス
 

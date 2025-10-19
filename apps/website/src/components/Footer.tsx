@@ -8,17 +8,25 @@ export function Footer({ lang }: FooterProps) {
 
   return (
     <footer className="bg-stone-800 text-stone-300 py-8 mt-16">
-      <div className="container mx-auto px-6 text-center">
-        <p className="text-sm">
-          &copy; {currentYear} ymrl{" "}
+      <ul className="container mx-auto px-6 text-center flex gap-4 flex-wrap items-center justify-center">
+        <li className="text-sm">&copy; {currentYear} ymrl</li>
+        <li className="text-sm">
           <a
             className="underline text-stone-300 hover:text-rose-300"
-            href="https://github.com/ymrl/hiraku-web"
+            href="https://github.com/ymrl/hiraku-web/blob/main/LICENSE.txt"
           >
             {isJapanese ? "MITライセンス" : "MIT License"}
           </a>
-        </p>
-      </div>
+        </li>
+        <li className="text-sm">
+          <a
+            className="underline text-stone-300 hover:text-rose-300"
+            href="https://github.com/ymrl/hiraku-web/blob/main/PRIVACY.md"
+          >
+            {isJapanese ? "プライバシーポリシー" : "Privacy Policy"}
+          </a>
+        </li>
+      </ul>
     </footer>
   );
 }
