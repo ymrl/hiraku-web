@@ -4,6 +4,7 @@ import { Button } from "@/components/Button";
 import { SettingSlider } from "@/components/SettingSlider";
 import { SPEECH_SETTINGS } from "@/Speech";
 import type { SpeechSettings } from "@/types";
+import { Switch } from "./Switch";
 
 const { t } = createI18n();
 
@@ -74,31 +75,35 @@ export function Speech({
       <h2 className="sr-only" id={`${id}-heading`}>
         {t("speeches")}
       </h2>
-      <div className="px-3 py-3 bg-stone-100 dark:bg-stone-800 border-b border-stone-200 dark:border-stone-700">
-        <label className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => (isEnabled ? onDisable?.() : onEnable?.())}
-            className={
-              "w-11 h-6 rounded-full relative " +
-              "before:content-[''] before:absolute before:rounded-full before:h-5 before:w-5 before:transition-all " +
-              (isEnabled
-                ? "bg-rose-600 hover:not-disabled:bg-rose-600 "
-                : "bg-stone-600 hover:bg-stone-600 ") +
-              "before:left-[2px] before:top-[2px] " +
-              "before:bg-stone-100 hover:before:bg-white " +
-              (isEnabled ? "before:translate-x-full before:border-white" : "")
-            }
-            aria-pressed={isEnabled}
+      {/** biome-ignore lint/a11y/noStaticElementInteractions: only to support click the button */}
+      {/** biome-ignore lint/a11y/useKeyWithClickEvents: only to support click the button */}
+      <div
+        className="px-3 py-3 bg-stone-100 dark:bg-stone-800 border-b border-stone-200 dark:border-stone-700"
+        onClick={(e) => {
+          if ("tagName" in e.target && e.target.tagName === "BUTTON") {
+            return;
+          }
+          const event = new MouseEvent("click", {
+            bubbles: true,
+            cancelable: true,
+          });
+          const switchElement = e.currentTarget.querySelector("button");
+          switchElement?.dispatchEvent(event);
+        }}
+      >
+        <div className="flex items-center gap-2">
+          <Switch
+            isOn={isEnabled}
+            onToggle={(enabled) => (enabled ? onEnable?.() : onDisable?.())}
           >
-            <span className="sr-only">{t("speech.enableSpeech")}</span>
-          </button>
+            {t("speech.enableSpeech")}
+          </Switch>
           <span className="text-sm font-medium text-stone-700 dark:text-stone-100">
             {isEnabled
               ? t("speech.speechModeEnabled")
               : t("speech.speechModeDisabled")}
           </span>
-        </label>
+        </div>
       </div>
 
       <div className="flex flex-col gap-4 p-4">
@@ -152,7 +157,7 @@ export function Speech({
         </div>
 
         <div className="flex items-center justify-between gap-1">
-          <p className="text-xs text-stone-700 dark:text-stone-300">
+          <p className="text-xs leading-4 text-stone-700 dark:text-stone-300">
             {t("speech.disclaimer")}
           </p>
           <div className="shrink-0">

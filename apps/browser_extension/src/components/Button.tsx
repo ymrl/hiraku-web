@@ -18,7 +18,7 @@ export const Button = ({
     onClick={onClick}
     disabled={disabled}
     className={
-      "transition-colors font-bold rounded-lg " +
+      "transition-colors font-bold rounded-lg min-h-9 " +
       (size === "small" ? "px-3 py-2 text-xs " : "px-4 py-2 text-sm ") +
       (appearance === "primary"
         ? "bg-rose-600 hover:not-disabled:bg-rose-700 text-white " +

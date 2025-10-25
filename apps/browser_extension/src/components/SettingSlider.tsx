@@ -8,10 +8,10 @@ export const SettingSlider = ({
   max,
   step,
   onChange,
-  disabled = false,
   unit = "",
   toDisplay = (v) => v,
   fromDisplay = (v) => v,
+  status = "active",
 }: {
   label: string;
   value: number;
@@ -19,10 +19,10 @@ export const SettingSlider = ({
   max: number;
   step: number;
   onChange: (value: number) => void;
-  disabled?: boolean;
   unit?: string;
   toDisplay?: (value: number) => number;
   fromDisplay?: (value: number) => number;
+  status?: "active" | "inactive";
 }) => {
   const id = useId();
 
@@ -32,7 +32,7 @@ export const SettingSlider = ({
         <label
           htmlFor={id}
           className={`text-sm font-medium ${
-            disabled
+            status === "inactive"
               ? "text-stone-600 dark:text-stone-400"
               : "text-stone-800 dark:text-stone-300"
           }`}
@@ -53,9 +53,8 @@ export const SettingSlider = ({
                 onChange(Math.min(Math.max(actualValue, min), max));
               }
             }}
-            disabled={disabled}
             className={`text-sm font-bold ${
-              disabled
+              status === "inactive"
                 ? "text-stone-600 dark:text-stone-400 bg-transparent"
                 : "text-rose-600 dark:text-rose-400 bg-transparent hover:bg-white hover:dark:bg-stone-900 focus:bg-white focus:dark:bg-stone-900"
             } min-w-16 text-right border border-transparent hover:border-stone-300 hover:dark:border-stone-600 focus:border-stone-300 focus:dark:border-stone-600 rounded px-2 py-1 transition-colors`}
@@ -63,7 +62,7 @@ export const SettingSlider = ({
           {unit && (
             <span
               className={`text-sm font-bold ${
-                disabled
+                status === "inactive"
                   ? "text-stone-600 dark:text-stone-400"
                   : "text-rose-600 dark:text-rose-400"
               }`}
@@ -80,7 +79,6 @@ export const SettingSlider = ({
         step={step}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        disabled={disabled}
       />
     </div>
   );
