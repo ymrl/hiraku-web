@@ -168,31 +168,29 @@ export const TextStyleSection = ({
         </div>
       </div>
 
-      <div className="flex justify-between items-center gap-4 flex-wrap">
-        {/* 保存・リセットボタン */}
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            appearance="primary"
-            onClick={() => save(textStyle)}
-            disabled={
-              isSaving ||
-              textStyleStatus === "default" ||
-              textStyleStatus === "saved"
-            }
-          >
-            {t("options.save")}
-          </Button>
+      {/* 保存・リセットボタン */}
+      <div className="flex flex-wrap items-center gap-2">
+        <Button
+          appearance="primary"
+          onClick={() => save(textStyle)}
+          disabled={
+            isSaving ||
+            textStyleStatus === "default" ||
+            textStyleStatus === "saved"
+          }
+        >
+          {t("options.save")}
+        </Button>
 
-          <Button
-            appearance="secondary"
-            onClick={reset}
-            disabled={isSaving || textStyleStatus === "default"}
-          >
-            {t("options.resetToDefaults")}
-          </Button>
-        </div>
         <Button
           appearance="secondary"
+          onClick={reset}
+          disabled={isSaving || textStyleStatus === "default"}
+        >
+          {t("options.resetToDefaults")}
+        </Button>
+        <Button
+          appearance="tertiary"
           disabled={isSaving}
           onClick={setDefaultValues}
         >
