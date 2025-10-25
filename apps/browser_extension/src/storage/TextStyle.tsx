@@ -80,3 +80,25 @@ export const removeHostTextStyle = async (host: string) => {
     console.error("Failed to remove text style settings:", err);
   }
 };
+
+export const clearAllTextStyleSettings = async () => {
+  try {
+    const allKeys = await browser.storage.local.getKeys();
+    const textStyleKeys = allKeys.filter((key) => key.startsWith("textStyle_"));
+    if (textStyleKeys.length > 0) {
+      await browser.storage.local.remove(textStyleKeys);
+    }
+  } catch (err) {
+    console.error("Failed to clear all text style settings:", err);
+  }
+};
+
+export const isAnyTextStyleSettingsSaved = async (): Promise<boolean> => {
+  try {
+    const allKeys = await browser.storage.local.getKeys();
+    return allKeys.some((key) => key.startsWith("textStyle_"));
+  } catch (err) {
+    console.error("Failed to check saved text style settings:", err);
+    return false;
+  }
+};
