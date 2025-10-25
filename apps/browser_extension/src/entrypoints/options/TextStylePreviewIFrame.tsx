@@ -38,14 +38,7 @@ export const TextStylePreviewIFrame = ({
       iframeDoc.getElementById(`iframe-${id}-root`) ||
       iframeDoc.createElement("div");
     iframeRoot.id = `iframe-${id}-root`;
-    iframeRoot.style.cssText = `
-      font-size: 1rem;
-    `;
     iframeDoc.body.appendChild(iframeRoot);
-    iframeDoc.body.style.cssText = `
-      margin: 0.5rem;
-      font-size: 100%;
-    `;
     rootRef.current = iframeRoot;
     reload(Date.now());
   }, [id]);
@@ -54,9 +47,6 @@ export const TextStylePreviewIFrame = ({
     <>
       <iframe
         className="width-full overflow-hidden bg-stone-50 dark:bg-stone-700 rounded-lg shrink grow flex flex-col border border-stone-300 dark:border-stone-600"
-        style={{
-          fontSize: "1rem",
-        }}
         title={t("options.preview")}
         id={id}
         ref={iframeRef}
@@ -71,6 +61,16 @@ export const TextStylePreviewIFrame = ({
               <p key={line}>{line}</p>
             ))}
             <TextCSS settings={textStyle} />
+            <style>
+              body {"{"}
+              margin: 0.5rem; font-size: 100%; color-scheme: light dark;
+              {"}"}
+              @media(prefers-color-scheme: dark) {"{"}
+              body {"{"}
+              color: #fff;
+              {"}"}
+              {"}"}
+            </style>
           </>,
           rootRef.current,
         )}
