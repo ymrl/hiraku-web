@@ -12,7 +12,7 @@ import {
 import { loadSpeechSettings } from "@/storage";
 import type { SpeechSettings } from "@/types";
 
-export const useSpeech = () => {
+export const useSpeaker = () => {
   const [isEnabled, setIsEnabled] = useState(false);
   const [speechSettings, setSpeechSettings] = useState<SpeechSettings>({
     rate: 1,

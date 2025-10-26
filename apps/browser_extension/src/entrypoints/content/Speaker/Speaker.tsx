@@ -1,7 +1,7 @@
 import { createI18n } from "@wxt-dev/i18n";
 import { use, useCallback, useEffect, useRef, useState } from "react";
+import { SpeakerContext } from "@/Speech";
 import type { Rect } from "@/types";
-import { ExtensionContext } from "../ExtensionContext";
 import { findBlock } from "./findBlock";
 import { getSpeechContent } from "./getSpeechContent";
 import { SpeechButton } from "./SpeechButton";
@@ -9,7 +9,7 @@ import { SpeechButton } from "./SpeechButton";
 const { t } = createI18n();
 
 export const Speaker = () => {
-  const { speechSettings, isSpeechEnabled } = use(ExtensionContext);
+  const { speechSettings, isSpeechEnabled } = use(SpeakerContext);
 
   const [targetRect, setTargetRect] = useState<Rect | undefined>(undefined);
   const [speakingRect, setSpeakingRect] = useState<Rect | undefined>(undefined);

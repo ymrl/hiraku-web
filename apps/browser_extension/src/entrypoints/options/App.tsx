@@ -2,6 +2,7 @@ import { createI18n } from "@wxt-dev/i18n";
 import { useCallback, useRef, useState } from "react";
 import { LandmarkNavigation } from "@/components/LandmarkNavigation";
 import { TextCSS } from "@/components/TextCSS";
+import { SpeakerContext, useSpeaker } from "@/Speech";
 import {
   loadDefaultTextStyleSettings,
   loadUserInterfaceSettings,
@@ -13,6 +14,7 @@ import {
 } from "@/TableOfContents";
 import type { UserInterfaceSettings } from "@/types";
 import type { TextStyleSettings } from "../../types/text";
+import { Speaker } from "../content/Speaker";
 import { ClearSettingsSection } from "./ClearSettingsSection";
 import { TextStyleSection } from "./TextStyleSection";
 import { UserInterfaceSection } from "./UserInterfaceSection";
@@ -48,32 +50,36 @@ function App({ rootRef }: { rootRef: React.RefObject<HTMLElement | null> }) {
   }
   useRespondingTableOfContentsMessage({});
   const navigaitonValuses = useNavigation();
+  const speakerValues = useSpeaker();
 
   return (
     <NavigationContext value={navigaitonValuses}>
-      <div className="min-h-screen bg-stone-100 dark:bg-stone-900 sm:p-8 p-4">
-        <h1 className="mb-4 text-xl font-bold text-rose-600 dark:text-rose-300">
-          {t("options.pageTitle")}
-        </h1>
-        <div className="space-y-12">
-          {/* テキストスタイルのデフォルト値設定 */}
-          <TextStyleSection
-            defaultTextStyle={defaultTextStyle}
-            onSavedDefaultTextStyle={(settings) => {
-              setDefaultTextStyle(settings);
-            }}
-          />
-          <UserInterfaceSection
-            userInterfaceSettings={userInterfaceSettings}
-            onSave={(settings) => {
-              setUserInterfaceSettings(settings);
-            }}
-          />
-          <ClearSettingsSection />
+      <SpeakerContext value={speakerValues}>
+        <div className="min-h-screen bg-stone-100 dark:bg-stone-900 sm:p-8 p-4">
+          <h1 className="mb-4 text-xl font-bold text-rose-600 dark:text-rose-300">
+            {t("options.pageTitle")}
+          </h1>
+          <div className="space-y-12">
+            {/* テキストスタイルのデフォルト値設定 */}
+            <TextStyleSection
+              defaultTextStyle={defaultTextStyle}
+              onSavedDefaultTextStyle={(settings) => {
+                setDefaultTextStyle(settings);
+              }}
+            />
+            <UserInterfaceSection
+              userInterfaceSettings={userInterfaceSettings}
+              onSave={(settings) => {
+                setUserInterfaceSettings(settings);
+              }}
+            />
+            <ClearSettingsSection />
+          </div>
         </div>
-      </div>
-      <LandmarkNavigation rootRef={rootRef} />
-      <TextCSS settings={defaultTextStyle || {}} />
+        <LandmarkNavigation rootRef={rootRef} />
+        <TextCSS settings={defaultTextStyle || {}} />
+        <Speaker />
+      </SpeakerContext>
     </NavigationContext>
   );
 }
