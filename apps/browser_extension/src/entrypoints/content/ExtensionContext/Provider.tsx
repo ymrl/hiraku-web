@@ -1,67 +1,29 @@
-import { type ReactNode, useCallback, useEffect } from "react";
-import { browser } from "wxt/browser";
-import type { ExtensionMessage, MessageListener } from "@/ExtensionMessages";
-import { getTableOfContents } from "../collection";
+import type { ReactNode } from "react";
+import { SpeakerContext, useSpeaker } from "@/Speech";
+import { NavigationContext, useNavigation } from "@/TableOfContents";
+import { TextStyleContext, useTextStyle } from "@/TextStyle";
 import { ExtensionContext } from "./ExtensionContext";
-import { useNavigation } from "./useNavigation";
-import { useSpeech } from "./useSpeech";
-import { useTextStyle } from "./useTextStyle";
 import { useUserInterfaceSettings } from "./useUserInterfaceSettings";
 
 export const Provider = ({ children }: { children?: ReactNode }) => {
-  const { currentTextStyle, pageDefaultTextStyle, updateCurrentTextStyle } =
-    useTextStyle();
-
-  const {
-    isSpeechEnabled,
-    enableSpeech,
-    disableSpeech,
-    speechSettings,
-    updateSpeechSettings,
-  } = useSpeech();
-
-  const { xpaths, updateXpaths, navigationTimestamp } = useNavigation();
-  const useUserInterfaceSettingsReturn = useUserInterfaceSettings();
-
-  const respondMessage: MessageListener<ExtensionMessage> = useCallback(
-    (message, _sender, sendResponse) => {
-      const { action } = message;
-      if (action === "getTableOfContents") {
-        const tableOfContents = getTableOfContents({
-          exclude: "[data-hiraku-web-iframe-root]",
-        });
-        sendResponse({ action, tableOfContents });
-        return true;
-      }
-    },
-    [],
-  );
-
-  useEffect(() => {
-    browser.runtime.onMessage.addListener(respondMessage);
-    return () => {
-      browser.runtime.onMessage.removeListener(respondMessage);
-    };
-  }, [respondMessage]);
+  const textStyleValues = useTextStyle();
+  const speakerValues = useSpeaker();
+  const navigationContextValues = useNavigation();
+  const userInterfaceSettings = useUserInterfaceSettings();
 
   return (
-    <ExtensionContext
-      value={{
-        currentTextStyle,
-        updateCurrentTextStyle,
-        pageDefaultTextStyle,
-        isSpeechEnabled,
-        speechSettings,
-        updateSpeechSettings,
-        enableSpeech,
-        disableSpeech,
-        xpaths,
-        navigationTimestamp,
-        updateXpaths,
-        ...useUserInterfaceSettingsReturn,
-      }}
-    >
-      {children}
-    </ExtensionContext>
+    <NavigationContext value={navigationContextValues}>
+      <SpeakerContext value={speakerValues}>
+        <TextStyleContext value={textStyleValues}>
+          <ExtensionContext
+            value={{
+              ...userInterfaceSettings,
+            }}
+          >
+            {children}
+          </ExtensionContext>
+        </TextStyleContext>
+      </SpeakerContext>
+    </NavigationContext>
   );
 };

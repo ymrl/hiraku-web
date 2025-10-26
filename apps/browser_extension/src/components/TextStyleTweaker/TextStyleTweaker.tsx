@@ -1,9 +1,9 @@
 import { use } from "react";
 import { TextCSS } from "@/components/TextCSS";
-import { ExtensionContext } from "../ExtensionContext";
+import { TextStyleContext } from "@/TextStyle";
 
 export const TextStyleTweaker = () => {
-  const { currentTextStyle } = use(ExtensionContext);
+  const { currentTextStyle } = use(TextStyleContext);
   if (!currentTextStyle) {
     return null;
   }

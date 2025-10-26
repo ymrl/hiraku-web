@@ -2,7 +2,7 @@ import { createI18n } from "@wxt-dev/i18n";
 import { use } from "react";
 import { TabNavigation } from "@/components/TabNavigation";
 import type { ExtensionTab } from "@/storage";
-import { ExtensionContext } from "../../ExtensionContext";
+import { NavigationContext } from "@/TableOfContents";
 import { SpeechPanel } from "./SpeechPanel";
 import { TableOfContentsPanel } from "./TableOfContentsPanel";
 import { TextStylePanel } from "./TextStylePanel";
@@ -18,7 +18,7 @@ export function FloatingWindow({
   onTabChange: (tab: "tableOfContents" | "text" | "speech") => void;
   onClose: () => void;
 }) {
-  const { updateXpaths } = use(ExtensionContext);
+  const { updateXpaths } = use(NavigationContext);
 
   const scrollToElement = async (xpaths: string[]) => {
     updateXpaths(xpaths);

@@ -1,8 +1,8 @@
 import { use, useCallback } from "react";
 import { Speech } from "@/components/Speech";
+import { SpeakerContext } from "@/Speech";
 import { removeSpeechSettings, saveSpeechSettings } from "@/storage";
 import type { SpeechSettings } from "@/types";
-import { ExtensionContext } from "../../ExtensionContext";
 
 export const SpeechPanel = () => {
   const {
@@ -11,7 +11,7 @@ export const SpeechPanel = () => {
     updateSpeechSettings,
     enableSpeech,
     disableSpeech,
-  } = use(ExtensionContext);
+  } = use(SpeakerContext);
   const onChangeSettings = useCallback(
     async (newSettings: SpeechSettings) => {
       saveSpeechSettings(newSettings);

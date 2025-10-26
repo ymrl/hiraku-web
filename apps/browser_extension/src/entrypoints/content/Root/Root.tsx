@@ -6,12 +6,13 @@ import {
   useId,
 } from "react";
 import { createRoot } from "react-dom/client";
+import { LandmarkNavigation } from "@/components/LandmarkNavigation";
+import { useRespondingTableOfContentsMessage } from "@/TableOfContents";
+import { Speaker } from "../../../components/Speaker";
+import { TextStyleTweaker } from "../../../components/TextStyleTweaker";
 import { ContentUI } from "../ContentUI";
 import { Provider } from "../ExtensionContext";
 import { FrameManager } from "../FrameManager";
-import { LandmarkNavigation } from "../LandmarkNavigation";
-import { Speaker } from "../Speaker";
-import { TextStyleTweaker } from "../TextStyleTweaker";
 import { useWindowSize } from "../useWindowSize";
 import { RootContext } from "./RootContext";
 
@@ -44,12 +45,15 @@ export const Root = ({
   useEffect(() => {
     rootRef.current?.setAttribute("id", id);
   }, [id, rootRef]);
+  useRespondingTableOfContentsMessage({
+    exclude: "[data-hiraku-web-iframe-root]",
+  });
 
   return (
     <RootContext value={{ id, rootRef }}>
       <Provider>
         <TextStyleTweaker />
-        <LandmarkNavigation />
+        <LandmarkNavigation rootRef={rootRef} />
         <Speaker />
         <ContentUI {...windowSize} />
         <FrameManager>
