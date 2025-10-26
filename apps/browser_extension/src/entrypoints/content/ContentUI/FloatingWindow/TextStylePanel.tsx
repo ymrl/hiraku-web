@@ -1,8 +1,8 @@
 import { use } from "react";
 import { TextStyle } from "@/components/TextStyle";
 import { loadDefaultTextStyleSettings, removeHostTextStyle } from "@/storage";
+import { TextStyleContext } from "@/TextStyle";
 import type { TextStyleSettings } from "@/types";
-import { ExtensionContext } from "../../ExtensionContext";
 
 const saveHostTextStyle = async (host: string, settings: TextStyleSettings) => {
   await saveHostTextStyle(host, settings);
@@ -10,7 +10,7 @@ const saveHostTextStyle = async (host: string, settings: TextStyleSettings) => {
 
 export const TextStylePanel = () => {
   const { currentTextStyle, pageDefaultTextStyle, updateCurrentTextStyle } =
-    use(ExtensionContext);
+    use(TextStyleContext);
 
   const host = location.hostname;
 
