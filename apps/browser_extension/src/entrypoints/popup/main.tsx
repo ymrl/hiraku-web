@@ -2,6 +2,9 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
 import "./style.css";
+import { setLanguageToDocument } from "@/browser/detectLanguage.ts";
+
+setLanguageToDocument(document);
 
 const root = document.getElementById("root");
 if (root) {
