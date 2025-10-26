@@ -1,7 +1,4 @@
-import { type ReactNode, useCallback, useEffect } from "react";
-import { browser } from "wxt/browser";
-import type { ExtensionMessage, MessageListener } from "@/ExtensionMessages";
-import { getTableOfContents } from "../collection";
+import type { ReactNode } from "react";
 import { ExtensionContext } from "./ExtensionContext";
 import { useNavigation } from "./useNavigation";
 import { useSpeech } from "./useSpeech";
@@ -22,27 +19,6 @@ export const Provider = ({ children }: { children?: ReactNode }) => {
 
   const { xpaths, updateXpaths, navigationTimestamp } = useNavigation();
   const useUserInterfaceSettingsReturn = useUserInterfaceSettings();
-
-  const respondMessage: MessageListener<ExtensionMessage> = useCallback(
-    (message, _sender, sendResponse) => {
-      const { action } = message;
-      if (action === "getTableOfContents") {
-        const tableOfContents = getTableOfContents({
-          exclude: "[data-hiraku-web-iframe-root]",
-        });
-        sendResponse({ action, tableOfContents });
-        return true;
-      }
-    },
-    [],
-  );
-
-  useEffect(() => {
-    browser.runtime.onMessage.addListener(respondMessage);
-    return () => {
-      browser.runtime.onMessage.removeListener(respondMessage);
-    };
-  }, [respondMessage]);
 
   return (
     <ExtensionContext

@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { TableOfContentsList } from "@/components/TableOfContentsList";
+import { getTableOfContents } from "@/TableOfContents";
 import type { TableOfContents } from "@/types";
-import { getTableOfContents } from "../../collection";
 
 export const TableOfContentsPanel = ({
   onScrollToElement,

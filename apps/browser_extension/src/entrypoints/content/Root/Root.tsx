@@ -6,6 +6,7 @@ import {
   useId,
 } from "react";
 import { createRoot } from "react-dom/client";
+import { useRespondingTableOfContentsMessage } from "@/TableOfContents";
 import { ContentUI } from "../ContentUI";
 import { Provider } from "../ExtensionContext";
 import { FrameManager } from "../FrameManager";
@@ -44,6 +45,9 @@ export const Root = ({
   useEffect(() => {
     rootRef.current?.setAttribute("id", id);
   }, [id, rootRef]);
+  useRespondingTableOfContentsMessage({
+    exclude: "[data-hiraku-web-iframe-root]",
+  });
 
   return (
     <RootContext value={{ id, rootRef }}>
