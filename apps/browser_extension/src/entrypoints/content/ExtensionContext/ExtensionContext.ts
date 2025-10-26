@@ -14,9 +14,6 @@ export const ExtensionContext = createContext<{
   updateSpeechSettings: (settings: SpeechSettings) => void;
   enableSpeech: () => void;
   disableSpeech: () => void;
-  xpaths: string[];
-  navigationTimestamp: number;
-  updateXpaths: (xpaths: string[]) => void;
   userInterfaceSettings: UserInterfaceSettings;
 }>({
   currentTextStyle: undefined,
@@ -27,8 +24,5 @@ export const ExtensionContext = createContext<{
   updateSpeechSettings: () => {},
   enableSpeech: () => {},
   disableSpeech: () => {},
-  xpaths: [],
-  navigationTimestamp: 0,
-  updateXpaths: () => {},
   userInterfaceSettings: { showButtonOnPage: false },
 });

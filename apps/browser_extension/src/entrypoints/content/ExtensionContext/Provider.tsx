@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
+import { NavigationContext, useNavigation } from "@/TableOfContents";
 import { ExtensionContext } from "./ExtensionContext";
-import { useNavigation } from "./useNavigation";
 import { useSpeech } from "./useSpeech";
 import { useTextStyle } from "./useTextStyle";
 import { useUserInterfaceSettings } from "./useUserInterfaceSettings";
@@ -17,27 +17,26 @@ export const Provider = ({ children }: { children?: ReactNode }) => {
     updateSpeechSettings,
   } = useSpeech();
 
-  const { xpaths, updateXpaths, navigationTimestamp } = useNavigation();
+  const navigationContextValues = useNavigation();
   const useUserInterfaceSettingsReturn = useUserInterfaceSettings();
 
   return (
-    <ExtensionContext
-      value={{
-        currentTextStyle,
-        updateCurrentTextStyle,
-        pageDefaultTextStyle,
-        isSpeechEnabled,
-        speechSettings,
-        updateSpeechSettings,
-        enableSpeech,
-        disableSpeech,
-        xpaths,
-        navigationTimestamp,
-        updateXpaths,
-        ...useUserInterfaceSettingsReturn,
-      }}
-    >
-      {children}
-    </ExtensionContext>
+    <NavigationContext value={navigationContextValues}>
+      <ExtensionContext
+        value={{
+          currentTextStyle,
+          updateCurrentTextStyle,
+          pageDefaultTextStyle,
+          isSpeechEnabled,
+          speechSettings,
+          updateSpeechSettings,
+          enableSpeech,
+          disableSpeech,
+          ...useUserInterfaceSettingsReturn,
+        }}
+      >
+        {children}
+      </ExtensionContext>
+    </NavigationContext>
   );
 };

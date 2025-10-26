@@ -1,7 +1,6 @@
 import { type RefObject, use, useRef } from "react";
 import { createPortal } from "react-dom";
-import { ExtensionContext } from "../ExtensionContext";
-import { RootContext } from "../Root/RootContext";
+import { NavigationContext } from "@/TableOfContents";
 import { getElementByXpaths } from "./getElementByXpaths";
 import { Highlight } from "./Highlight";
 
@@ -10,9 +9,12 @@ const cleanUp = (frameRootRef: RefObject<Element | null>) => {
   frameRootRef.current.parentElement?.removeChild?.(frameRootRef.current);
 };
 
-export const LandmarkNavigation = () => {
-  const { xpaths, navigationTimestamp } = use(ExtensionContext);
-  const { rootRef } = use(RootContext);
+export const LandmarkNavigation = ({
+  rootRef,
+}: {
+  rootRef: RefObject<HTMLElement | null>;
+}) => {
+  const { xpaths, navigationTimestamp } = use(NavigationContext);
   const elementRef = useRef<Element | null>(null);
   const element = getElementByXpaths(xpaths);
   const frameRootRef = useRef<Element | null>(null);

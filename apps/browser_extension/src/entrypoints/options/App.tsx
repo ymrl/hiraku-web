@@ -1,10 +1,16 @@
 import { createI18n } from "@wxt-dev/i18n";
 import { useCallback, useRef, useState } from "react";
+import { LandmarkNavigation } from "@/components/LandmarkNavigation";
 import { TextCSS } from "@/components/TextCSS";
 import {
   loadDefaultTextStyleSettings,
   loadUserInterfaceSettings,
 } from "@/storage";
+import {
+  NavigationContext,
+  useNavigation,
+  useRespondingTableOfContentsMessage,
+} from "@/TableOfContents";
 import type { UserInterfaceSettings } from "@/types";
 import type { TextStyleSettings } from "../../types/text";
 import { ClearSettingsSection } from "./ClearSettingsSection";
@@ -13,7 +19,7 @@ import { UserInterfaceSection } from "./UserInterfaceSection";
 
 const { t } = createI18n();
 
-function App() {
+function App({ rootRef }: { rootRef: React.RefObject<HTMLElement | null> }) {
   const [defaultTextStyle, setDefaultTextStyle] = useState<
     TextStyleSettings | undefined
   >(undefined);
@@ -40,30 +46,35 @@ function App() {
     loadDefaultSettings();
     initUserInterfaceSettings();
   }
+  useRespondingTableOfContentsMessage({});
+  const navigaitonValuses = useNavigation();
 
   return (
-    <div className="min-h-screen bg-stone-100 dark:bg-stone-900 sm:p-8 p-4">
-      <h1 className="mb-4 text-xl font-bold text-rose-600 dark:text-rose-300">
-        {t("options.pageTitle")}
-      </h1>
-      <div className="space-y-12">
-        {/* テキストスタイルのデフォルト値設定 */}
-        <TextStyleSection
-          defaultTextStyle={defaultTextStyle}
-          onSavedDefaultTextStyle={(settings) => {
-            setDefaultTextStyle(settings);
-          }}
-        />
-        <UserInterfaceSection
-          userInterfaceSettings={userInterfaceSettings}
-          onSave={(settings) => {
-            setUserInterfaceSettings(settings);
-          }}
-        />
-        <ClearSettingsSection />
+    <NavigationContext value={navigaitonValuses}>
+      <div className="min-h-screen bg-stone-100 dark:bg-stone-900 sm:p-8 p-4">
+        <h1 className="mb-4 text-xl font-bold text-rose-600 dark:text-rose-300">
+          {t("options.pageTitle")}
+        </h1>
+        <div className="space-y-12">
+          {/* テキストスタイルのデフォルト値設定 */}
+          <TextStyleSection
+            defaultTextStyle={defaultTextStyle}
+            onSavedDefaultTextStyle={(settings) => {
+              setDefaultTextStyle(settings);
+            }}
+          />
+          <UserInterfaceSection
+            userInterfaceSettings={userInterfaceSettings}
+            onSave={(settings) => {
+              setUserInterfaceSettings(settings);
+            }}
+          />
+          <ClearSettingsSection />
+        </div>
       </div>
+      <LandmarkNavigation rootRef={rootRef} />
       <TextCSS settings={defaultTextStyle || {}} />
-    </div>
+    </NavigationContext>
   );
 }
 

@@ -6,11 +6,11 @@ import {
   useId,
 } from "react";
 import { createRoot } from "react-dom/client";
+import { LandmarkNavigation } from "@/components/LandmarkNavigation";
 import { useRespondingTableOfContentsMessage } from "@/TableOfContents";
 import { ContentUI } from "../ContentUI";
 import { Provider } from "../ExtensionContext";
 import { FrameManager } from "../FrameManager";
-import { LandmarkNavigation } from "../LandmarkNavigation";
 import { Speaker } from "../Speaker";
 import { TextStyleTweaker } from "../TextStyleTweaker";
 import { useWindowSize } from "../useWindowSize";
@@ -53,7 +53,7 @@ export const Root = ({
     <RootContext value={{ id, rootRef }}>
       <Provider>
         <TextStyleTweaker />
-        <LandmarkNavigation />
+        <LandmarkNavigation rootRef={rootRef} />
         <Speaker />
         <ContentUI {...windowSize} />
         <FrameManager>
