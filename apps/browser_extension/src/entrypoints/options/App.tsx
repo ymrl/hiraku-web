@@ -14,9 +14,9 @@ import {
 } from "@/TableOfContents";
 import { TextStyleContext, useTextStyle } from "@/TextStyle";
 import type { UserInterfaceSettings } from "@/types";
-import type { TextStyleSettings } from "../../types/text";
 import { Speaker } from "../../components/Speaker";
 import { TextStyleTweaker } from "../../components/TextStyleTweaker";
+import type { TextStyleSettings } from "../../types/text";
 import { ClearSettingsSection } from "./ClearSettingsSection";
 import { TextStyleSection } from "./TextStyleSection";
 import { UserInterfaceSection } from "./UserInterfaceSection";

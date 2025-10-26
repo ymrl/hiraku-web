@@ -8,11 +8,11 @@ import {
 import { createRoot } from "react-dom/client";
 import { LandmarkNavigation } from "@/components/LandmarkNavigation";
 import { useRespondingTableOfContentsMessage } from "@/TableOfContents";
+import { Speaker } from "../../../components/Speaker";
+import { TextStyleTweaker } from "../../../components/TextStyleTweaker";
 import { ContentUI } from "../ContentUI";
 import { Provider } from "../ExtensionContext";
 import { FrameManager } from "../FrameManager";
-import { Speaker } from "../../../components/Speaker";
-import { TextStyleTweaker } from "../../../components/TextStyleTweaker";
 import { useWindowSize } from "../useWindowSize";
 import { RootContext } from "./RootContext";
 
