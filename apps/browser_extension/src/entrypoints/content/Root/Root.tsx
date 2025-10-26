@@ -11,8 +11,8 @@ import { useRespondingTableOfContentsMessage } from "@/TableOfContents";
 import { ContentUI } from "../ContentUI";
 import { Provider } from "../ExtensionContext";
 import { FrameManager } from "../FrameManager";
-import { Speaker } from "../Speaker";
-import { TextStyleTweaker } from "../TextStyleTweaker";
+import { Speaker } from "../../../components/Speaker";
+import { TextStyleTweaker } from "../../../components/TextStyleTweaker";
 import { useWindowSize } from "../useWindowSize";
 import { RootContext } from "./RootContext";
 

@@ -15,8 +15,8 @@ import {
 import { TextStyleContext, useTextStyle } from "@/TextStyle";
 import type { UserInterfaceSettings } from "@/types";
 import type { TextStyleSettings } from "../../types/text";
-import { Speaker } from "../content/Speaker";
-import { TextStyleTweaker } from "../content/TextStyleTweaker";
+import { Speaker } from "../../components/Speaker";
+import { TextStyleTweaker } from "../../components/TextStyleTweaker";
 import { ClearSettingsSection } from "./ClearSettingsSection";
 import { TextStyleSection } from "./TextStyleSection";
 import { UserInterfaceSection } from "./UserInterfaceSection";
