@@ -1,4 +1,5 @@
 import { use, useCallback, useEffect, useRef, useState } from "react";
+import { FloatingButton } from "@/components/FloatingButton";
 import {
   addListener,
   type ExtensionMessage,
@@ -6,11 +7,10 @@ import {
   removeListener,
 } from "@/ExtensionMessages";
 import { type ExtensionTab, loadActiveTab, saveActiveTab } from "@/storage";
+import { FloatingWindow } from "../../../components/FloatingWindow";
 import style from "../content.css?inline";
 import { ExtensionContext } from "../ExtensionContext";
 import { FrameContext } from "../FrameManager";
-import { FloatingButton } from "./FloatingButton";
-import { FloatingWindow } from "./FloatingWindow";
 import { Iframe } from "./Iframe";
 
 export function ContentUI({
