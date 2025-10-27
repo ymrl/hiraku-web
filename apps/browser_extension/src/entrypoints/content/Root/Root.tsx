@@ -6,14 +6,15 @@ import {
   useId,
 } from "react";
 import { createRoot } from "react-dom/client";
+import { ContentUI } from "@/components/ContentUI";
+import { FrameManager } from "@/components/FrameManager";
 import { LandmarkNavigation } from "@/components/LandmarkNavigation";
+import { Speaker } from "@/components/Speaker";
+import { TextStyleTweaker } from "@/components/TextStyleTweaker";
 import { useRespondingTableOfContentsMessage } from "@/TableOfContents";
-import { Speaker } from "../../../components/Speaker";
-import { TextStyleTweaker } from "../../../components/TextStyleTweaker";
-import { ContentUI } from "../ContentUI";
-import { Provider } from "../ExtensionContext";
-import { FrameManager } from "../FrameManager";
-import { useWindowSize } from "../useWindowSize";
+import { useUserInterfaceSettings } from "@/UserInterface";
+import { useWindowSize } from "@/utils/useWindowSize";
+import { Provider } from "./Provider";
 import { RootContext } from "./RootContext";
 
 export const CONTENT_ROOT_ID = "hiraku-web-content-root";
@@ -49,17 +50,25 @@ export const Root = ({
     exclude: "[data-hiraku-web-iframe-root]",
   });
 
+  const { userInterfaceSettings } = useUserInterfaceSettings();
+
   return (
     <RootContext value={{ id, rootRef }}>
       <Provider>
         <TextStyleTweaker />
         <LandmarkNavigation rootRef={rootRef} />
         <Speaker />
-        <ContentUI {...windowSize} />
+        <ContentUI
+          {...windowSize}
+          showButton={userInterfaceSettings.showButtonOnPage}
+        />
         <FrameManager>
           <TextStyleTweaker />
           <Speaker />
-          <ContentUI {...windowSize} />
+          <ContentUI
+            {...windowSize}
+            showButton={userInterfaceSettings.showButtonOnPage}
+          />
         </FrameManager>
       </Provider>
     </RootContext>

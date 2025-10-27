@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 import { createPortal } from "react-dom";
-import { RootContext } from "../Root/RootContext";
+import { RootContext } from "../../entrypoints/content/Root/RootContext";
 import { FrameContext } from "./FrameContext";
 
 const isExcludeFrame = (el: HTMLFrameElement | HTMLIFrameElement) =>

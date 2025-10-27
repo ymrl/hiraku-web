@@ -7,21 +7,21 @@ import {
   removeListener,
 } from "@/ExtensionMessages";
 import { type ExtensionTab, loadActiveTab, saveActiveTab } from "@/storage";
-import { FloatingWindow } from "../../../components/FloatingWindow";
-import style from "../content.css?inline";
-import { ExtensionContext } from "../ExtensionContext";
+import { FloatingWindow } from "..//FloatingWindow";
 import { FrameContext } from "../FrameManager";
+import style from "./content.css?inline";
 import { Iframe } from "./Iframe";
 
 export function ContentUI({
   windowHeight,
   windowWidth,
+  showButton = true,
 }: {
   windowHeight: number;
   windowWidth: number;
+  showButton?: boolean;
 }) {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
-  const { userInterfaceSettings } = use(ExtensionContext);
   const { frameWindow } = use(FrameContext);
 
   const handleClosePanel = useCallback(() => {
@@ -88,7 +88,7 @@ export function ContentUI({
     <Iframe>
       <style>{style}</style>
       <div className="flex flex-col-reverse items-stretch max-w-dvh">
-        {userInterfaceSettings.showButtonOnPage && !temporarilyHidden && (
+        {showButton && !temporarilyHidden && (
           <FloatingButton
             onToggle={() => {
               setIsPanelOpen((p) => !p);
