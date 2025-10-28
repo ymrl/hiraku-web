@@ -20,6 +20,8 @@ import type { TextStyleSettings } from "../../types/text";
 import { ClearSettingsSection } from "./ClearSettingsSection";
 import { TextStyleSection } from "./TextStyleSection";
 import { UserInterfaceSection } from "./UserInterfaceSection";
+import { useWindowSize } from "@/utils/useWindowSize";
+import { ContentUI } from "@/components/ContentUI";
 
 const { t } = createI18n();
 
@@ -54,6 +56,7 @@ function App({ rootRef }: { rootRef: React.RefObject<HTMLElement | null> }) {
   const navigaitonValuses = useNavigation();
   const speakerValues = useSpeaker();
   const textStyleValues = useTextStyle();
+  const windowSize = useWindowSize();
 
   return (
     <NavigationContext value={navigaitonValuses}>
@@ -80,6 +83,7 @@ function App({ rootRef }: { rootRef: React.RefObject<HTMLElement | null> }) {
               <ClearSettingsSection />
             </div>
           </div>
+          <ContentUI {...windowSize} showButton={userInterfaceSettings.showButtonOnPage} />
           <LandmarkNavigation rootRef={rootRef} />
           <TextCSS settings={defaultTextStyle || {}} />
           <Speaker />
