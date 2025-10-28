@@ -66,20 +66,21 @@ function App({ rootRef }: { rootRef: React.RefObject<HTMLElement | null> }) {
             <h1 className="mb-4 text-xl font-bold text-rose-600 dark:text-rose-300">
               {t("options.pageTitle")}
             </h1>
-            <div className="space-y-12">
-              {/* テキストスタイルのデフォルト値設定 */}
-              <TextStyleSection
-                defaultTextStyle={defaultTextStyle}
-                onSavedDefaultTextStyle={(settings) => {
-                  setDefaultTextStyle(settings);
-                }}
-              />
+            <div className="space-y-4">
               <UserInterfaceSection
                 userInterfaceSettings={userInterfaceSettings}
                 onSave={(settings) => {
                   setUserInterfaceSettings(settings);
                 }}
               />
+
+              <TextStyleSection
+                defaultTextStyle={defaultTextStyle}
+                onSavedDefaultTextStyle={(settings) => {
+                  setDefaultTextStyle(settings);
+                }}
+              />
+
               <ClearSettingsSection />
             </div>
           </div>
