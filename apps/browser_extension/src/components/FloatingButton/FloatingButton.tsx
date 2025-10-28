@@ -1,6 +1,7 @@
 import { createI18n } from "@wxt-dev/i18n";
 import type { MouseEventHandler } from "react";
 import { Button } from "@/components/Button";
+import type { UserInterfaceSettings } from "@/types";
 import { ButtonIcon } from "./ButtonIcon";
 
 const { t } = createI18n();
@@ -10,6 +11,8 @@ interface FloatingButtonProps {
   onClose: MouseEventHandler<HTMLButtonElement>;
   onHide: MouseEventHandler<HTMLButtonElement>;
   isOpen?: boolean;
+  size?: UserInterfaceSettings["buttonSize"];
+  opacity?: number;
 }
 
 export function FloatingButton({
@@ -17,6 +20,8 @@ export function FloatingButton({
   onClose,
   onHide,
   isOpen,
+  size = "medium",
+  opacity = 0.5,
 }: FloatingButtonProps) {
   return (
     <div className="flex items-stretch">
@@ -42,13 +47,13 @@ export function FloatingButton({
         type="button"
         onClick={onToggle}
         aria-pressed={isOpen}
-        className={`p-2 rounded-full grow-0 shrink-0
-          flex items-center justify-center transition-all duration-200 hover:scale-110 hover:opacity-100 ${
-            isOpen ? "opacity-100" : "opacity-50"
-          }`}
+        style={{ opacity: isOpen ? 1 : opacity }}
+        className={
+          "p-2 grow-0 shrink-0 flex items-center justify-center transition-all duration-200 hover:scale-110"
+        }
         title={t("extensionName")}
       >
-        <ButtonIcon />
+        <ButtonIcon size={size} />
       </button>
     </div>
   );

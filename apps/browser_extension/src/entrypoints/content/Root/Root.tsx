@@ -60,14 +60,14 @@ export const Root = ({
         <Speaker />
         <ContentUI
           {...windowSize}
-          showButton={userInterfaceSettings.showButtonOnPage}
+          userIntefaceSettings={userInterfaceSettings}
         />
         <FrameManager>
           <TextStyleTweaker />
           <Speaker />
           <ContentUI
             {...windowSize}
-            showButton={userInterfaceSettings.showButtonOnPage}
+            userIntefaceSettings={userInterfaceSettings}
           />
         </FrameManager>
       </Provider>

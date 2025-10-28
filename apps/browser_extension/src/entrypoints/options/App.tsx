@@ -1,5 +1,6 @@
 import { createI18n } from "@wxt-dev/i18n";
 import { useCallback, useRef, useState } from "react";
+import { ContentUI } from "@/components/ContentUI";
 import { LandmarkNavigation } from "@/components/LandmarkNavigation";
 import { TextCSS } from "@/components/TextCSS";
 import { SpeakerContext, useSpeaker } from "@/Speech";
@@ -14,14 +15,13 @@ import {
 } from "@/TableOfContents";
 import { TextStyleContext, useTextStyle } from "@/TextStyle";
 import type { UserInterfaceSettings } from "@/types";
+import { useWindowSize } from "@/utils/useWindowSize";
 import { Speaker } from "../../components/Speaker";
 import { TextStyleTweaker } from "../../components/TextStyleTweaker";
 import type { TextStyleSettings } from "../../types/text";
 import { ClearSettingsSection } from "./ClearSettingsSection";
 import { TextStyleSection } from "./TextStyleSection";
 import { UserInterfaceSection } from "./UserInterfaceSection";
-import { useWindowSize } from "@/utils/useWindowSize";
-import { ContentUI } from "@/components/ContentUI";
 
 const { t } = createI18n();
 
@@ -84,7 +84,10 @@ function App({ rootRef }: { rootRef: React.RefObject<HTMLElement | null> }) {
               <ClearSettingsSection />
             </div>
           </div>
-          <ContentUI {...windowSize} showButton={userInterfaceSettings.showButtonOnPage} />
+          <ContentUI
+            {...windowSize}
+            userIntefaceSettings={userInterfaceSettings}
+          />
           <LandmarkNavigation rootRef={rootRef} />
           <TextCSS settings={defaultTextStyle || {}} />
           <Speaker />

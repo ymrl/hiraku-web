@@ -7,6 +7,7 @@ import {
   removeListener,
 } from "@/ExtensionMessages";
 import { type ExtensionTab, loadActiveTab, saveActiveTab } from "@/storage";
+import type { UserInterfaceSettings } from "@/types";
 import { FloatingWindow } from "..//FloatingWindow";
 import { FrameContext } from "../FrameManager";
 import style from "./content.css?inline";
@@ -15,14 +16,19 @@ import { Iframe } from "./Iframe";
 export function ContentUI({
   windowHeight,
   windowWidth,
-  showButton = true,
+  userIntefaceSettings = {},
 }: {
   windowHeight: number;
   windowWidth: number;
-  showButton?: boolean;
+  userIntefaceSettings?: UserInterfaceSettings;
 }) {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const { frameWindow } = use(FrameContext);
+  const {
+    showButtonOnPage = false,
+    buttonOpacity = 0.5,
+    buttonSize = "medium",
+  } = userIntefaceSettings;
 
   const handleClosePanel = useCallback(() => {
     setIsPanelOpen(false);
@@ -88,7 +94,7 @@ export function ContentUI({
     <Iframe>
       <style>{style}</style>
       <div className="flex flex-col-reverse items-stretch max-w-dvh">
-        {showButton && !temporarilyHidden && (
+        {showButtonOnPage && !temporarilyHidden && (
           <FloatingButton
             onToggle={() => {
               setIsPanelOpen((p) => !p);
@@ -99,6 +105,8 @@ export function ContentUI({
               handleClosePanel();
             }}
             isOpen={isPanelOpen}
+            size={buttonSize}
+            opacity={buttonOpacity}
           />
         )}
         {isPanelOpen && (
@@ -106,7 +114,17 @@ export function ContentUI({
             className="shrink grow flex justify-stretch px-2"
             style={{
               height: windowHeight
-                ? `min(calc(${windowHeight}px - 5rem), 40rem)`
+                ? `min(calc(${windowHeight}px - ${
+                    buttonSize === "xsmall" // icon 24px
+                      ? 4
+                      : buttonSize === "small" // icon 36px
+                        ? 4.5
+                        : buttonSize === "large" // icon 64px
+                          ? 6.5
+                          : buttonSize === "xlarge" // icon 80px
+                            ? 7.5
+                            : 5 // icon 44px
+                  }rem), 40rem)`
                 : undefined,
               width: `max(min(${windowWidth}px, 25rem), 20rem)`,
             }}
