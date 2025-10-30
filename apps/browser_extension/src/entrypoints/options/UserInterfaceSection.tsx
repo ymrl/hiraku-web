@@ -6,6 +6,15 @@ import { saveUserInterfaceSettings } from "@/storage";
 import type { UserInterfaceSettings } from "@/types";
 
 const { t } = createI18n();
+
+const BUTTON_SIZE_OPTIONS = [
+  "xsmall",
+  "small",
+  "medium",
+  "large",
+  "xlarge",
+] as const;
+
 export const UserInterfaceSection = ({
   userInterfaceSettings,
   onSave,
@@ -32,8 +41,8 @@ export const UserInterfaceSection = ({
       <h2 className="text-lg font-bold text-stone-800 dark:text-stone-200 mb-2">
         {t("options.userInterface")}
       </h2>
-      <div className="flex flex-row gap-4 justify-stretch">
-        <div className="w-full @2xl:w-96 flex items-center">
+      <div className="flex flex-row gap-4 justify-stretch flex-wrap">
+        <div className="w-full @2xl:w-96 shrink-0 flex items-center">
           {/** biome-ignore lint/a11y/noStaticElementInteractions: only to support click the button */}
           {/** biome-ignore lint/a11y/useKeyWithClickEvents: only to support click the button */}
           <div
@@ -69,13 +78,14 @@ export const UserInterfaceSection = ({
             </span>
           </div>
         </div>
-        <div className="w-full @2xl:w-96">
+        <div className="w-full @2xl:w-96 shrink-0">
           <SettingSlider
             min={0.2}
             max={1}
             step={0.01}
             label={t("options.buttonOpacity")}
             value={settings.buttonOpacity ?? 0.5}
+            status={settings.showButtonOnPage ? "active" : "inactive"}
             onChange={(v) => {
               const newSettings = {
                 ...settings,
@@ -88,6 +98,35 @@ export const UserInterfaceSection = ({
             fromDisplay={(v) => v / 100}
           />
         </div>
+        <fieldset className="w-full @2xl:w-96">
+          <legend className="block text-sm text-stone-700 dark:text-stone-300 mb-2">
+            {t("options.buttonSize")}
+          </legend>
+          <div className="flex flex-wrap gap-x-6 gap-y-2">
+            {BUTTON_SIZE_OPTIONS.map((size) => (
+              <label key={size} className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="buttonSize"
+                  value={size}
+                  checked={settings.buttonSize === size}
+                  disabled={!settings.showButtonOnPage}
+                  onChange={(e) => {
+                    const newSettings = {
+                      ...settings,
+                      buttonSize: e.target.value as typeof size,
+                    };
+                    save(newSettings);
+                  }}
+                  className="scale-125"
+                />
+                <span className="text-sm text-stone-700 dark:text-stone-300">
+                  {t(`options.buttonSizes.${size}`)}
+                </span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
       </div>
     </section>
   );

@@ -49,7 +49,14 @@
     "userInterface": "User Interface",
     "showButtonOnPage": "Show 'Hiraku Web' button at the bottom right of the page",
     "buttonOpacity": "'Hiraku Web' Button Opacity",
-    "buttonSize": "'Hiraku Web' Button Size"
+    "buttonSize": "'Hiraku Web' Button Size",
+    "buttonSizes": {
+      "xsmall": "XS",
+      "small": "Small",
+      "medium": "Medium",
+      "large": "Large",
+      "xlarge": "XL"
+    }
   },
   "landmarkRoles": {
     "banner": "Banner",
