@@ -5,6 +5,7 @@ import { LandmarkNavigation } from "@/components/LandmarkNavigation";
 import { TextCSS } from "@/components/TextCSS";
 import { SpeakerContext, useSpeaker } from "@/Speech";
 import {
+  isAnyTextStyleSettingsSaved,
   loadDefaultTextStyleSettings,
   loadUserInterfaceSettings,
   saveHostTextStyle,
@@ -31,7 +32,7 @@ function App({ rootRef }: { rootRef: React.RefObject<HTMLElement | null> }) {
     TextStyleSettings | undefined
   >(undefined);
 
-  const loadDefaultSettings = useCallback(async () => {
+  const initDefaultSettings = useCallback(async () => {
     const result = await loadDefaultTextStyleSettings();
     if (result) {
       setDefaultTextStyle(result);
@@ -47,16 +48,25 @@ function App({ rootRef }: { rootRef: React.RefObject<HTMLElement | null> }) {
     setUserInterfaceSettings(await loadUserInterfaceSettings());
   }, []);
 
+  const [isAnyHostSettingsSaved, setIsAnyHostSettingsSaved] =
+    useState<boolean>(false);
+  const loadIsSavedHostSettings = useCallback(async () => {
+    setIsAnyHostSettingsSaved(await isAnyTextStyleSettingsSaved());
+  }, []);
+
   const loadedRef = useRef(false);
   if (!loadedRef.current) {
     loadedRef.current = true;
-    loadDefaultSettings();
+    initDefaultSettings();
     initUserInterfaceSettings();
   }
+
   useRespondingTableOfContentsMessage({});
   const navigaitonValuses = useNavigation();
   const speakerValues = useSpeaker();
-  const textStyleValues = useTextStyle();
+  const textStyleValues = useTextStyle({
+    onChange: loadIsSavedHostSettings,
+  });
   const windowSize = useWindowSize();
 
   return (
@@ -88,7 +98,12 @@ function App({ rootRef }: { rootRef: React.RefObject<HTMLElement | null> }) {
                 }}
               />
 
-              <ClearSettingsSection />
+              <ClearSettingsSection
+                isExist={isAnyHostSettingsSaved}
+                onExecuted={async () => {
+                  await textStyleValues.load(window.location.hostname);
+                }}
+              />
             </div>
           </div>
           <ContentUI
