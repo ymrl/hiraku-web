@@ -7,6 +7,7 @@ import { SpeakerContext, useSpeaker } from "@/Speech";
 import {
   loadDefaultTextStyleSettings,
   loadUserInterfaceSettings,
+  saveHostTextStyle,
 } from "@/storage";
 import {
   NavigationContext,
@@ -78,6 +79,12 @@ function App({ rootRef }: { rootRef: React.RefObject<HTMLElement | null> }) {
                 defaultTextStyle={defaultTextStyle}
                 onSavedDefaultTextStyle={(settings) => {
                   setDefaultTextStyle(settings);
+                  const hostSettings = {
+                    ...textStyleValues.currentTextStyle,
+                    ...settings,
+                  };
+                  textStyleValues.updateCurrentTextStyle(hostSettings);
+                  saveHostTextStyle(window.location.hostname, hostSettings);
                 }}
               />
 
