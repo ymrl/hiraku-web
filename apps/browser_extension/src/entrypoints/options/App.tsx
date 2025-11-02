@@ -1,11 +1,14 @@
 import { createI18n } from "@wxt-dev/i18n";
 import { useCallback, useRef, useState } from "react";
+import { ContentUI } from "@/components/ContentUI";
 import { LandmarkNavigation } from "@/components/LandmarkNavigation";
 import { TextCSS } from "@/components/TextCSS";
 import { SpeakerContext, useSpeaker } from "@/Speech";
 import {
+  isAnyTextStyleSettingsSaved,
   loadDefaultTextStyleSettings,
   loadUserInterfaceSettings,
+  saveHostTextStyle,
 } from "@/storage";
 import {
   NavigationContext,
@@ -14,6 +17,7 @@ import {
 } from "@/TableOfContents";
 import { TextStyleContext, useTextStyle } from "@/TextStyle";
 import type { UserInterfaceSettings } from "@/types";
+import { useWindowSize } from "@/utils/useWindowSize";
 import { Speaker } from "../../components/Speaker";
 import { TextStyleTweaker } from "../../components/TextStyleTweaker";
 import type { TextStyleSettings } from "../../types/text";
@@ -28,7 +32,7 @@ function App({ rootRef }: { rootRef: React.RefObject<HTMLElement | null> }) {
     TextStyleSettings | undefined
   >(undefined);
 
-  const loadDefaultSettings = useCallback(async () => {
+  const initDefaultSettings = useCallback(async () => {
     const result = await loadDefaultTextStyleSettings();
     if (result) {
       setDefaultTextStyle(result);
@@ -44,16 +48,26 @@ function App({ rootRef }: { rootRef: React.RefObject<HTMLElement | null> }) {
     setUserInterfaceSettings(await loadUserInterfaceSettings());
   }, []);
 
+  const [isAnyHostSettingsSaved, setIsAnyHostSettingsSaved] =
+    useState<boolean>(false);
+  const loadIsSavedHostSettings = useCallback(async () => {
+    setIsAnyHostSettingsSaved(await isAnyTextStyleSettingsSaved());
+  }, []);
+
   const loadedRef = useRef(false);
   if (!loadedRef.current) {
     loadedRef.current = true;
-    loadDefaultSettings();
+    initDefaultSettings();
     initUserInterfaceSettings();
   }
+
   useRespondingTableOfContentsMessage({});
   const navigaitonValuses = useNavigation();
   const speakerValues = useSpeaker();
-  const textStyleValues = useTextStyle();
+  const textStyleValues = useTextStyle({
+    onChange: loadIsSavedHostSettings,
+  });
+  const windowSize = useWindowSize();
 
   return (
     <NavigationContext value={navigaitonValuses}>
@@ -63,23 +77,39 @@ function App({ rootRef }: { rootRef: React.RefObject<HTMLElement | null> }) {
             <h1 className="mb-4 text-xl font-bold text-rose-600 dark:text-rose-300">
               {t("options.pageTitle")}
             </h1>
-            <div className="space-y-12">
-              {/* テキストスタイルのデフォルト値設定 */}
-              <TextStyleSection
-                defaultTextStyle={defaultTextStyle}
-                onSavedDefaultTextStyle={(settings) => {
-                  setDefaultTextStyle(settings);
-                }}
-              />
+            <div className="space-y-4">
               <UserInterfaceSection
                 userInterfaceSettings={userInterfaceSettings}
                 onSave={(settings) => {
                   setUserInterfaceSettings(settings);
                 }}
               />
-              <ClearSettingsSection />
+
+              <TextStyleSection
+                defaultTextStyle={defaultTextStyle}
+                onSavedDefaultTextStyle={(settings) => {
+                  setDefaultTextStyle(settings);
+                  const hostSettings = {
+                    ...textStyleValues.currentTextStyle,
+                    ...settings,
+                  };
+                  textStyleValues.updateCurrentTextStyle(hostSettings);
+                  saveHostTextStyle(window.location.hostname, hostSettings);
+                }}
+              />
+
+              <ClearSettingsSection
+                isExist={isAnyHostSettingsSaved}
+                onExecuted={async () => {
+                  await textStyleValues.load(window.location.hostname);
+                }}
+              />
             </div>
           </div>
+          <ContentUI
+            {...windowSize}
+            userIntefaceSettings={userInterfaceSettings}
+          />
           <LandmarkNavigation rootRef={rootRef} />
           <TextCSS settings={defaultTextStyle || {}} />
           <Speaker />

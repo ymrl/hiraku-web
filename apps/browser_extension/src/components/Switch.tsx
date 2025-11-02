@@ -18,12 +18,12 @@ export const Switch = ({
     type="button"
     onClick={() => onToggle?.(!isOn)}
     className={
-      "w-11 h-6 rounded-full relative " +
+      "w-11 h-6 shrink-0 rounded-full relative " +
       (isOn
         ? "bg-rose-600 hover:not-disabled:bg-rose-600 "
         : "bg-stone-600 hover:bg-stone-600 ") +
       "before:content-[''] before:absolute before:z-10 before:rounded-full before:h-5 before:w-5 before:transition-all " +
-      "before:left-[2px] before:top-[2px] " +
+      "before:left-0.5 before:top-0.5 " +
       (isOn
         ? "before:bg-white "
         : "before:bg-stone-100 hover:before:bg-white ") +

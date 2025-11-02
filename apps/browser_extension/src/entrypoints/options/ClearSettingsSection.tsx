@@ -1,27 +1,24 @@
 import { createI18n } from "@wxt-dev/i18n";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/Button";
-import {
-  clearAllTextStyleSettings,
-  isAnyTextStyleSettingsSaved,
-} from "@/storage";
+import { clearAllTextStyleSettings } from "@/storage";
 
 const { t } = createI18n();
 
-export const ClearSettingsSection = () => {
-  const loadedRef = useRef(false);
+export const ClearSettingsSection = ({
+  isExist,
+  onExecuted,
+}: {
+  isExist: boolean;
+  onExecuted?: () => Promise<void>;
+}) => {
   const [isClearing, setIsClearing] = useState(false);
-  const [isExist, setIsExist] = useState(false);
   const [clearedAt, setClearedAt] = useState<number>(0);
 
-  if (!loadedRef.current) {
-    loadedRef.current = true;
-    (async () => setIsExist(await isAnyTextStyleSettingsSaved()))();
-  }
   const clearAllSettings = async () => {
     setIsClearing(true);
     await clearAllTextStyleSettings();
-    setIsExist(await isAnyTextStyleSettingsSaved());
+    await onExecuted?.();
     setIsClearing(false);
     setClearedAt(Date.now());
   };
@@ -44,7 +41,7 @@ export const ClearSettingsSection = () => {
         </Button>
       )}
       <output>
-        {clearedAt > 0 && (
+        {!isExist && clearedAt > 0 && (
           <p className="text-sm text-stone-700 dark:text-stone-300 min-h-9 flex items-center">
             {t("options.clearedSettings")}
           </p>

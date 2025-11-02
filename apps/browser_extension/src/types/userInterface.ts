@@ -1,3 +1,5 @@
 export type UserInterfaceSettings = {
-  showButtonOnPage: boolean;
+  showButtonOnPage?: boolean;
+  buttonOpacity?: number;
+  buttonSize?: "medium" | "small" | "xsmall" | "large" | "xlarge";
 };

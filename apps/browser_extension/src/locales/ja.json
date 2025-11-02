@@ -47,7 +47,16 @@
     "enableWordSpacing": "単語の間隔を変更する",
     "preview": "プレビュー",
     "userInterface": "ユーザーインターフェース",
-    "showButtonOnPage": "ページ右下に「ひらくウェブ」ボタンを表示する"
+    "showButtonOnPage": "ページ右下に「ひらくウェブ」ボタンを表示する",
+    "buttonOpacity": "「ひらくウェブ」ボタンの不透明度",
+    "buttonSize": "「ひらくウェブ」ボタンの大きさ",
+    "buttonSizes": {
+      "xsmall": "最小",
+      "small": "小",
+      "medium": "中",
+      "large": "大",
+      "xlarge": "最大"
+    }
   },
   "landmarkRoles": {
     "banner": "バナー",

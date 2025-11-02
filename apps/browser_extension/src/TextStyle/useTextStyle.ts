@@ -8,7 +8,12 @@ import {
 } from "@/ExtensionMessages";
 import { loadHostTextStyle } from "@/storage";
 import type { TextStyleSettings } from "@/types";
-export const useTextStyle = () => {
+
+type Options = {
+  onChange?: (newStyle: TextStyleSettings | undefined) => void;
+};
+export const useTextStyle = (options?: Options) => {
+  const { onChange } = options || {};
   const [currentTextStyle, setCurrentTextStyle] = useState<
     TextStyleSettings | undefined
   >({});
@@ -16,10 +21,14 @@ export const useTextStyle = () => {
     undefined,
   );
 
-  const getHostTextStyle = async (hostname: string) => {
-    const settings = await loadHostTextStyle(hostname);
-    setCurrentTextStyle(settings);
-  };
+  const load = useCallback(
+    async (hostname: string) => {
+      const settings = await loadHostTextStyle(hostname);
+      setCurrentTextStyle(settings);
+      onChange?.(settings);
+    },
+    [onChange],
+  );
 
   const renderedOnceRef = useRef(false);
   if (!renderedOnceRef.current) {
@@ -37,15 +46,16 @@ export const useTextStyle = () => {
           : lineHeightPx / fontSizePx,
     };
     pageDefaultTextStyleRef.current = textStyle;
-    getHostTextStyle(window.location.hostname);
+    load(window.location.hostname);
     renderedOnceRef.current = true;
   }
 
   const updateCurrentTextStyle = useCallback(
     (newStyle: TextStyleSettings | undefined) => {
       setCurrentTextStyle(newStyle);
+      onChange?.(newStyle);
     },
-    [],
+    [onChange],
   );
 
   useEffect(() => {
@@ -79,5 +89,6 @@ export const useTextStyle = () => {
     currentTextStyle,
     pageDefaultTextStyle: pageDefaultTextStyleRef.current,
     updateCurrentTextStyle,
+    load,
   };
 };

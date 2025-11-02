@@ -1,15 +1,32 @@
 import { createI18n } from "@wxt-dev/i18n";
 import { useId } from "react";
+import type { UserInterfaceSettings } from "@/types";
 
 const { t } = createI18n();
 
-export const ButtonIcon = () => {
+export const ButtonIcon = ({
+  size = "medium",
+}: {
+  size?: UserInterfaceSettings["buttonSize"];
+}) => {
   const id = useId();
   return (
     <svg
       viewBox="0 0 44 44"
       fill="none"
-      className="w-11 h-11 shadow-md shadow-black/10 dark:shadow-white/20 rounded-full"
+      className={
+        (size === "xsmall"
+          ? "w-6 h-6 " // 24px
+          : size === "small"
+            ? "w-9 h-9 " // 36px
+            : size === "large"
+              ? "w-16 h-16 " // 64px
+              : size === "xlarge"
+                ? "w-20 h-20 " // 80px
+                : // size === medium
+                  "w-11 h-11 ") + //44px
+        "shadow-md shadow-black/10 dark:shadow-white/20 rounded-full"
+      }
     >
       <title>{t("extensionName")}</title>
       <circle cx="22" cy="22" r="22" fill={`url(#gradient-${id})`} />
