@@ -8,3 +8,6 @@ export type GetTableOfContentsResponse = {
   action: "getTableOfContents";
   tableOfContents: TableOfContents;
 };
+
+export type TableOfContentsMessages = GetTableOfContents;
+export type TableOfContentsMessageResponses = GetTableOfContentsResponse;
