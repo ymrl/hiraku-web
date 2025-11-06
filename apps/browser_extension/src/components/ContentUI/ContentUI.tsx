@@ -6,10 +6,16 @@ import {
   type MessageListener,
   removeListener,
 } from "@/ExtensionMessages";
-import { type ExtensionTab, loadActiveTab, saveActiveTab } from "@/storage";
-import type { UserInterfaceSettings } from "@/types";
+import {
+  type ExtensionTab,
+  loadActiveTab,
+  loadDefaultTextStyleSettings,
+  saveActiveTab,
+} from "@/storage";
+import type { TextStyleSettings, UserInterfaceSettings } from "@/types";
 import { FloatingWindow } from "..//FloatingWindow";
 import { FrameContext } from "../FrameManager";
+import { TextCSS } from "../TextCSS";
 import style from "./content.css?inline";
 import { Iframe } from "./Iframe";
 
@@ -36,11 +42,16 @@ export function ContentUI({
 
   const [activeTab, setActiveTab] = useState<ExtensionTab>("tableOfContents");
 
+  const [textSettings, setTextSettings] = useState<
+    TextStyleSettings | undefined
+  >(undefined);
   const loadedRef = useRef(false);
   if (!loadedRef.current) {
     (async () => {
       const savedTab = await loadActiveTab();
       setActiveTab(savedTab);
+      const settings = await loadDefaultTextStyleSettings();
+      setTextSettings(settings);
     })();
     loadedRef.current = true;
   }
@@ -93,6 +104,7 @@ export function ContentUI({
   return (
     <Iframe>
       <style>{style}</style>
+      {textSettings && <TextCSS settings={textSettings} />}
       <div className="flex flex-col-reverse items-stretch max-w-dvh">
         {showButtonOnPage && !temporarilyHidden && (
           <FloatingButton
