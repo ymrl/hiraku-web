@@ -18,3 +18,9 @@ export type GetPageTextStyleResponse = {
   action: "getPageTextStyle";
   pageTextStyle: TextStyleSettings;
 };
+
+export type TextStyleSettingsMessages = UpdateTextStyle | GetPageTextStyle;
+
+export type TextStyleSettingsMessageResponses =
+  | UpdateTextStyleResponse
+  | GetPageTextStyleResponse;

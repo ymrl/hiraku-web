@@ -35,3 +35,19 @@ export type SpeechDisabled = {
   action: "speechDisabled";
 };
 export type SpeechDisabledResponse = undefined;
+
+export type SpeechMessages =
+  | EnableSpeech
+  | DisableSpeech
+  | UpdateSpeechSettings
+  | SpeechStatus
+  | SpeechEnabled
+  | SpeechDisabled;
+
+export type SpeechMessageResponses =
+  | EnableSpeechResponse
+  | DisableSpeechResponse
+  | UpdateSpeechSettingsResponse
+  | SpeechStatusResponse
+  | SpeechEnabledResponse
+  | SpeechDisabledResponse;

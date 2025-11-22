@@ -13,4 +13,5 @@ export type SelectedTab = {
   tab: ExtensionTab;
 };
 
-export type SelectedTabResponse = undefined;
+export type PopupMessages = SelectTab | SelectedTab;
+export type PopupMessageResponses = SelectTabResponse;

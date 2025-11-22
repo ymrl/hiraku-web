@@ -1,67 +1,27 @@
-import type { OpenUserInterface, OpenUserInterfaceResponse } from "./Content";
+import type { ContentMessageResponses, ContentMessages } from "./Content";
+import type { PopupMessageResponses, PopupMessages } from "./Popup";
+import type { SpeechMessageResponses, SpeechMessages } from "./Speech";
 import type {
-  GetTableOfContents,
-  GetTableOfContentsResponse,
-} from "./GetTableOfContents";
+  TableOfContentsMessageResponses,
+  TableOfContentsMessages,
+} from "./TableOfContents";
 import type {
-  SelectedTab,
-  SelectedTabResponse,
-  SelectTab,
-  SelectTabResponse,
-} from "./Popup";
-import type {
-  ScrollToElement,
-  ScrollToElementResponse,
-} from "./ScrollToElement";
-import type {
-  DisableSpeech,
-  DisableSpeechResponse,
-  EnableSpeech,
-  EnableSpeechResponse,
-  SpeechDisabled,
-  SpeechDisabledResponse,
-  SpeechEnabled,
-  SpeechEnabledResponse,
-  SpeechStatus,
-  SpeechStatusResponse,
-  UpdateSpeechSettings,
-  UpdateSpeechSettingsResponse,
-} from "./Speech";
-import type {
-  GetPageTextStyle,
-  GetPageTextStyleResponse,
-  UpdateTextStyle,
-  UpdateTextStyleResponse,
+  TextStyleSettingsMessageResponses,
+  TextStyleSettingsMessages,
 } from "./TextStyleSettings";
 
 export type ExtensionMessage =
-  | UpdateTextStyle
-  | GetPageTextStyle
-  | GetTableOfContents
-  | EnableSpeech
-  | DisableSpeech
-  | UpdateSpeechSettings
-  | SpeechStatus
-  | SpeechDisabled
-  | SpeechEnabled
-  | ScrollToElement
-  | SelectTab
-  | SelectedTab
-  | OpenUserInterface;
+  | TextStyleSettingsMessages
+  | TableOfContentsMessages
+  | SpeechMessages
+  | ContentMessages
+  | PopupMessages;
 export type ExtensionMessageResponse =
-  | UpdateTextStyleResponse
-  | GetPageTextStyleResponse
-  | GetTableOfContentsResponse
-  | EnableSpeechResponse
-  | DisableSpeechResponse
-  | UpdateSpeechSettingsResponse
-  | SpeechStatusResponse
-  | SpeechDisabledResponse
-  | SpeechEnabledResponse
-  | ScrollToElementResponse
-  | SelectTabResponse
-  | SelectedTabResponse
-  | OpenUserInterfaceResponse;
+  | TextStyleSettingsMessageResponses
+  | TableOfContentsMessageResponses
+  | SpeechMessageResponses
+  | ContentMessageResponses
+  | PopupMessageResponses;
 
 type ExtractResponse<M extends ExtensionMessage> = M extends {
   action: infer A;
