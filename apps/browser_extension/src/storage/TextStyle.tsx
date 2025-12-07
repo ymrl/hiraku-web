@@ -33,11 +33,16 @@ export const removeDefaultTextStyleSettings = async () => {
 
 export const loadHostTextStyle = async (
   host: string,
+  { withoutDefault = false } = {},
 ): Promise<TextStyleSettings | undefined> => {
   // ホスト固有の設定を取得
   const hostSettings = await loadHostSettings(host);
   if (hostSettings) {
     return hostSettings;
+  }
+
+  if (withoutDefault) {
+    return undefined;
   }
 
   // ホスト固有の設定がない場合、デフォルト設定を取得

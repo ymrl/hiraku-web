@@ -17,9 +17,11 @@ type TextStyleStatus = "default" | "changed" | "saved" | "loaded";
 export const TextStyleSection = ({
   defaultTextStyle,
   onSavedDefaultTextStyle,
+  onResetDefaultTextStyle,
 }: {
   defaultTextStyle: TextStyleSettings | undefined;
   onSavedDefaultTextStyle?: (settings: TextStyleSettings | undefined) => void;
+  onResetDefaultTextStyle?: () => void;
 }) => {
   const [textStyle, setTextStyle] = useState<TextStyleSettings>(
     defaultTextStyle || {},
@@ -52,7 +54,7 @@ export const TextStyleSection = ({
     setIsSaving(true);
     setTextStyle({});
     await removeDefaultTextStyleSettings();
-    onSavedDefaultTextStyle?.(undefined);
+    onResetDefaultTextStyle?.();
     setIsSaving(false);
   };
 

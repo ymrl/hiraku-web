@@ -2,11 +2,11 @@ import { createI18n } from "@wxt-dev/i18n";
 import { useCallback, useRef, useState } from "react";
 import { ContentUI } from "@/components/ContentUI";
 import { LandmarkNavigation } from "@/components/LandmarkNavigation";
-import { TextCSS } from "@/components/TextCSS";
 import { SpeakerContext, useSpeaker } from "@/Speech";
 import {
   isAnyTextStyleSettingsSaved,
   loadDefaultTextStyleSettings,
+  loadHostTextStyle,
   loadUserInterfaceSettings,
   saveHostTextStyle,
 } from "@/storage";
@@ -32,10 +32,20 @@ function App({ rootRef }: { rootRef: React.RefObject<HTMLElement | null> }) {
     TextStyleSettings | undefined
   >(undefined);
 
+  const [hostTextStyle, setHostTextStyle] = useState<
+    TextStyleSettings | undefined
+  >(undefined);
+
   const initDefaultSettings = useCallback(async () => {
-    const result = await loadDefaultTextStyleSettings();
-    if (result) {
-      setDefaultTextStyle(result);
+    const defaultStyleResult = await loadDefaultTextStyleSettings();
+    const hostStyleResult = await loadHostTextStyle(window.location.hostname, {
+      withoutDefault: true,
+    });
+    if (defaultStyleResult) {
+      setDefaultTextStyle(defaultStyleResult);
+    }
+    if (hostStyleResult) {
+      setHostTextStyle(hostStyleResult);
     }
   }, []);
 
@@ -87,14 +97,21 @@ function App({ rootRef }: { rootRef: React.RefObject<HTMLElement | null> }) {
 
               <TextStyleSection
                 defaultTextStyle={defaultTextStyle}
-                onSavedDefaultTextStyle={(settings) => {
-                  setDefaultTextStyle(settings);
-                  const hostSettings = {
-                    ...textStyleValues.currentTextStyle,
-                    ...settings,
-                  };
-                  textStyleValues.updateCurrentTextStyle(hostSettings);
-                  saveHostTextStyle(window.location.hostname, hostSettings);
+                onSavedDefaultTextStyle={async (settings) => {
+                  await setDefaultTextStyle(settings);
+                  if (hostTextStyle) {
+                    const style = {
+                      ...hostTextStyle,
+                      ...settings,
+                    };
+                    setHostTextStyle(style);
+                    await saveHostTextStyle(window.location.hostname, style);
+                  }
+                  await textStyleValues.load(window.location.hostname);
+                }}
+                onResetDefaultTextStyle={async () => {
+                  await setDefaultTextStyle(undefined);
+                  await textStyleValues.load(window.location.hostname);
                 }}
               />
 
@@ -111,7 +128,6 @@ function App({ rootRef }: { rootRef: React.RefObject<HTMLElement | null> }) {
             userIntefaceSettings={userInterfaceSettings}
           />
           <LandmarkNavigation rootRef={rootRef} />
-          <TextCSS settings={defaultTextStyle || {}} />
           <Speaker />
           <TextStyleTweaker />
         </TextStyleContext>
